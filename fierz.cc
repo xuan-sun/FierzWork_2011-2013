@@ -34,11 +34,18 @@
 #include 	 <TTree.h>
 #include	 <TChain.h>
 #include	 <TVector.h>
+#include	 <vector>
+#include	 <utility>
 using		 namespace std;
+using	std::vector;
+using	std::pair;
 
-void ExtractA(TString dataPath, Int_t octetNum, Int_t structType, TString analysisChoice, vector < pair <string, int> > octetList);
-vector < pair < string, int > >  LoadOctetList(TString fileName);
+//void ExtractA(TString dataPath, Int_t octetNum, Int_t structType, TString analysisChoice, vector < pair <string, int> > octetList);
+vector < pair <string,int> >  LoadOctetList(TString fileName);
+vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath);
+vector < double > GetLiveTimes(vector <TChain*> runsChains);
 
+// these are actual beta run indices
 const int index_A2 = 0;
 const int index_A5 = 1;
 const int index_A7 = 2;
@@ -48,53 +55,53 @@ const int index_B5 = 5;
 const int index_B7 = 6;
 const int index_B10 = 7;
 
-struct ProcEvent
-{
-  Int_t pid;
-  Int_t side;
-  Int_t type;
-  Double_t Er;
-};
+// these are the background runs
+// they correspond to beta run index + 8
+const int index_A1 = 8;
+const int index_A4 = 9;
+const int index_A9 = 10;
+const int index_A12 = 11;
+const int index_B1 = 12;
+const int index_B4 = 13;
+const int index_B9 = 14;
+const int index_B12 = 15;
 
-struct PureEvent
+struct Event
 {
-  Int_t eventID;
-  Int_t ptclSpecies;
-  Int_t type;
-  Double_t ke;
-  Double_t theta;
-  Double_t hitTimes[2];
-  Double_t edepScint[2];
-  Double_t edepWC[2];
-};
+  double Erecon;
+  int side;
+  int type;
+  int eventNum;
+  double time;
+  double tE;
+  double tW;
 
+};
 
 int main(int argc, char* argv[])
 {
-  if(argc < 6)
+  if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (data folder) (octet lists path) (octet #) (analysis choice) (13 = pure; 20 = processed)" << endl;
+    cout << "(executable) (octet #)" << endl;
     return 0;
   }
 
   // read in arguments. Pass it a /Data/ folder and number of TChains to store
-  Int_t inputType = atoi(argv[5]);
-  Int_t octNb = atoi(argv[3]);
-  TString choice = argv[4];
-  TString pathRuns = argv[1];
-  TString pathLists = argv[2];
+  Int_t octNb = atoi(argv[1]);
 
-  vector < pair < string, int > > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", pathLists.Data(), octNb));
+  vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
 
-  ExtractA(pathRuns, octNb, inputType, choice, octetIndices);
-  
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "Data/Octet40/");
+
+  vector < double > liveTimes = GetLiveTimes(runFiles);
+
   octetIndices.clear();	// empty the vector after you're done to avoid memory problems.
 
   return 0;
 }
 
-vector < pair < string, int > >  LoadOctetList(TString fileName)
+vector < pair <string,int> >  LoadOctetList(TString fileName)
 {
   string buf;
   ifstream infile;
@@ -105,7 +112,7 @@ vector < pair < string, int > >  LoadOctetList(TString fileName)
     cout << "Problem opening " << fileName << endl;
 
   string runType;
-  int octetIndex;
+  int runIndex;
   vector <pair <string, int> > pairs;
 
   while(getline(infile, buf))
@@ -113,38 +120,71 @@ vector < pair < string, int > >  LoadOctetList(TString fileName)
     istringstream bufstream(buf);
     if(!bufstream.eof())
     {
-      bufstream >> runType >> octetIndex;
+      bufstream >> runType >> runIndex;
       if(runType == "A2")
       {
-        pairs.push_back(make_pair("A2", octetIndex));
+        pairs.push_back(make_pair("A2", runIndex));
       }
       else if(runType == "A5")
       {
-        pairs.push_back(make_pair("A5", octetIndex));
+        pairs.push_back(make_pair("A5", runIndex));
       }
       else if(runType == "A7")
       {
-        pairs.push_back(make_pair("A7", octetIndex));
+        pairs.push_back(make_pair("A7", runIndex));
       }
       else if(runType == "A10")
       {
-        pairs.push_back(make_pair("A10", octetIndex));
+        pairs.push_back(make_pair("A10", runIndex));
       }
       else if(runType == "B2")
       {
-        pairs.push_back(make_pair("B2", octetIndex));
+        pairs.push_back(make_pair("B2", runIndex));
       }
       else if(runType == "B5")
       {
-        pairs.push_back(make_pair("B5", octetIndex));
+        pairs.push_back(make_pair("B5", runIndex));
       }
       else if(runType == "B7")
       {
-        pairs.push_back(make_pair("B7", octetIndex));
+        pairs.push_back(make_pair("B7", runIndex));
       }
       else if(runType == "B10")
       {
-        pairs.push_back(make_pair("B10", octetIndex));
+        pairs.push_back(make_pair("B10", runIndex));
+      }
+      // Save the background runs as well
+      else if(runType == "A1")
+      {
+	pairs.push_back(make_pair("A1", runIndex));
+      }
+      else if(runType == "A4")
+      {
+        pairs.push_back(make_pair("A4", runIndex));
+      }
+      else if(runType == "A9")
+      {
+        pairs.push_back(make_pair("A9", runIndex));
+      }
+      else if(runType == "A12")
+      {
+        pairs.push_back(make_pair("A12", runIndex));
+      }
+      else if(runType == "B1")
+      {
+        pairs.push_back(make_pair("B1", runIndex));
+      }
+      else if(runType == "B4")
+      {
+        pairs.push_back(make_pair("B4", runIndex));
+      }
+      else if(runType == "B9")
+      {
+        pairs.push_back(make_pair("B9", runIndex));
+      }
+      else if(runType == "B12")
+      {
+        pairs.push_back(make_pair("B12", runIndex));
       }
     }
   }
@@ -154,6 +194,114 @@ vector < pair < string, int > >  LoadOctetList(TString fileName)
   return pairs;
 }
 
+vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath)
+{
+  vector < TChain* > runs;
+
+  for(unsigned int i = 0; i < octetList.size(); i++)
+  {
+    runs.push_back(new TChain("pass3"));
+  }
+
+  for(unsigned int l = 0; l < octetList.size(); l++)
+  {
+    if(octetList[l].first == "A2")
+    {
+      runs[index_A2] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A5")
+    {
+      runs[index_A5] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A7")
+    {
+      runs[index_A7] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A10")
+    {
+      runs[index_A10] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B2")
+    {
+      runs[index_B2] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B5")
+    {
+      runs[index_B5] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B7")
+    {
+      runs[index_B7] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B10")
+    {
+      runs[index_B10] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A1")
+    {
+      runs[index_A1] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A4")
+    {
+      runs[index_A4] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A9")
+    {
+      runs[index_A9] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "A12")
+    {
+      runs[index_A12] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B1")
+    {
+      runs[index_B1] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B4")
+    {
+      runs[index_B4] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B9")
+    {
+      runs[index_B9] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+    else if(octetList[l].first == "B12")
+    {
+      runs[index_B12] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
+    }
+  }
+
+  return runs;
+}
+
+vector < double > GetLiveTimes(vector <TChain*> runsChains)
+{
+  Event evt;
+
+  for(unsigned int i = 0; i < runsChains.size(); i++)
+  {
+    runsChains[i] -> SetBranchAddress("EvtN", &evt.eventNum);
+
+
+  }
+
+  for(unsigned int i = 0; i < runsChains[0]->GetEntriesFast(); i++)
+  {
+    runsChains[0]->GetEntry(i);
+    cout << "Event number is " << evt.eventNum << endl;
+
+  }
+
+
+  vector <double> liveTimes;
+
+  return liveTimes;
+
+}
+
+
+
+/*
 void ExtractA(TString dataPath, Int_t octetNum, Int_t structType, TString analysisChoice, vector < pair <string, int> > octetList)
 {
   // create vectors to store event objects, chains to read in files, histograms to store Erecon values
@@ -476,3 +624,4 @@ void ExtractA(TString dataPath, Int_t octetNum, Int_t structType, TString analys
 
 }
 
+*/
