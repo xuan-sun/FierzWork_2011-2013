@@ -36,14 +36,29 @@
 #include	 <TVector.h>
 #include	 <vector>
 #include	 <utility>
+#include	 <TLeaf.h>
 using		 namespace std;
-using	std::vector;
-using	std::pair;
+
+struct Event
+{
+  double Erecon;
+  int side;
+  int type;
+  int eventNum;
+  double time;
+  double tE;
+  double tW;
+  int pid;
+  double xEastPos;
+  double yEastPos;
+  double xWestPos;
+  double yWestPos;
+};
 
 //void ExtractA(TString dataPath, Int_t octetNum, Int_t structType, TString analysisChoice, vector < pair <string, int> > octetList);
 vector < pair <string,int> >  LoadOctetList(TString fileName);
 vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath);
-vector < double > GetLiveTimes(vector <TChain*> runsChains);
+vector < Event* > ReadInTreeValues(vector <TChain*> runsChains);
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -66,17 +81,6 @@ const int index_B4 = 13;
 const int index_B9 = 14;
 const int index_B12 = 15;
 
-struct Event
-{
-  double Erecon;
-  int side;
-  int type;
-  int eventNum;
-  double time;
-  double tE;
-  double tW;
-
-};
 
 int main(int argc, char* argv[])
 {
@@ -87,16 +91,21 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  // read in arguments. Pass it a /Data/ folder and number of TChains to store
+  // read in arguments.
   Int_t octNb = atoi(argv[1]);
 
+  // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
-
+  // Points TChains at the run files idenified in the octet lists above
   vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "Data/Octet40/");
+  // Saves the relevant data from each TChain in a vector of Events and returns it.
+  vector < Event* > data = ReadInTreeValues(runFiles);
 
-  vector < double > liveTimes = GetLiveTimes(runFiles);
+
+
 
   octetIndices.clear();	// empty the vector after you're done to avoid memory problems.
+  cout << "-------------- End of program. -------------" << endl;
 
   return 0;
 }
@@ -274,29 +283,38 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
   return runs;
 }
 
-vector < double > GetLiveTimes(vector <TChain*> runsChains)
+vector < Event* > ReadInTreeValues(vector <TChain*> runsChains)
 {
-  Event evt;
+  // reminder: each evt[i] index corresponds to the indices noted at global scope.
+  vector <Event*> evt;
 
   for(unsigned int i = 0; i < runsChains.size(); i++)
   {
-    runsChains[i] -> SetBranchAddress("EvtN", &evt.eventNum);
+    evt.push_back(new Event);
+    runsChains[i]->SetBranchAddress("EvtN", &evt[i]->eventNum);
+    runsChains[i]->SetBranchAddress("Time", &evt[i]->time);
+    runsChains[i]->SetBranchAddress("TimeE", &evt[i]->tE);
+    runsChains[i]->SetBranchAddress("TimeW", &evt[i]->tW);
+    runsChains[i]->SetBranchAddress("Side", &evt[i]->side);
+    runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
+    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
+    runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
 
+    // this additional syntax is needed to get the right leaf inside branch inside tree named "pass3"
+    runsChains[i]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt[i]->xEastPos);
+    runsChains[i]->GetBranch("yE")->GetLeaf("center")->SetAddress(&evt[i]->yEastPos);
+    runsChains[i]->GetBranch("xW")->GetLeaf("center")->SetAddress(&evt[i]->xWestPos);
+    runsChains[i]->GetBranch("yW")->GetLeaf("center")->SetAddress(&evt[i]->yWestPos);
 
   }
 
   for(unsigned int i = 0; i < runsChains[0]->GetEntriesFast(); i++)
   {
     runsChains[0]->GetEntry(i);
-    cout << "Event number is " << evt.eventNum << endl;
 
   }
 
-
-  vector <double> liveTimes;
-
-  return liveTimes;
-
+  return evt;
 }
 
 
