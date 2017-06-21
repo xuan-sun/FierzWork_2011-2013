@@ -39,4 +39,4 @@ BetaSpectrum.o: BetaSpectrum.hh
 #	@echo "$@ done"
 
 clean:
-		@rm -f *.o *~  core $(SOURCE)
+		@rm -f *.o *~  core $(SOURCE) *.pdf

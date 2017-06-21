@@ -55,10 +55,16 @@ struct Event
   double yWestPos;
 };
 
+// forward declarations for useful functions
 //void ExtractA(TString dataPath, Int_t octetNum, Int_t structType, TString analysisChoice, vector < pair <string, int> > octetList);
 vector < pair <string,int> >  LoadOctetList(TString fileName);
 vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath);
-vector < Event* > ReadInTreeValues(vector <TChain*> runsChains);
+vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains);
+TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates);
+
+// plotting functions
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
+
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -81,9 +87,18 @@ const int index_B4 = 13;
 const int index_B9 = 14;
 const int index_B12 = 15;
 
+// Used for visualization, keeps the graph on screen.
+TApplication plot_program("FADC_readin",0,0,0,0);
+
+//-------------------------------------------------//
+//------------ Start of Program -------------------//
+//-------------------------------------------------//
 
 int main(int argc, char* argv[])
 {
+  // creating canvas for plotting
+  TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
+
   if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
@@ -98,14 +113,25 @@ int main(int argc, char* argv[])
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
   vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "Data/Octet40/");
-  // Saves the relevant data from each TChain in a vector of Events and returns it.
-  vector < Event* > data = ReadInTreeValues(runFiles);
+  // load all the histograms of east and west, turn them into rates.
+  vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
 
+  // Begin processing the read in data now
+  TH1D* SS_Erecon = CreateSuperSum(rates);
+
+
+  // rates[side][run type]
+  PlotHist(C, 1, 1, rates[0][index_A4], "", "");
 
 
   octetIndices.clear();	// empty the vector after you're done to avoid memory problems.
-  cout << "-------------- End of program. -------------" << endl;
+
+
+  // Save our plot and print it out as a pdf.
+  C -> Print("fierz.pdf");
+  cout << "-------------- End of Program ---------------" << endl;
+  plot_program.Run();
 
   return 0;
 }
@@ -283,14 +309,22 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
   return runs;
 }
 
-vector < Event* > ReadInTreeValues(vector <TChain*> runsChains)
+vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 {
   // reminder: each evt[i] index corresponds to the indices noted at global scope.
   vector <Event*> evt;
 
+  vector < vector <TH1D*> > rateHists;
+
+  vector <TH1D*> rateHistsEast;
+  vector <TH1D*> rateHistsWest;
+
   for(unsigned int i = 0; i < runsChains.size(); i++)
   {
     evt.push_back(new Event);
+    rateHistsEast.push_back(new TH1D(TString::Format("East Rate %i", i), "East Rate", 120, 0, 1200));
+    rateHistsWest.push_back(new TH1D(TString::Format("West Rate %i", i), "West Rate", 120, 0, 1200));
+
     runsChains[i]->SetBranchAddress("EvtN", &evt[i]->eventNum);
     runsChains[i]->SetBranchAddress("Time", &evt[i]->time);
     runsChains[i]->SetBranchAddress("TimeE", &evt[i]->tE);
@@ -305,16 +339,95 @@ vector < Event* > ReadInTreeValues(vector <TChain*> runsChains)
     runsChains[i]->GetBranch("yE")->GetLeaf("center")->SetAddress(&evt[i]->yEastPos);
     runsChains[i]->GetBranch("xW")->GetLeaf("center")->SetAddress(&evt[i]->xWestPos);
     runsChains[i]->GetBranch("yW")->GetLeaf("center")->SetAddress(&evt[i]->yWestPos);
-
   }
 
-  for(unsigned int i = 0; i < runsChains[0]->GetEntriesFast(); i++)
+  double liveTimeEast = -1;
+  double liveTimeWest = -1;
+
+  for(unsigned int j = 0; j < runsChains.size(); j++)
   {
-    runsChains[0]->GetEntry(i);
+    for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
+    {
+      runsChains[j]->GetEntry(i);
 
+      if(evt[j]->side == 0)
+      {
+        rateHistsEast[j]->Fill(evt[j]->Erecon);
+      }
+      else if(evt[j]->side == 1)
+      {
+        rateHistsWest[j]->Fill(evt[j]->Erecon);
+      }
+
+      if(i == runsChains[j]->GetEntries() - 1)
+      {
+        liveTimeEast = evt[j]->tE;
+        liveTimeWest = evt[j]->tW;
+      }
+    }
   }
 
-  return evt;
+  // here we loop back over the event histograms in east and west
+  // and scale them down by time of last event aka live time.
+  for(unsigned int i = 0; i < rateHistsEast.size(); i++)
+  {
+    rateHistsEast[i]->Scale(1.0/liveTimeEast);
+  }
+
+  for(unsigned int i = 0; i < rateHistsWest.size(); i++)
+  {
+    rateHistsWest[i]->Scale(1.0/liveTimeWest);
+  }
+
+  rateHists.push_back(rateHistsEast);
+  rateHists.push_back(rateHistsWest);
+
+  return rateHists;
+
+}
+
+TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
+{
+  TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
+
+
+
+
+  return hist;
+}
+
+
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
+{
+  C -> cd(canvasIndex);
+  hPlot -> SetTitle(title);
+  hPlot -> GetXaxis() -> SetTitle("Energy (KeV)");
+  hPlot -> GetXaxis() -> CenterTitle();
+  hPlot -> GetYaxis() -> SetTitle("Rate (Hz)");
+  hPlot -> GetYaxis() -> CenterTitle();
+//  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
+
+  if(styleIndex == 1)
+  {
+    hPlot -> SetFillColor(46);
+    hPlot -> SetFillStyle(3004);
+//    hPlot -> SetFillStyle(3001);
+  }
+  if(styleIndex == 2)
+  {
+    hPlot -> SetFillColor(38);
+    hPlot -> SetFillStyle(3005);
+//    hPlot -> SetFillStyle(3001);
+  }
+  if(styleIndex == 3)
+  {
+    hPlot -> SetFillColor(29);
+//    hPlot -> SetFillStyle(3005);
+    hPlot -> SetFillStyle(3001);
+  }
+
+  hPlot -> Draw(command);
+  C -> Update();
 }
 
 
