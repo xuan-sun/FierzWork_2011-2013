@@ -120,13 +120,7 @@ int main(int argc, char* argv[])
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
 
-
-  // rates[side][run type]
-  PlotHist(C, 1, 1, rates[0][index_A4], "", "");
-
-
-  octetIndices.clear();	// empty the vector after you're done to avoid memory problems.
-
+  PlotHist(C, 1, 1, SS_Erecon, "", "");
 
   // Save our plot and print it out as a pdf.
   C -> Print("fierz.pdf");
@@ -390,8 +384,48 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 {
   TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
 
+  // Do the background subtraction
+  for(unsigned int j = 0; j <= 1; j++)
+  {
+    for(unsigned int i = 0; i < (sideRates[j].size())/2; i++)
+    {
+      sideRates[j][i]->Add(sideRates[j][i], sideRates[j][i+8], 1, -1);
+    }
+  }
 
+  // sum the "like" histograms without any statistical weight
+  TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+  eastPlusRates->Add(sideRates[0][index_A5]);
+  eastPlusRates->Add(sideRates[0][index_A7]);
+  eastPlusRates->Add(sideRates[0][index_B2]);
+  eastPlusRates->Add(sideRates[0][index_B10]);
 
+  TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
+  westPlusRates->Add(sideRates[1][index_A5]);
+  westPlusRates->Add(sideRates[1][index_A7]);
+  westPlusRates->Add(sideRates[1][index_B2]);
+  westPlusRates->Add(sideRates[1][index_B10]);
+
+  TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
+  eastMinusRates->Add(sideRates[0][index_A5]);
+  eastMinusRates->Add(sideRates[0][index_A7]);
+  eastMinusRates->Add(sideRates[0][index_B2]);
+  eastMinusRates->Add(sideRates[0][index_B10]);
+
+  TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
+  westMinusRates->Add(sideRates[1][index_A5]);
+  westMinusRates->Add(sideRates[1][index_A7]);
+  westMinusRates->Add(sideRates[1][index_B2]);
+  westMinusRates->Add(sideRates[1][index_B10]);
+
+  // add the histograms together to create a super sum
+  for(int i = 0; i <= hist->GetNbinsX(); i++)
+  {
+    hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
+			+ sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+  }
+
+  cout << "For testing purposes, GetNbinsX() returns " << hist->GetNbinsX() << endl;
 
   return hist;
 }
