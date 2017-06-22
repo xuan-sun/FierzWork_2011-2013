@@ -1,3 +1,8 @@
 June 20, 2017
 
 Starting a directory to do Fierz-only analysis.
+
+fierz.cc creates a super summed reconstructed energy. The cuts are done in there.
+
+Will need to write code that does as reverse calibration in GEANT4 simulation.
+
