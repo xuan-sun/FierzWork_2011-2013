@@ -116,9 +116,18 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
+  for(int i = 0; i <= 1; i++)
+  {
+    for(int j = 0; j <= rates[i][index_B2]->GetNbinsX(); j++)
+    {
+      cout << "Side " << i << " has rates " << rates[i][index_B2]->GetBinContent(j) << " at bin " << j << endl;
+    }
+  }
+
 
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
+  SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
 
   PlotHist(C, 1, 1, SS_Erecon, "", "");
 
@@ -335,42 +344,44 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     runsChains[i]->GetBranch("yW")->GetLeaf("center")->SetAddress(&evt[i]->yWestPos);
   }
 
-  double liveTimeEast = -1;
-  double liveTimeWest = -1;
+  vector <double> liveTimeEast;
+  vector <double> liveTimeWest;
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-
-      if(evt[j]->side == 0)
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
       {
-        rateHistsEast[j]->Fill(evt[j]->Erecon);
+        if(evt[j]->side == 0)
+        {
+          rateHistsEast[j]->Fill(evt[j]->Erecon);
+        }
+        else if(evt[j]->side == 1)
+        {
+          rateHistsWest[j]->Fill(evt[j]->Erecon);
+        }
       }
-      else if(evt[j]->side == 1)
+      if(i == runsChains[j]->GetEntriesFast() - 1)
       {
-        rateHistsWest[j]->Fill(evt[j]->Erecon);
-      }
-
-      if(i == runsChains[j]->GetEntries() - 1)
-      {
-        liveTimeEast = evt[j]->tE;
-        liveTimeWest = evt[j]->tW;
+        liveTimeEast.push_back(evt[j]->tE);
+        liveTimeWest.push_back(evt[j]->tW);
       }
     }
   }
+
 
   // here we loop back over the event histograms in east and west
   // and scale them down by time of last event aka live time.
   for(unsigned int i = 0; i < rateHistsEast.size(); i++)
   {
-    rateHistsEast[i]->Scale(1.0/liveTimeEast);
+    rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
   }
 
   for(unsigned int i = 0; i < rateHistsWest.size(); i++)
   {
-    rateHistsWest[i]->Scale(1.0/liveTimeWest);
+    rateHistsWest[i]->Scale(1.0/liveTimeWest[i]);
   }
 
   rateHists.push_back(rateHistsEast);
@@ -399,33 +410,43 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   eastPlusRates->Add(sideRates[0][index_A7]);
   eastPlusRates->Add(sideRates[0][index_B2]);
   eastPlusRates->Add(sideRates[0][index_B10]);
+  eastPlusRates->Scale(1.0/4.0);
 
   TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
   westPlusRates->Add(sideRates[1][index_A5]);
   westPlusRates->Add(sideRates[1][index_A7]);
   westPlusRates->Add(sideRates[1][index_B2]);
   westPlusRates->Add(sideRates[1][index_B10]);
+  westPlusRates->Scale(1.0/4.0);
 
   TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
   eastMinusRates->Add(sideRates[0][index_A5]);
   eastMinusRates->Add(sideRates[0][index_A7]);
   eastMinusRates->Add(sideRates[0][index_B2]);
   eastMinusRates->Add(sideRates[0][index_B10]);
+  eastMinusRates->Scale(1.0/4.0);
 
   TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
   westMinusRates->Add(sideRates[1][index_A5]);
   westMinusRates->Add(sideRates[1][index_A7]);
   westMinusRates->Add(sideRates[1][index_B2]);
   westMinusRates->Add(sideRates[1][index_B10]);
+  eastMinusRates->Scale(1.0/4.0);
 
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
-    hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
+    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) < 0)
+	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) < 0))
+    {
+      hist->SetBinContent(i, 0);
+    }
+    else
+    {
+      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
 			+ sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+    }
   }
-
-  cout << "For testing purposes, GetNbinsX() returns " << hist->GetNbinsX() << endl;
 
   return hist;
 }
@@ -437,7 +458,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> SetTitle(title);
   hPlot -> GetXaxis() -> SetTitle("Energy (KeV)");
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("Rate (Hz)");
+  hPlot -> GetYaxis() -> SetTitle("Rate (mHz/KeV)");
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
