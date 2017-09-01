@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o fierz.o
-SOURCE = fierz
+OBJECTS = BetaSpectrum.o ssMCHist.o
+SOURCE = ssMCHist
 
 .PHONY: all
 all: $(SOURCE)

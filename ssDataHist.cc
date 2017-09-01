@@ -95,9 +95,6 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 
 int main(int argc, char* argv[])
 {
-  // creating canvas for plotting
-  TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
-
   if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
@@ -105,16 +102,19 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  // creating canvas for plotting
+  TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
+
   // read in arguments.
   Int_t octNb = atoi(argv[1]);
 
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "Data/Octet40/");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/");
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
-
+/*
   for(int i = 0; i <= 1; i++)
   {
     for(int j = 0; j <= rates[i][index_B2]->GetNbinsX(); j++)
@@ -122,11 +122,13 @@ int main(int argc, char* argv[])
       cout << "Side " << i << " has rates " << rates[i][index_B2]->GetBinContent(j) << " at bin " << j << endl;
     }
   }
+*/
 
-
+  TFile f("realOctet40_ssHist.root", "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
+  SS_Erecon->Write();
 
   PlotHist(C, 1, 1, SS_Erecon, "", "");
 
@@ -364,8 +366,11 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
       }
       if(i == runsChains[j]->GetEntriesFast() - 1)
       {
+        cout << "Do we ever make it to this method???? " << endl;
         liveTimeEast.push_back(evt[j]->tE);
         liveTimeWest.push_back(evt[j]->tW);
+        cout << "Value of tE is " << evt[j]->tE << endl;
+        cout << "Value of tW is " << evt[j]->tW << endl;
       }
     }
   }
