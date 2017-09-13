@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_0");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_inf");
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 /*
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 
   cout << "We all good before the CreateSuperSum() method..." << endl;
 
-  TFile f("MC_A_0_b_0_Octet40_ssHist.root", "RECREATE");
+  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
@@ -126,9 +126,9 @@ int main(int argc, char* argv[])
   PlotHist(C, 1, 1, SS_Erecon, "", "");
 
   // Save our plot and print it out as a pdf.
-  C -> Print("fierz.pdf");
+//  C -> Print("fierz.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
@@ -291,11 +291,11 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
       }
       if(i == runsChains[j]->GetEntriesFast() - 1)
       {
-        cout << "Do we ever get the time of the last event?????" << endl;
+//        cout << "Do we ever get the time of the last event?????" << endl;
         liveTimeEast.push_back(evt[j]->time[0]);
         liveTimeWest.push_back(evt[j]->time[1]);
-        cout << "Value of tE is " << evt[j]->time[0] << endl;
-        cout << "Value of tW is " << evt[j]->time[1] << endl;
+//        cout << "Value of tE is " << evt[j]->time[0] << endl;
+//        cout << "Value of tW is " << evt[j]->time[1] << endl;
       }
     }
   }
@@ -307,7 +307,6 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   {
     rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
   }
-
   for(unsigned int i = 0; i < rateHistsWest.size(); i++)
   {
     rateHistsWest[i]->Scale(1.0/liveTimeWest[i]);

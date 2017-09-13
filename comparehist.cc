@@ -3,17 +3,25 @@
 #define		HIST_IMAGE_PRINTOUT_NAME	"Test_comparehist"
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
-int main()
+int main(int argc, char* argv[])
 {
+  if(argc < 2)
+  {
+    cout << "Error: improper input. Must give:" << endl;
+    cout << "(executable) (octet #)" << endl;
+    return 0;
+  }
+
+  int octNb = atoi(argv[1]);
+
 /*  TString treeName = Form("Evts");
   TChain *MCTheoryChainBeta = MakeTChain("/home/xuansun/Documents/Analysis_Code/ucna_g4_2.1/UCN/UK_EventGen_2016/Evts_Files/b_0_300mill/Evts", treeName, 0, 100, 42);
   TChain *MCTheoryChainFierz = MakeTChain("/home/xuansun/Documents/Analysis_Code/ucna_g4_2.1/UCN/UK_EventGen_2016/Evts_Files/b_inf_100mill/Evts", treeName, 0, 100, 42);
   TChain *dataChain = MakeTChain("/home/xuansun/Documents/Analysis_Code/ucna_g4_2.1/UCN/UK_EventGen_2016/Evts_Files/b_1/Evts", treeName, 30, 31);
   TString variableName = Form("KE");
   TString cutsUsed = Form("");
-*/
 
   // Create a TChain
   TString treeName = Form("SimAnalyzed");
@@ -31,6 +39,17 @@ int main()
                                       "mcBeta", "Test of comparehist code", 100, 0, 1000);
   TH1D* mcTheoryHistFierz = ExtractHistFromChain(variableName, cutsUsed, MCTheoryChainFierz,
                                       "mcFierz", "Test of comparehist code", 100, 0, 1000);
+*/
+
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_noCuts.root", octNb));
+  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist.root", octNb));
+
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+
+
   // Create a TFractionFitter and do the fit.
   TObjArray *MCTheory = new TObjArray(2);
   MCTheory -> Add(mcTheoryHistBeta);
@@ -110,8 +129,21 @@ int main()
   cout << "To compare, the limitation from 100KeV and up is: " << 10.1/sqrt(dataHist->GetEntries()) << endl;
   cout << "Entries used in theoretical limit: " << dataHist->GetEntries() << endl;
 
+  ofstream outfile;
+  outfile.open("ResultsOfAllTFractionFitters_Fierz2011-2012_noCuts.txt", ios::app);
+  outfile << octNb << "\t"
+          << avg_mE << "\t"
+	  << chisquared << "\t"
+	  << ndf << "\t"
+	  << bErr << "\t"
+	  << frac1Val/(frac0Val*avg_mE) << "\t"
+	  << 10.1/sqrt(dataHist->GetEntries()) << "\t"
+	  << dataHist->GetEntries() << "\n";
+  outfile.close();
+
+
   // plot everything and visualize
-  TCanvas *C = new TCanvas("canvas", "canvas");
+/*  TCanvas *C = new TCanvas("canvas", "canvas");
   gROOT->SetStyle("Plain");	//on my computer this sets background to white, finally!
   gStyle->SetOptFit(1111);
   gStyle->SetOptStat("en");
@@ -137,11 +169,11 @@ int main()
   listOfLines->Add(myText5);
   // the following line is needed to avoid that the automatic redrawing of stats
   dataHist->SetStats(0);
-
+*/
   // prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("%s.pdf", HIST_IMAGE_PRINTOUT_NAME));
+//  C -> Print(Form("%s.pdf", HIST_IMAGE_PRINTOUT_NAME));
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
