@@ -34,7 +34,7 @@ fi
 
 make
 
-./comparehist $x
+./ssMCHist $x
 
 make clean
 

@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
   }
 */
 
-  TFile f(TString::Format("Octet_%i_ssDataHist_noCuts.root", octNb), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
@@ -349,12 +349,14 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   vector <double> liveTimeEast;
   vector <double> liveTimeWest;
 
+  int totalEventNum = 0;
+
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
       {
         if(evt[j]->side == 0)
         {
@@ -364,6 +366,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
         {
           rateHistsWest[j]->Fill(evt[j]->Erecon);
         }
+	totalEventNum++;
       }
       if(i == runsChains[j]->GetEntriesFast() - 1)
       {
@@ -373,6 +376,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     }
   }
 
+  cout << "The total number of events for this octet is " << totalEventNum << endl;
 
   // here we loop back over the event histograms in east and west
   // and scale them down by time of last event aka live time.
