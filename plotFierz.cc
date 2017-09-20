@@ -60,7 +60,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> SetTitle(title);
   hPlot -> GetXaxis() -> SetTitle("Extracted b");
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("N(b)");
+  hPlot -> GetYaxis() -> SetTitle("N");
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
@@ -84,7 +84,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->SetTitle(title);
   gPlot->GetXaxis()->SetTitle("Octet Number");
   gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle("Fitted b Value");
+  gPlot->GetYaxis()->SetTitle("Extracted b");
   gPlot->GetYaxis()->CenterTitle();
 
   if(styleIndex == 1)
