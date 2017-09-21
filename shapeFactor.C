@@ -7,9 +7,12 @@ shapeFactor(int octNb)
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
 
   hData = (TH1D*)fData.Get("Super sum");
-  hData->Scale(1.0/hData->ComputeIntegral());
+  hData->Scale(1.0/hData->GetBinContent(22));	// choose bin 22 to scale everything down.
   hMCSM = (TH1D*)fMCSM.Get("Super sum");
-  hMCSM->Scale(1.0/hMCSM->ComputeIntegral());
+  hMCSM->Scale(1.0/hMCSM->GetBinContent(22));
+
+//  cout << "Value of ComputeIntegral() for hData is " << hData->ComputeIntegral() << endl;
+//  cout << "Value of ComptuerIntegral() for hMC is " << hMCSM->ComputeIntegral() << endl;
 
   vector <double> energy;
   vector <double> shape;
@@ -17,8 +20,8 @@ shapeFactor(int octNb)
 
   for(int i = 0; i < 100; i++)
   {
-    cout << "At index " << i << " the hData bin contents is " << hData->GetBinContent(i)
-	<< " and the hMCSM bin contents is " << hMCSM->GetBinContent(i) << endl;
+//    cout << "At index " << i << " the hData bin contents is " << hData->GetBinContent(i)
+//	<< " and the hMCSM bin contents is " << hMCSM->GetBinContent(i) << endl;
 
     energy.push_back(hData->GetXaxis()->GetBinCenter(i));
     if(hMCSM->GetBinContent(i) == 0)
@@ -33,8 +36,12 @@ shapeFactor(int octNb)
   }
 
   TGraph *g = new TGraph(numPoints, &(energy[0]), &(shape[0]));
+  g->SetMarkerSize(1);
+  g->SetMarkerStyle(21);
+  g->SetMarkerColor(38);
+  g->GetHistogram()->SetMaximum(0.5);
+  g->GetHistogram()->SetMinimum(-0.5);
   g->Draw("AP");
-
 
 }
 
