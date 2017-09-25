@@ -36,6 +36,7 @@ shapeFactor(int octNb)
   }
 
   TGraph *g = new TGraph(numPoints, &(energy[0]), &(shape[0]));
+  g->SetTitle(Form("Shape Factor for Octet %i", octNb));
   g->SetMarkerSize(1);
   g->SetMarkerStyle(21);
   g->SetMarkerColor(38);
@@ -43,7 +44,7 @@ shapeFactor(int octNb)
   g->GetHistogram()->SetMinimum(-0.1);
   g->Draw("AP");
 
-  C->Print(Form("ShapeFactor_%i.png", octNb));
+  C->Print(Form("ShapeFactor_%i.pdf", octNb));
 
 }
 
