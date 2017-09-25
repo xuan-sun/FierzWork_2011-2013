@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
   TFile f(TString::Format("Octet_%i_ssDataHist_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
-  SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
+//  SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
   SS_Erecon->Write();
 
   PlotHist(C, 1, 1, SS_Erecon, "", "");

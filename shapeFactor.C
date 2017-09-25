@@ -1,5 +1,7 @@
 shapeFactor(int octNb)
 {
+  TCanvas *C = new TCanvas("canvas", "canvas");
+
   TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_noCuts.root", octNb));
   TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
 
@@ -11,22 +13,20 @@ shapeFactor(int octNb)
   hMCSM = (TH1D*)fMCSM.Get("Super sum");
   hMCSM->Scale(1.0/hMCSM->GetBinContent(22));
 
-//  cout << "Value of ComputeIntegral() for hData is " << hData->ComputeIntegral() << endl;
-//  cout << "Value of ComptuerIntegral() for hMC is " << hMCSM->ComputeIntegral() << endl;
-
   vector <double> energy;
+//  vector <double> energyErr;
   vector <double> shape;
+//  vector <double> shapeErr;
   int numPoints = 0;
 
   for(int i = 0; i < 100; i++)
   {
-//    cout << "At index " << i << " the hData bin contents is " << hData->GetBinContent(i)
-//	<< " and the hMCSM bin contents is " << hMCSM->GetBinContent(i) << endl;
-
     energy.push_back(hData->GetXaxis()->GetBinCenter(i));
+//    energyErr.push_back(5);	// error bar of 5 KeV aka half the bin width
     if(hMCSM->GetBinContent(i) == 0)
     {
       shape.push_back(0);
+//      shapeErr.push_back();
     }
     else
     {
@@ -39,9 +39,11 @@ shapeFactor(int octNb)
   g->SetMarkerSize(1);
   g->SetMarkerStyle(21);
   g->SetMarkerColor(38);
-  g->GetHistogram()->SetMaximum(0.5);
-  g->GetHistogram()->SetMinimum(-0.5);
+  g->GetHistogram()->SetMaximum(0.1);
+  g->GetHistogram()->SetMinimum(-0.1);
   g->Draw("AP");
+
+  C->Print(Form("ShapeFactor_%i.png", octNb));
 
 }
 
