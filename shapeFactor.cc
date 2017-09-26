@@ -1,5 +1,69 @@
-shapeFactor(int octNb)
+#include         <iostream>
+#include         <fstream>
+#include         <TGaxis.h>
+#include         <sstream>
+#include         <TGraph.h>
+#include         <TGraphErrors.h>
+#include         <TCanvas.h>
+#include         <TApplication.h>
+#include         <stdlib.h>
+#include         <TF1.h>
+#include         <TH1.h>
+#include         <TProfile.h>
+#include         <TObjArray.h>
+#include         <TStyle.h>
+#include         <TMarker.h>
+#include         <math.h>
+#include         <TStyle.h>
+#include         <TPaveStats.h>
+#include         <TPaveText.h>
+#include         <vector>
+#include         <string.h>
+#include         <fstream>
+#include         <TROOT.h>
+#include         <TFile.h>
+#include         <TLegend.h>
+#include         <TLegendEntry.h>
+#include         <time.h>
+#include         <TH2F.h>
+#include         <assert.h>
+#include         <string>
+#include         <TRandom.h>
+#include         <TTree.h>
+#include         <TChain.h>
+#include         <TVector.h>
+#include         <vector>
+#include         <utility>
+#include         <TLeaf.h>
+using            namespace std;
+
+// Used for visualization, keeps the graph on screen.
+TApplication plot_program("FADC_readin",0,0,0,0);
+
+struct entry
 {
+  int octNb;
+  double avg_mE;
+  double chisquared;
+  double ndf;
+  double bErr;
+  double b;
+  double GluckErr;
+  int entryNum;
+  double numberOfOriginalEvents;
+};
+
+int main(int argc, char* argv[])
+{
+  if(argc < 2)
+  {
+    cout << "Error: improper input. Must give:" << endl;
+    cout << "(executable) (octet #)" << endl;
+    return 0;
+  }
+
+  int octNb = atoi(argv[1]);
+
   TCanvas *C = new TCanvas("canvas", "canvas");
 
   TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_noCuts.root", octNb));
@@ -14,7 +78,7 @@ shapeFactor(int octNb)
   double hDataNorm = 0;
   double hMCNorm = 0;
 
-  for(int i = 0; i < 100; i++)
+  for(int i = 10; i < 65; i++)
   {
     hDataNorm = hDataNorm + hData->GetBinContent(i);
     hMCNorm = hMCNorm + hMCSM->GetBinContent(i);
@@ -22,9 +86,6 @@ shapeFactor(int octNb)
 
   hData->Scale(1.0/hDataNorm);
   hMCSM->Scale(1.0/hMCNorm);
-
-  cout << "Value of DataNorm " << hDataNorm << endl;
-  cout << "Value of MCNorm " << hMCNorm << endl;
 
   vector <double> energy;
   vector <double> energyErr;
@@ -65,7 +126,18 @@ shapeFactor(int octNb)
   g->GetHistogram()->SetMinimum(-0.1);
   g->Draw("AP");
 
+  // extract the fitted b value and plot the shape factor with 'b' on the same graph.
+
+
+
+
+
+
   C->Print(Form("ShapeFactor_%i.pdf", octNb));
 
+  cout << "-------------- End of Program ---------------" << endl;
+  plot_program.Run();
+
+  return 0;
 }
 
