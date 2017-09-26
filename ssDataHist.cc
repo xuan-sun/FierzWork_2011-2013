@@ -114,20 +114,10 @@ int main(int argc, char* argv[])
   vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/");
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
-/*
-  for(int i = 0; i <= 1; i++)
-  {
-    for(int j = 0; j <= rates[i][index_B2]->GetNbinsX(); j++)
-    {
-      cout << "Side " << i << " has rates " << rates[i][index_B2]->GetBinContent(j) << " at bin " << j << endl;
-    }
-  }
-*/
 
   TFile f(TString::Format("Octet_%i_ssDataHist_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
-//  SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
   SS_Erecon->Write();
 
   PlotHist(C, 1, 1, SS_Erecon, "", "");
@@ -426,17 +416,17 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   westPlusRates->Scale(1.0/4.0);
 
   TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
-  eastMinusRates->Add(sideRates[0][index_A5]);
-  eastMinusRates->Add(sideRates[0][index_A7]);
-  eastMinusRates->Add(sideRates[0][index_B2]);
-  eastMinusRates->Add(sideRates[0][index_B10]);
+  eastMinusRates->Add(sideRates[0][index_A2]);
+  eastMinusRates->Add(sideRates[0][index_A10]);
+  eastMinusRates->Add(sideRates[0][index_B5]);
+  eastMinusRates->Add(sideRates[0][index_B7]);
   eastMinusRates->Scale(1.0/4.0);
 
   TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
-  westMinusRates->Add(sideRates[1][index_A5]);
-  westMinusRates->Add(sideRates[1][index_A7]);
-  westMinusRates->Add(sideRates[1][index_B2]);
-  westMinusRates->Add(sideRates[1][index_B10]);
+  westMinusRates->Add(sideRates[1][index_A2]);
+  westMinusRates->Add(sideRates[1][index_A10]);
+  westMinusRates->Add(sideRates[1][index_B5]);
+  westMinusRates->Add(sideRates[1][index_B7]);
   eastMinusRates->Scale(1.0/4.0);
 
   // add the histograms together to create a super sum
@@ -449,8 +439,8 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
     }
     else
     {
-      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
-			+ sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+      hist->SetBinContent(i, 0.5*sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
+			+ 0.5*sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
     }
   }
 

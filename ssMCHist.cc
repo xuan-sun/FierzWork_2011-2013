@@ -76,7 +76,7 @@ const int index_B7 = 6;
 const int index_B10 = 7;
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -103,22 +103,10 @@ int main(int argc, char* argv[])
   vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_0");
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
-/*
-  for(int i = 0; i <= 1; i++)
-  {
-    for(int j = 0; j <= rates[i][index_B2]->GetNbinsX(); j++)
-    {
-      cout << "Side " << i << " has rates " << rates[i][index_B2]->GetBinContent(j) << " at bin " << j << endl;
-    }
-  }
-*/
 
-  cout << "We all good before the CreateSuperSum() method..." << endl;
-
-  TFile f(TString::Format("MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
+  TFile f(TString::Format("MC_A_0_b_0_Octet_%i_ssHist.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
-  SS_Erecon->Scale(1000.0/10.0);	// creates mHz/KeV bins
   SS_Erecon->Write();
 
   cout << "About to plot the histogram now..." << endl;
@@ -278,7 +266,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
       {
         if(evt[j]->side == 0)
         {
@@ -291,11 +279,8 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
       }
       if(i == runsChains[j]->GetEntriesFast() - 1)
       {
-//        cout << "Do we ever get the time of the last event?????" << endl;
         liveTimeEast.push_back(evt[j]->time[0]);
         liveTimeWest.push_back(evt[j]->time[1]);
-//        cout << "Value of tE is " << evt[j]->time[0] << endl;
-//        cout << "Value of tW is " << evt[j]->time[1] << endl;
       }
     }
   }
@@ -329,28 +314,28 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   eastPlusRates->Add(sideRates[0][index_A7]);
   eastPlusRates->Add(sideRates[0][index_B2]);
   eastPlusRates->Add(sideRates[0][index_B10]);
-  eastPlusRates->Scale(1.0/4.0);
+//  eastPlusRates->Scale(1.0/4.0);
 
   TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
   westPlusRates->Add(sideRates[1][index_A5]);
   westPlusRates->Add(sideRates[1][index_A7]);
   westPlusRates->Add(sideRates[1][index_B2]);
   westPlusRates->Add(sideRates[1][index_B10]);
-  westPlusRates->Scale(1.0/4.0);
+//  westPlusRates->Scale(1.0/4.0);
 
   TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
-  eastMinusRates->Add(sideRates[0][index_A5]);
-  eastMinusRates->Add(sideRates[0][index_A7]);
-  eastMinusRates->Add(sideRates[0][index_B2]);
-  eastMinusRates->Add(sideRates[0][index_B10]);
-  eastMinusRates->Scale(1.0/4.0);
+  eastMinusRates->Add(sideRates[0][index_A2]);
+  eastMinusRates->Add(sideRates[0][index_A10]);
+  eastMinusRates->Add(sideRates[0][index_B5]);
+  eastMinusRates->Add(sideRates[0][index_B7]);
+//  eastMinusRates->Scale(1.0/4.0);
 
   TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
-  westMinusRates->Add(sideRates[1][index_A5]);
-  westMinusRates->Add(sideRates[1][index_A7]);
-  westMinusRates->Add(sideRates[1][index_B2]);
-  westMinusRates->Add(sideRates[1][index_B10]);
-  eastMinusRates->Scale(1.0/4.0);
+  westMinusRates->Add(sideRates[1][index_A2]);
+  westMinusRates->Add(sideRates[1][index_A10]);
+  westMinusRates->Add(sideRates[1][index_B5]);
+  westMinusRates->Add(sideRates[1][index_B7]);
+//  eastMinusRates->Scale(1.0/4.0);
 
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
@@ -362,6 +347,10 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
     }
     else
     {
+      if(i == 22)
+      {
+        cout << "Bin contents are " << eastPlusRates->GetBinContent(i) << endl;
+      }
       hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
 			+ sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
     }
