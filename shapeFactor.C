@@ -14,7 +14,7 @@ shapeFactor(int octNb)
   double hDataNorm = 0;
   double hMCNorm = 0;
 
-  for(int i = 10; i < 65; i++)
+  for(int i = 0; i < 100; i++)
   {
     hDataNorm = hDataNorm + hData->GetBinContent(i);
     hMCNorm = hMCNorm + hMCSM->GetBinContent(i);
@@ -22,9 +22,6 @@ shapeFactor(int octNb)
 
   hData->Scale(1.0/hDataNorm);
   hMCSM->Scale(1.0/hMCNorm);
-//  hData->Scale(1.0/hData->GetBinContent(22));
-//  hMCSM->Scale(1.0/hMCSM->GetBinContent(22));
-
 
   cout << "Value of DataNorm " << hDataNorm << endl;
   cout << "Value of MCNorm " << hMCNorm << endl;
@@ -51,9 +48,9 @@ shapeFactor(int octNb)
       shapeValue = (hData->GetBinContent(i) - hMCSM->GetBinContent(i)) / hMCSM->GetBinContent(i);
       shape.push_back(shapeValue);
 
-      cout << "After normalizing, bin contents at " << i << " are now " << hMCSM->GetBinContent(i)*hMCNorm << endl;
 //      estimatedErr = sqrt(2.0)*TMath::Abs(shapeValue)*(1.0/(sqrt(hMCSM->GetBinContent(i))*hMCSM->GetBinContent(22)));
-      estimatedErr = sqrt(2.0)*TMath::Abs(shapeValue)*(1.0 / sqrt(hMCSM->GetBinContent(i) * hMCNorm));
+//      estimatedErr = sqrt(2.0)*TMath::Abs(shapeValue)*(1.0 / sqrt(hMCSM->GetBinContent(i) * hMCNorm));
+      estimatedErr = sqrt(2.0)/sqrt(hMCSM->GetBinContent(i) * hMCNorm);
       shapeErr.push_back(estimatedErr);
     }
     numPoints++;
