@@ -33,7 +33,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./ssMCHist $x
+./shapeFactor $x
 make clean
 
 done

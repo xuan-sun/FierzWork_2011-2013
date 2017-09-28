@@ -35,6 +35,7 @@
 #include         <vector>
 #include         <utility>
 #include         <TLeaf.h>
+#include	 <TLatex.h>
 using            namespace std;
 
 // Used for visualization, keeps the graph on screen.
@@ -42,7 +43,7 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 
 struct entry
 {
-  int octNb;
+  int octetNum;
   double avg_mE;
   double chisquared;
   double ndf;
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
   double hDataNorm = 0;
   double hMCNorm = 0;
 
-  for(int i = 10; i < 65; i++)
+  for(int i = 10; i <= 65; i++)
   {
     hDataNorm = hDataNorm + hData->GetBinContent(i);
     hMCNorm = hMCNorm + hMCSM->GetBinContent(i);
@@ -127,11 +128,80 @@ int main(int argc, char* argv[])
   g->Draw("AP");
 
   // extract the fitted b value and plot the shape factor with 'b' on the same graph.
+  double fierzVal = 0;
+  double mOverE = 0;
+  entry evt;
+
+  TString fileName = "ResultsOfAllTFractionFitters_Fierz2011-2012_noCuts.txt";
+
+  //opens the file that I name in DATA_FILE_IN
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName << endl;
+  infile1.open(fileName);
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> evt.octetNum
+                >> evt.avg_mE
+                >> evt.chisquared
+                >> evt.ndf
+                >> evt.bErr
+                >> evt.b
+                >> evt.GluckErr
+                >> evt.entryNum
+                >> evt.numberOfOriginalEvents;
+      if(evt.octetNum == octNb)
+      {
+        fierzVal = evt.b;
+	mOverE = evt.avg_mE;
+      }
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
 
 
+  vector <double> Sfactor;
+  vector <double> restrictedEnergy;
+  int restrictedNumPoints = 0;
+  double sFierz = 0;
+  for(int i = 10; i <= 65; i++)
+  {
+    sFierz = ( fierzVal*( (511.0 / (511.0 + energy[i])) - mOverE ) ) / (1 + fierzVal*mOverE);
+    Sfactor.push_back(sFierz);
+    restrictedEnergy.push_back(energy[i]);
+    restrictedNumPoints++;
+  }
 
+  TGraph *gb = new TGraph(restrictedNumPoints, &(restrictedEnergy[0]), &(Sfactor[0]));
+  gb -> SetLineWidth(3.0);
+  gb -> SetLineColor(46);
+  gb -> Draw("LSAME");
 
+  TLine *yLow = new TLine(95, -0.1, 95, 0.1);
+  yLow -> SetLineStyle(9);
+  TLine *yHigh = new TLine(645, -0.1, 645, 0.1);
+  yHigh -> SetLineStyle(9);
+  yLow->Draw("SAME");
+  yHigh->Draw("SAME");
 
+  TLatex t;
+  t.SetTextSize(0.03);
+  t.SetTextAlign(13);
+  t.DrawLatex(900, 0.09, Form("b = %f", fierzVal));
 
   C->Print(Form("ShapeFactor_%i.pdf", octNb));
 
