@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o shapeFactor.o
-SOURCE = shapeFactor
+OBJECTS = BetaSpectrum.o ssMCHist.o
+SOURCE = ssMCHist
 
 .PHONY: all
 all: $(SOURCE)
@@ -40,4 +40,4 @@ BetaSpectrum.o: BetaSpectrum.hh
 #	@echo "$@ done"
 
 clean:
-		@rm -f *.o *~  core $(SOURCE) *.pdf
+		@rm -f *.o *~  core $(SOURCE)
