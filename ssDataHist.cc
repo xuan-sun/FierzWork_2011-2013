@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("Octet_%i_ssDataHist_type0.root", octNb), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -346,7 +346,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
       {
         if(evt[j]->side == 0)
         {
@@ -372,11 +372,13 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   // and scale them down by time of last event aka live time.
   for(unsigned int i = 0; i < rateHistsEast.size(); i++)
   {
+    rateHistsEast[i]->Sumw2();
     rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
   }
 
   for(unsigned int i = 0; i < rateHistsWest.size(); i++)
   {
+    rateHistsWest[i]->Sumw2();
     rateHistsWest[i]->Scale(1.0/liveTimeWest[i]);
   }
 
@@ -391,6 +393,8 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 {
   TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
 
+  vector <double> mySetErrors;
+
   // Do the background subtraction
   for(unsigned int j = 0; j <= 1; j++)
   {
@@ -402,6 +406,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 
   // sum the "like" histograms without any statistical weight
   TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+  eastPlusRates->Sumw2();
   eastPlusRates->Add(sideRates[0][index_A5]);
   eastPlusRates->Add(sideRates[0][index_A7]);
   eastPlusRates->Add(sideRates[0][index_B2]);
@@ -409,6 +414,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   eastPlusRates->Scale(1.0/4.0);
 
   TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
+  westPlusRates->Sumw2();
   westPlusRates->Add(sideRates[1][index_A5]);
   westPlusRates->Add(sideRates[1][index_A7]);
   westPlusRates->Add(sideRates[1][index_B2]);
@@ -416,6 +422,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   westPlusRates->Scale(1.0/4.0);
 
   TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
+  eastMinusRates->Sumw2();
   eastMinusRates->Add(sideRates[0][index_A2]);
   eastMinusRates->Add(sideRates[0][index_A10]);
   eastMinusRates->Add(sideRates[0][index_B5]);
@@ -423,12 +430,14 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   eastMinusRates->Scale(1.0/4.0);
 
   TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
+  westMinusRates->Sumw2();
   westMinusRates->Add(sideRates[1][index_A2]);
   westMinusRates->Add(sideRates[1][index_A10]);
   westMinusRates->Add(sideRates[1][index_B5]);
   westMinusRates->Add(sideRates[1][index_B7]);
   eastMinusRates->Scale(1.0/4.0);
 
+  double errorValueEachBin = 0;
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
@@ -436,13 +445,34 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) < 0))
     {
       hist->SetBinContent(i, 0);
+      mySetErrors.push_back(0);
     }
     else
     {
-      hist->SetBinContent(i, 0.5*sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
-			+ 0.5*sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
+                        + sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+
+      if(eastPlusRates->GetBinContent(i) == 0 || westMinusRates->GetBinContent(i) == 0
+        || eastMinusRates->GetBinContent(i) == 0 || westPlusRates->GetBinContent(i) == 0)
+      {
+        errorValueEachBin = 0;
+      }
+      else
+      {
+        errorValueEachBin = sqrt( 0.25*westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
+                                *eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i)
+                          + 0.25*eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
+                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i)
+                          + 0.25*westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
+                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i)
+                          + 0.25*eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
+                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i) );
+      }
+      mySetErrors.push_back(errorValueEachBin);
     }
   }
+
+  hist->SetError(&(mySetErrors[0]));
 
   return hist;
 }

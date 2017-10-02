@@ -1,0 +1,337 @@
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_0.dat
+The total number of events for this octet is 482555
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_2.dat
+The total number of events for this octet is 444940
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_3.dat
+The total number of events for this octet is 322625
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_4.dat
+The total number of events for this octet is 265835
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_5.dat
+The total number of events for this octet is 671342
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_6.dat
+The total number of events for this octet is 668560
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_7.dat
+The total number of events for this octet is 660213
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_8.dat
+The total number of events for this octet is 575798
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_10.dat
+The total number of events for this octet is 583632
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_11.dat
+The total number of events for this octet is 524436
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_12.dat
+The total number of events for this octet is 544623
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_13.dat
+The total number of events for this octet is 585393
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_14.dat
+The total number of events for this octet is 592374
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_15.dat
+The total number of events for this octet is 761455
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_16.dat
+The total number of events for this octet is 720474
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_17.dat
+The total number of events for this octet is 707331
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_18.dat
+The total number of events for this octet is 711018
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_19.dat
+The total number of events for this octet is 699157
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_20.dat
+The total number of events for this octet is 755839
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_21.dat
+The total number of events for this octet is 752136
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_22.dat
+The total number of events for this octet is 764424
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_23.dat
+The total number of events for this octet is 284367
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_24.dat
+The total number of events for this octet is 750033
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_25.dat
+The total number of events for this octet is 680125
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_26.dat
+The total number of events for this octet is 750511
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_27.dat
+The total number of events for this octet is 692463
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_28.dat
+The total number of events for this octet is 349003
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_29.dat
+The total number of events for this octet is 767423
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_30.dat
+The total number of events for this octet is 516052
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_31.dat
+The total number of events for this octet is 687108
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_32.dat
+The total number of events for this octet is 992008
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_33.dat
+The total number of events for this octet is 918687
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_34.dat
+The total number of events for this octet is 931988
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_35.dat
+The total number of events for this octet is 950698
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_36.dat
+The total number of events for this octet is 962690
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_37.dat
+The total number of events for this octet is 968154
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_39.dat
+The total number of events for this octet is 551521
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_40.dat
+The total number of events for this octet is 905884
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_41.dat
+The total number of events for this octet is 690438
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_42.dat
+The total number of events for this octet is 909446
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_43.dat
+The total number of events for this octet is 891185
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_44.dat
+The total number of events for this octet is 912115
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_45.dat
+The total number of events for this octet is 851793
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_46.dat
+The total number of events for this octet is 715193
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_47.dat
+The total number of events for this octet is 703329
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_48.dat
+The total number of events for this octet is 730711
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_49.dat
+The total number of events for this octet is 723681
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_50.dat
+The total number of events for this octet is 527868
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_51.dat
+The total number of events for this octet is 539548
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_52.dat
+The total number of events for this octet is 780503
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_53.dat
+The total number of events for this octet is 752325
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_54.dat
+The total number of events for this octet is 724208
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_55.dat
+The total number of events for this octet is 681476
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_56.dat
+The total number of events for this octet is 707863
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_57.dat
+The total number of events for this octet is 743075
+-------------- End of Program ---------------
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o BetaSpectrum.o BetaSpectrum.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include   -c -o ssDataHist.o ssDataHist.cc
+g++  -O2 -Wall -fPIC -pthread -m64 -I/home/xuansun/ROOT/root-build/include -o ssDataHist BetaSpectrum.o ssDataHist.o -L/home/xuansun/ROOT/root-build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -L/home/xuansun/ROOT/root-build/lib -lGui -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lSpectrum -lMinuit
+The file being opened is: OctetLists/octet_list_58.dat
+The total number of events for this octet is 732316
+-------------- End of Program ---------------
+Done running bash script
