@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
                                       "mcFierz", "Test of comparehist code", 100, 0, 1000);
 */
 
-  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_noCuts.root", octNb));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
   TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
   TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist.root", octNb));
 
@@ -63,10 +63,10 @@ int main(int argc, char* argv[])
   int status = fit->Fit();
 
   int fitPassNumber = 1;
-  double value = 1.19;
+  double value = 1.69;
   int entries = -100;
   int entriesData = -100;
-  while(status != 0)
+  while(status != 0 || isnan(fit->GetChisquare()))
   {
     cout << "Fit unsuccessful at attempt number " << fitPassNumber << ". Trying again..." << endl;
 
@@ -94,10 +94,10 @@ int main(int argc, char* argv[])
         // do nothing, continue the iteration and check the next value
       }
     }
-    value = value - 0.05;     // try again with a seed value slightly lower
+    value = value - 0.025;     // try again with a seed value slightly lower
     fitPassNumber++;
 
-    if(value < 0.5)
+    if(value < -0.5)
     {
       cout << "Fit not successful at lowest boundary of fraction values. Exiting." << endl;
       break;
@@ -127,13 +127,13 @@ int main(int argc, char* argv[])
   cout << "Entries used in theoretical limit: " << dataHist->GetEntries() << endl;
 
   ofstream outfile;
-  outfile.open("ResultsOfAllTFractionFitters_Fierz2011-2012_noCuts.txt", ios::app);
+  outfile.open("ExtractedbValues_comparehist.txt", ios::app);
   outfile << octNb << "\t"
+	  << frac1Val/(frac0Val*avg_mE) << "\t"
           << avg_mE << "\t"
 	  << chisquared << "\t"
 	  << ndf << "\t"
 	  << bErr << "\t"
-	  << frac1Val/(frac0Val*avg_mE) << "\t"
 	  << 10.1/sqrt(dataHist->GetEntries()) << "\t"
 	  << dataHist->GetEntries() << "\t"
 	  << entries << "\n";

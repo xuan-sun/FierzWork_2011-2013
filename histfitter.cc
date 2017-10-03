@@ -1,10 +1,20 @@
 #include	"comparehist.hh"
 
 #define		HIST_IMAGE_PRINTOUT_NAME	"Test_master_histfitter"
-#define		OUTPUT_ANALYSIS_FILE		"AnalyzedTextFiles/b_0_SimProcessed_noTwiddles_100keV-650keV_firstPass_forStatError.txt"
+#define		OUTPUT_ANALYSIS_FILE		"ResultsFractionFitter_bValuesCorrectedErrors.txt"
 
-int main()
+int main(int argc, char* argv[])
 {
+  if(argc < 2)
+  {
+    cout << "Error: improper input. Must give:" << endl;
+    cout << "(executable) (octet #)" << endl;
+    return 0;
+  }
+
+  int octNb = atoi(argv[1]);
+
+/*
   TString treeName = Form("SimAnalyzed");
   TChain *MCTheoryChainBeta = MakeTChain("Data/BigSims_b_xsunCode/SimAnalyzed_2010_Beta_paramSet", treeName, 0, 100, 42);
   TChain *MCTheoryChainFierz = MakeTChain("Data/BigSims_b_xsunCode/SimAnalyzed_2010_Beta_fierz_paramSet", treeName, 0, 100, 42);
@@ -18,6 +28,15 @@ int main()
   TH1D* mcTheoryHistFierz = ExtractHistFromChain(variableName, cutsUsed, MCTheoryChainFierz,
                                       "mcFierz", "Fierz", 100, 0, 1000);
   TH1D* dataHist = ExtractHistFromChain(variableName, cutsUsed, dataChain, "myHist", "Data", 100, 0, 1000);
+*/
+
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
+  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist.root", octNb));
+
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
   TObjArray *MCTheory = new TObjArray(2);
   MCTheory -> Add(mcTheoryHistBeta);
@@ -63,7 +82,7 @@ int main()
     value = value - 0.05;	// try again with a seed value slightly lower
     fitPassNumber++;
 
-    if(value < 0.5)
+    if(value < 0)
     {
       cout << "Fit not successful at lowest boundary of fraction values. Exiting." << endl;
       break;
@@ -82,15 +101,16 @@ int main()
 
   ofstream outfile;
   outfile.open(OUTPUT_ANALYSIS_FILE, ios::app);
-  outfile << frac1Val/(frac0Val*avg_mE) << "\t"
+  outfile << octNb << "\t"
+	  << frac1Val/(frac0Val*avg_mE) << "\t"
 	  << avg_mE << "\t"
 	  << Fierz_b_Error(frac0Val, frac0Err, frac1Val, frac1Err, avg_mE,
                               vfit->GetCovarianceMatrixElement(0,0), vfit->GetCovarianceMatrixElement(0,1),
                               vfit->GetCovarianceMatrixElement(1,0), vfit->GetCovarianceMatrixElement(1,1) ) << "\t"
           << fitMin << "\t" << fitMax << "\t"
 	  << entries << "\t"
-          << "SimAnalyzed_2010_Beta_paramSet_" << 42 << "_" << ReplaceWithIndexLow << ".root" << "\t"
-	  << ReplaceWithIndexLow << "\t"
+//          << "SimAnalyzed_2010_Beta_paramSet_" << 42 << "_" << ReplaceWithIndexLow << ".root" << "\t"
+//	  << ReplaceWithIndexLow << "\t"
 	  << chisquared << "\t"
 	  << ndf << "\t"
 	  << chisquared/ndf << "\n";
