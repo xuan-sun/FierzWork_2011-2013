@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   TObjArray *MCTheory = new TObjArray(2);
   MCTheory -> Add(mcTheoryHistBeta);
   MCTheory -> Add(mcTheoryHistFierz);
-  TFractionFitter* fit = new TFractionFitter(dataHist, MCTheory, "V");	// initialise
+  TFractionFitter* fit = new TFractionFitter(dataHist, MCTheory, "Q");	// initialise
   TVirtualFitter* vfit = fit->GetFitter();
   int fitMin = 10;
   int fitMax = 65;
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
         entries = entries + resultHist->GetBinContent(i);
         entriesData = entriesData + dataHist->GetBinContent(i);
       }
-      if(entries > 0)
+      if(entries > 1000)
       {
         break;    // get out of our fitter loop if fit successful AND the results plot makes sense
       }
@@ -94,11 +94,8 @@ int main(int argc, char* argv[])
         // do nothing, continue the iteration and check the next value
       }
     }
-    else
-    {
-      value = value - 0.05;     // try again with a seed value slightly lower
-      fitPassNumber++;
-    }
+    value = value - 0.05;     // try again with a seed value slightly lower
+    fitPassNumber++;
 
     if(value < 0.5)
     {
@@ -138,7 +135,8 @@ int main(int argc, char* argv[])
 	  << bErr << "\t"
 	  << frac1Val/(frac0Val*avg_mE) << "\t"
 	  << 10.1/sqrt(dataHist->GetEntries()) << "\t"
-	  << dataHist->GetEntries() << "\n";
+	  << dataHist->GetEntries() << "\t"
+	  << entries << "\n";
   outfile.close();
 
 
