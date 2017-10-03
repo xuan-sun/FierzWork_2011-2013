@@ -85,14 +85,6 @@ int main(int argc, char* argv[])
         entries = entries + resultHist->GetBinContent(i);
         entriesData = entriesData + dataHist->GetBinContent(i);
       }
-      if(entries > 1000)
-      {
-        break;    // get out of our fitter loop if fit successful AND the results plot makes sense
-      }
-      else if(entries <= 0)
-      {
-        // do nothing, continue the iteration and check the next value
-      }
     }
     value = value - 0.025;     // try again with a seed value slightly lower
     fitPassNumber++;
@@ -104,6 +96,7 @@ int main(int argc, char* argv[])
     }
   }
 
+  cout << "Octet number we are currently on: " << octNb << endl;
 
   cout << "Number events in fitted histogram (blue): " << entries << endl;
   cout << "Number events in data histogram (red): " << entriesData << endl;
