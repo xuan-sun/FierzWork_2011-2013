@@ -39,7 +39,7 @@
 using            namespace std;
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 struct entry
 {
@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
 
+  // note: ->Sumw2() not needed because I saved histograms with ->Sumw2() in these .root files I'm opening.
   hData = (TH1D*)fData.Get("Super sum");
   hMCSM = (TH1D*)fMCSM.Get("Super sum");
 
@@ -101,7 +102,7 @@ int main(int argc, char* argv[])
   {
     energy.push_back(hData->GetXaxis()->GetBinCenter(i));
     energyErr.push_back(5);	// error bar of 5 KeV aka half the bin width
-    if(hMCSM->GetBinContent(i) == 0)
+    if(hMCSM->GetBinContent(i) == 0 || hData->GetBinContent(i) == 0)
     {
       shape.push_back(0);
       shapeErr.push_back(0);
@@ -111,9 +112,10 @@ int main(int argc, char* argv[])
       shapeValue = (hData->GetBinContent(i) - hMCSM->GetBinContent(i)) / hMCSM->GetBinContent(i);
       shape.push_back(shapeValue);
 
-//      estimatedErr = sqrt(2.0)*TMath::Abs(shapeValue)*(1.0/(sqrt(hMCSM->GetBinContent(i))*hMCSM->GetBinContent(22)));
-//      estimatedErr = sqrt(2.0)*TMath::Abs(shapeValue)*(1.0 / sqrt(hMCSM->GetBinContent(i) * hMCNorm));
-      estimatedErr = sqrt(2.0)/sqrt(hMCSM->GetBinContent(i) * hMCNorm);
+      estimatedErr = (hData->GetBinContent(i))/(hMCSM->GetBinContent(i))
+		     * sqrt( (hData->GetBinError(i)*hData->GetBinError(i))/(hData->GetBinContent(i)*hData->GetBinContent(i))
+			   + (hMCSM->GetBinError(i)*hMCSM->GetBinError(i))/(hMCSM->GetBinContent(i)*hMCSM->GetBinContent(i)) );
+
       shapeErr.push_back(estimatedErr);
     }
     numPoints++;
@@ -212,7 +214,7 @@ int main(int argc, char* argv[])
   C->Print(Form("ShapeFactor_%i.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
