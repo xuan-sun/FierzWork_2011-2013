@@ -44,13 +44,14 @@ using            namespace std;
 struct entry
 {
   int octetNum;
+  double b;
   double avg_mE;
   double chisquared;
   double ndf;
   double bErr;
-  double b;
   double GluckErr;
-  int entryNum;
+  int dataEntriesNumber;
+  int fitEntriesNumber;
   double numberOfOriginalEvents;
 };
 
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_noCuts.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
   TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
@@ -132,7 +133,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = "ResultsOfAllTFractionFitters_Fierz2011-2012_noCuts.txt";
+  TString fileName = "Results_comparehist_bValues_withEvtNumbers.txt";
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -152,13 +153,14 @@ int main(int argc, char* argv[])
     if(!infile1.eof())
     {
       bufstream1 >> evt.octetNum
+                >> evt.b
                 >> evt.avg_mE
                 >> evt.chisquared
                 >> evt.ndf
                 >> evt.bErr
-                >> evt.b
                 >> evt.GluckErr
-                >> evt.entryNum
+                >> evt.dataEntriesNumber
+                >> evt.fitEntriesNumber
                 >> evt.numberOfOriginalEvents;
       if(evt.octetNum == octNb)
       {

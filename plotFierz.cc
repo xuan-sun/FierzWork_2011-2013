@@ -10,13 +10,14 @@ void FillArrays(TString fileName, TH1D *hist);
 struct entry
 {
   int octNb;
+  double b;
   double avg_mE;
   double chisquared;
   double ndf;
   double bErr;
-  double b;
   double GluckErr;
-  int entryNum;
+  int dataEntriesNumber;
+  int fitEntriesNumber;
   double numberOfOriginalEvents;
 };
 
@@ -32,7 +33,7 @@ int main()
 
   TH1D *h1 = new TH1D("myhist", "myhist", 50, -0.5, 0.5);
 
-  FillArrays("ResultsOfAllTFractionFitters_Fierz2011-2012_noCuts.txt", h1);
+  FillArrays("Results_comparehist_bValues_withEvtNumbers.txt", h1);
 
   vector <double> xErr;
   vector <double> yErr;
@@ -48,7 +49,7 @@ int main()
   PlotGraph(C, 1, 2, g1, "b values by octet", "AP");
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("%s.png", "plotFierz"));
+  C -> Print(Form("%s.pdf", "plotFierz"));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -123,13 +124,14 @@ void FillArrays(TString fileName, TH1D* hist)
     if(!infile1.eof())
     {
       bufstream1 >> evt.octNb
+		>> evt.b
 		>> evt.avg_mE
 		>> evt.chisquared
 		>> evt.ndf
 		>> evt.bErr
-		>> evt.b
 		>> evt.GluckErr
-		>> evt.entryNum
+		>> evt.dataEntriesNumber
+		>> evt.fitEntriesNumber
 		>> evt.numberOfOriginalEvents;
       {
 	counter++;
