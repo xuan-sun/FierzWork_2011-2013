@@ -228,7 +228,7 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 {
   vector < TChain* > runs;
 
-  for(unsigned int i = 0; i < octetList.size(); i++)
+  for(unsigned int i = 0; i < 16; i++)
   {
     runs.push_back(new TChain("pass3"));
   }

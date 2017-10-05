@@ -11,15 +11,7 @@ for ((x = 0; x < 60; x = x + 1))
 
 do
 
-if ((x == 1))
-then
-continue
-fi
 if ((x == 9))
-then
-continue
-fi
-if ((x == 38))
 then
 continue
 fi
@@ -33,7 +25,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./shapeFactor $x
+./ssDataHist $x
 make clean
 
 done

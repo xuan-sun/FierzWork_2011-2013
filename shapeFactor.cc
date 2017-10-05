@@ -39,7 +39,7 @@
 using            namespace std;
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 struct entry
 {
@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
   C->Print(Form("ShapeFactor_%i.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
