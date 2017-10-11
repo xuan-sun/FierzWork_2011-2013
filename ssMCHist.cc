@@ -100,11 +100,11 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_inf");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_0");
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist.root", octNb), "RECREATE");
+  TFile f(TString::Format("MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -259,7 +259,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
       {
         if(evt[j]->side == 0)
         {
