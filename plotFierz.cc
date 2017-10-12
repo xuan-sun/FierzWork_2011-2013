@@ -93,11 +93,6 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->GetXaxis()->CenterTitle();
   gPlot->GetYaxis()->SetTitle("Extracted b");
   gPlot->GetYaxis()->CenterTitle();
-  if(canvasIndex == 1)
-  {
-    gPlot->GetHistogram()->SetMinimum(0);
-    gPlot->GetHistogram()->SetMaximum(0.0005);
-  }
 
   if(styleIndex == 1)
   {

@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("Octet_%i_ssDataHist_type0.root", octNb), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist_type1.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -348,7 +348,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 1 && evt[j]->Erecon >= 0)
       {
         if(evt[j]->side == 0)
         {
