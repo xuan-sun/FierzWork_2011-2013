@@ -39,7 +39,7 @@
 using            namespace std;
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 struct entry
 {
@@ -212,17 +212,26 @@ int main(int argc, char* argv[])
   t.DrawLatex(900, 0.09, Form("b = %f", fierzVal));
 
   // calculate the chi-squared by hand from the theory with fit b values to shape factor
-  
+  double chisquared = 0;
+  double ndf = 0;
+  for(unsigned int i = 0; i < Sfactor.size(); i++)
+  {
+    chisquared = chisquared + ((shape[i+10]-Sfactor[i])*(shape[i+10]-Sfactor[i]))/(shapeErr[i+10]*shapeErr[i+10]);
+    ndf = ndf + 1;
+  }
 
+  TLatex t2;
+  t2.SetTextSize(0.03);
+  t2.SetTextAlign(13);
+  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}}{n} = %f", chisquared/ndf));
 
-
-
-
+  cout << "ndf = " << ndf << endl;
+  cout << "chisquared per dof = " << chisquared/ndf << endl;
 
   C->Print(Form("ShapeFactor_%i_type0.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
