@@ -211,6 +211,14 @@ int main(int argc, char* argv[])
   t.SetTextAlign(13);
   t.DrawLatex(900, 0.09, Form("b = %f", fierzVal));
 
+  // calculate the chi-squared by hand from the theory with fit b values to shape factor
+  
+
+
+
+
+
+
   C->Print(Form("ShapeFactor_%i_type0.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
