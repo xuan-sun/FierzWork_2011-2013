@@ -31,9 +31,9 @@ int main()
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("myhist", "myhist", 50, -0.5, 0.5);
+  TH1D *h1 = new TH1D("myhist", "myhist", 100, -30, 200);
 
-  FillArrays("FitterResults_b_allTypes.txt", h1);
+  FillArrays("FitterResults_b_type1.txt", h1);
 
   vector <double> xErr;
   vector <double> yErr;
@@ -45,8 +45,8 @@ int main()
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(FierzValues[0]), &(xErr[0]), &(yErr[0]));
 
-  PlotHist(C, 1, 1, h1, "Extracted b values, Type 0", "");
-  PlotGraph(C, 1, 2, g1, "b values by octet, Type 0", "AP");
+  PlotHist(C, 1, 1, h1, "Extracted b values, Type 1", "");
+  PlotGraph(C, 1, 2, g1, "b values by octet, Type 1", "AP");
 
   //prints the canvas with a dynamic TString name of the name of the file
   C -> Print(Form("%s.pdf", "plotFierz"));
@@ -101,15 +101,15 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
 
   // all the TLine's needed for 2011-2012 calibration periods
   TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
-  TLine *t2 = new TLine(6.5, -0.3, 6.5, 0.3);     // Octet 5-6 inclusive
-  TLine *t3 = new TLine(9.5, -0.3, 9.5, 0.3);     // Octet 7-9 inclusive
-  TLine *t4 = new TLine(14.5, -0.3, 14.5, 0.3);   // Octet 10-14 inclusive
-  TLine *t5 = new TLine(23.5, -0.3, 23.5, 0.3);   // Octet 15-23 inclusive
-  TLine *t6 = new TLine(31.5, -0.3, 31.5, 0.3);   // Octet 24-31 inclusive
-  TLine *t7 = new TLine(39.5, -0.3, 39.5, 0.3);   // Octet 32-39 inclusive
-  TLine *t8 = new TLine(46.5, -0.3, 46.5, 0.3);   // Octet 40-46 inclusive
-  TLine *t9 = new TLine(50.5, -0.3, 50.5, 0.3);   // Octet 47-50 inclusive
-  TLine *t11 = new TLine(59.5, -0.3, 59.5, 0.3);  // Octet 51-59 inclusive
+  TLine *t2 = new TLine(6.5, gPad->GetUymin(), 6.5, gPad->GetUymax());     // Octet 5-6 inclusive
+  TLine *t3 = new TLine(9.5, gPad->GetUymin(), 9.5, gPad->GetUymax());     // Octet 7-9 inclusive
+  TLine *t4 = new TLine(14.5, gPad->GetUymin(), 14.5, gPad->GetUymax());   // Octet 10-14 inclusive
+  TLine *t5 = new TLine(23.5, gPad->GetUymin(), 23.5, gPad->GetUymax());   // Octet 15-23 inclusive
+  TLine *t6 = new TLine(31.5, gPad->GetUymin(), 31.5, gPad->GetUymax());   // Octet 24-31 inclusive
+  TLine *t7 = new TLine(39.5, gPad->GetUymin(), 39.5, gPad->GetUymax());   // Octet 32-39 inclusive
+  TLine *t8 = new TLine(46.5, gPad->GetUymin(), 46.5, gPad->GetUymax());   // Octet 40-46 inclusive
+  TLine *t9 = new TLine(50.5, gPad->GetUymin(), 50.5, gPad->GetUymax());   // Octet 47-50 inclusive
+  TLine *t11 = new TLine(59.5, gPad->GetUymin(), 59.5, gPad->GetUymax());  // Octet 51-59 inclusive
 
   t1->SetLineStyle(7);
   t1->Draw("SAME");
