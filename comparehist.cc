@@ -41,10 +41,9 @@ int main(int argc, char* argv[])
                                       "mcFierz", "Test of comparehist code", 100, 0, 1000);
 */
 
-//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type0.root", octNb));
-  TFile fData(TString::Format("Octet_%i_ssDataHist_type0.root", octNb));
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb));
-  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_type0.root", octNb));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type1.root", octNb));
+  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type1.root", octNb));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_type1.root", octNb));
 
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
@@ -121,7 +120,7 @@ int main(int argc, char* argv[])
   cout << "Entries used in theoretical limit: " << dataHist->GetEntries() << endl;
 
   ofstream outfile;
-  outfile.open("ExtractedbValues_type0_comparehist.txt", ios::app);
+  outfile.open("ExtractedbValues_type1_comparehist.txt", ios::app);
   outfile << octNb << "\t"
 	  << frac1Val/(frac0Val*avg_mE) << "\t"
           << avg_mE << "\t"

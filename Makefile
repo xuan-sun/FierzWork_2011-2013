@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o shapeFactor.o
-SOURCE = shapeFactor
+OBJECTS = BetaSpectrum.o plotFierz.o
+SOURCE = plotFierz
 
 .PHONY: all
 all: $(SOURCE)
@@ -29,7 +29,7 @@ $(SOURCE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(SOURCE) $(OBJECTS) $(LIBS)
 
 BetaSpectrum.o: BetaSpectrum.hh
-#plotFierz.o: comparehist.hh
+plotFierz.o: comparehist.hh
 
 # -------------------------------------------------------------------------------
 #  Generic compilation and linking step to make an executable from

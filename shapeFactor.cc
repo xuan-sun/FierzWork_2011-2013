@@ -39,7 +39,7 @@
 using            namespace std;
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 struct entry
 {
@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type0.root", octNb));
-  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
+  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = "Results_comparehist_bValues_type0_withEvtNumbers.txt";
+  TString fileName = "Results_comparehist_bValues_withEvtNumbers.txt";
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -225,13 +225,10 @@ int main(int argc, char* argv[])
   t2.SetTextAlign(13);
   t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}}{n} = %f", chisquared/ndf));
 
-  cout << "ndf = " << ndf << endl;
-  cout << "chisquared per dof = " << chisquared/ndf << endl;
-
-  C->Print(Form("ShapeFactor_%i_type0.pdf", octNb));
+  C->Print(Form("ShapeFactor_%i_allTypes.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
