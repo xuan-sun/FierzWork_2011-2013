@@ -51,26 +51,20 @@ const double m_e = 511.00;                                              ///< ele
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString command);
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString command);
 void FillArrays(TString fileName, TH1D *hist);
 
 struct entry
 {
   int octNb;
-  double b;
-  double avg_mE;
   double chisquared;
   double ndf;
-  double bErr;
-  double GluckErr;
-  double dataEntriesNumber;
-  double fitEntriesNumber;
+  double xperndf;
 };
 
 // global vectors for creating TGraphs.
 vector <double> octets;
-vector <double> FierzValues;
-vector <double> errorBarsEntries;
+vector <double> chisquared;
 
 int main()
 {
@@ -78,25 +72,17 @@ int main()
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("myhist", "myhist", 100, -30, 200);
+  TH1D *h1 = new TH1D("myhist", "myhist", 60, 0, 5);
 
-  FillArrays("FitterResults_b_type1.txt", h1);
+  FillArrays("chisquared_type0_shapeFactor.txt", h1);
 
-  vector <double> xErr;
-  vector <double> yErr;
-  for(unsigned int i = 0; i < errorBarsEntries.size(); i++)
-  {
-    xErr.push_back(0.5);	// half an octet number
-    yErr.push_back(sqrt(2)*10.1 / sqrt(errorBarsEntries[i]));	// converting using Gluck formula for 100KeV and up fit.
-  }
+  TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
 
-  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(FierzValues[0]), &(xErr[0]), &(yErr[0]));
-
-  PlotHist(C, 1, 1, h1, "Extracted b values, Type 1", "");
-  PlotGraph(C, 1, 2, g1, "b values by octet, Type 1", "AP");
+  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, Type 0", "");
+  PlotGraph(C, 1, 2, g1, "chi squared values by octet, Type 0", "AP");
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("%s.pdf", "plotFierz"));
+  C -> Print(Form("%s.pdf", "plotChisquared"));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -106,7 +92,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
-  hPlot -> GetXaxis() -> SetTitle("Extracted b");
+  hPlot -> GetXaxis() -> SetTitle("Extracted #Chi^{2}");
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle("N");
   hPlot -> GetYaxis() -> CenterTitle();
@@ -126,13 +112,13 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> Draw(command);
 }
 
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString command)
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString command)
 {
   C->cd(canvasIndex);
   gPlot->SetTitle(title);
   gPlot->GetXaxis()->SetTitle("Octet Number");
   gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle("Extracted b");
+  gPlot->GetYaxis()->SetTitle("#frac{#Chi^{2}}{n}");
   gPlot->GetYaxis()->CenterTitle();
 
   if(styleIndex == 1)
@@ -147,7 +133,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   C->Update();
 
   // all the TLine's needed for 2011-2012 calibration periods
-  TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
+/*  TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
   TLine *t2 = new TLine(6.5, gPad->GetUymin(), 6.5, gPad->GetUymax());     // Octet 5-6 inclusive
   TLine *t3 = new TLine(9.5, gPad->GetUymin(), 9.5, gPad->GetUymax());     // Octet 7-9 inclusive
   TLine *t4 = new TLine(14.5, gPad->GetUymin(), 14.5, gPad->GetUymax());   // Octet 10-14 inclusive
@@ -178,6 +164,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   t9->Draw("SAME");
   t11->SetLineStyle(7);
   t11->Draw("SAME");
+*/
 }
 
 void FillArrays(TString fileName, TH1D* hist)
@@ -205,20 +192,14 @@ void FillArrays(TString fileName, TH1D* hist)
     if(!infile1.eof())
     {
       bufstream1 >> evt.octNb
-		>> evt.b
-		>> evt.avg_mE
 		>> evt.chisquared
 		>> evt.ndf
-		>> evt.bErr
-		>> evt.GluckErr
-		>> evt.dataEntriesNumber
-		>> evt.fitEntriesNumber;
+		>> evt.xperndf;
       {
 	counter++;
-        hist -> Fill(evt.b);
+        hist -> Fill(evt.xperndf);
 	octets.push_back(evt.octNb);
-	FierzValues.push_back(evt.b);
-	errorBarsEntries.push_back(evt.dataEntriesNumber);
+	chisquared.push_back(evt.xperndf);
       }
     }
 

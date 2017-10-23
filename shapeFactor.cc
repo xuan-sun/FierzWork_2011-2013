@@ -50,9 +50,8 @@ struct entry
   double ndf;
   double bErr;
   double GluckErr;
-  int dataEntriesNumber;
-  int fitEntriesNumber;
-  double numberOfOriginalEvents;
+  double dataEntriesNumber;
+  double fitEntriesNumber;
 };
 
 int main(int argc, char* argv[])
@@ -68,8 +67,8 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
-  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type1.root", octNb));
+  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type1.root", octNb));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -122,12 +121,12 @@ int main(int argc, char* argv[])
   }
 
   TGraphErrors *g = new TGraphErrors(numPoints, &(energy[0]), &(shape[0]), &(energyErr[0]), &(shapeErr[0]));
-  g->SetTitle(Form("Shape Factor for Octet %i, Type 0", octNb));
+  g->SetTitle(Form("Shape Factor for Octet %i, Type 1", octNb));
   g->SetMarkerSize(1);
   g->SetMarkerStyle(21);
   g->SetMarkerColor(38);
-  g->GetHistogram()->SetMaximum(0.1);
-  g->GetHistogram()->SetMinimum(-0.1);
+  g->GetHistogram()->SetMaximum(1);
+  g->GetHistogram()->SetMinimum(-1);
   g->Draw("AP");
 
   // extract the fitted b value and plot the shape factor with 'b' on the same graph.
@@ -135,7 +134,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = "Results_comparehist_bValues_withEvtNumbers.txt";
+  TString fileName = "FitterResults_b_type1.txt";
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -162,8 +161,7 @@ int main(int argc, char* argv[])
                 >> evt.bErr
                 >> evt.GluckErr
                 >> evt.dataEntriesNumber
-                >> evt.fitEntriesNumber
-                >> evt.numberOfOriginalEvents;
+                >> evt.fitEntriesNumber;
       if(evt.octetNum == octNb)
       {
         fierzVal = evt.b;
@@ -225,7 +223,17 @@ int main(int argc, char* argv[])
   t2.SetTextAlign(13);
   t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}}{n} = %f", chisquared/ndf));
 
-  C->Print(Form("ShapeFactor_%i_allTypes.pdf", octNb));
+  // print the chi-sqquared to file so we can plot it in other code.
+  ofstream outfile;
+  outfile.open("chisquared_type1_shapeFactor.txt", ios::app);
+  outfile << octNb << "\t"
+	  << chisquared << "\t"
+	  << ndf << "\t"
+	  << chisquared/ndf << "\n";
+  outfile.close();
+
+
+  C->Print(Form("ShapeFactor_%i_type1.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();
