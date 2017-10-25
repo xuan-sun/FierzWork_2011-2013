@@ -203,6 +203,11 @@ void FillArrays(TString fileName, TH1D* hist)
       }
     }
 
+//    if(evt.xperndf > 1.75)
+    {
+      cout << "Octet " << evt.octNb << " has chi-squared per dof of " << evt.xperndf << endl;
+    }
+
     if(infile1.eof() == true)
     {
       break;
