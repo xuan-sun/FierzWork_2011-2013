@@ -38,6 +38,8 @@
 #include	 <TLatex.h>
 using            namespace std;
 
+#define		TYPE	"type0"		// allTypes, type0, type1 are acceptable
+
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
 
@@ -67,8 +69,8 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
-  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type0.root", octNb));
+  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -121,7 +123,7 @@ int main(int argc, char* argv[])
   }
 
   TGraphErrors *g = new TGraphErrors(numPoints, &(energy[0]), &(shape[0]), &(energyErr[0]), &(shapeErr[0]));
-  g->SetTitle(Form("Shape Factor for Octet %i, all Types", octNb));
+  g->SetTitle(Form("Shape Factor for Octet %i, %s", octNb, TYPE));
   g->SetMarkerSize(1);
   g->SetMarkerStyle(21);
   g->SetMarkerColor(38);
@@ -134,7 +136,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = "FitterResults_b_allTypes.txt";
+  TString fileName = Form("FitterResults_b_%s.txt", TYPE);
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -225,7 +227,8 @@ int main(int argc, char* argv[])
 
   // print the chi-sqquared to file so we can plot it in other code.
   ofstream outfile;
-  outfile.open("chisquared_allTypes_shapeFactor.txt", ios::app);
+  TString chisquaredFileName = Form("chisquared_%s_shapeFactor.txt", TYPE);
+  outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
 	  << chisquared << "\t"
 	  << ndf << "\t"
@@ -253,7 +256,7 @@ int main(int argc, char* argv[])
 
 
 
-  C->Print(Form("ShapeFactor_%i_allTypes.pdf", octNb));
+  C->Print(Form("ShapeFactor_%i_%s.pdf", octNb, TYPE));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();

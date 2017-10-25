@@ -45,7 +45,7 @@ using            namespace std;
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-
+double NDF = 0;
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
@@ -74,12 +74,20 @@ int main()
 
   TH1D *h1 = new TH1D("myhist", "myhist", 60, 0, 5);
 
-  FillArrays("chisquared_type0_shapeFactor.txt", h1);
+  FillArrays("chisquared_allTypes_shapeFactor.txt", h1);
 
   TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
 
-  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, Type 0", "");
-  PlotGraph(C, 1, 2, g1, "chi squared values by octet, Type 0", "AP");
+  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, all Types", "");
+  PlotGraph(C, 1, 2, g1, "chi squared values by octet, all Types", "AP");
+
+//  TF1 *theoryChi = new TF1("theory", Form("TMath::ChisquareQuantile((TMath::Prob(x*%f, %f)), %f)", NDF, NDF, NDF), 0, 5);
+  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
+
+  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+  theoryChiHist->Scale(h1->GetMaximum()/theoryChiHist->GetMaximum());
+
+  PlotHist(C, 2, 1, theoryChiHist, "", "SAME");
 
   //prints the canvas with a dynamic TString name of the name of the file
   C -> Print(Form("%s.pdf", "plotChisquared"));
@@ -200,6 +208,7 @@ void FillArrays(TString fileName, TH1D* hist)
         hist -> Fill(evt.xperndf);
 	octets.push_back(evt.octNb);
 	chisquared.push_back(evt.xperndf);
+	NDF = evt.ndf;
       }
     }
 
