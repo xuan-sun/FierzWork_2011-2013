@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type1.root", octNb));
-  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type1.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
+  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -121,12 +121,12 @@ int main(int argc, char* argv[])
   }
 
   TGraphErrors *g = new TGraphErrors(numPoints, &(energy[0]), &(shape[0]), &(energyErr[0]), &(shapeErr[0]));
-  g->SetTitle(Form("Shape Factor for Octet %i, Type 1", octNb));
+  g->SetTitle(Form("Shape Factor for Octet %i, all Types", octNb));
   g->SetMarkerSize(1);
   g->SetMarkerStyle(21);
   g->SetMarkerColor(38);
-  g->GetHistogram()->SetMaximum(1);
-  g->GetHistogram()->SetMinimum(-1);
+  g->GetHistogram()->SetMaximum(0.1);
+  g->GetHistogram()->SetMinimum(-0.1);
   g->Draw("AP");
 
   // extract the fitted b value and plot the shape factor with 'b' on the same graph.
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = "FitterResults_b_type1.txt";
+  TString fileName = "FitterResults_b_allTypes.txt";
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
 
   TGraph *gb = new TGraph(restrictedNumPoints, &(restrictedEnergy[0]), &(Sfactor[0]));
   gb -> SetLineWidth(3.0);
-  gb -> SetLineColor(46);
+  gb -> SetLineColor(30);
   gb -> Draw("LSAME");
 
   TLine *yLow = new TLine(95, -0.1, 95, 0.1);
@@ -225,15 +225,35 @@ int main(int argc, char* argv[])
 
   // print the chi-sqquared to file so we can plot it in other code.
   ofstream outfile;
-  outfile.open("chisquared_type1_shapeFactor.txt", ios::app);
+  outfile.open("chisquared_allTypes_shapeFactor.txt", ios::app);
   outfile << octNb << "\t"
 	  << chisquared << "\t"
 	  << ndf << "\t"
 	  << chisquared/ndf << "\n";
   outfile.close();
 
+  // Now we want to create a "shape factor" function where b is a variable
+  // and fit our existing shape factor points.
+  TF1 *fShapeFit = new TF1("Shape factor b fit", Form("([0]*( (511.0 / (511.0 + x)) - %f )) / (1 + [0]*%f)", mOverE, mOverE), 95, 645);
+  g->Fit(fShapeFit, "R", "", 95, 645);
+  TF1 *fitFunc = g->GetFunction("Shape factor b fit");
+  double bFit = fitFunc->GetParameter(0);
+  double bFitErr = fitFunc->GetParError(0);
 
-  C->Print(Form("ShapeFactor_%i_type1.pdf", octNb));
+  TLatex t3;
+  t3.SetTextSize(0.03);
+  t3.SetTextAlign(13);
+  t3.DrawLatex(850, 0.06, Form("b_{new} = %f", bFit));
+
+  TLatex t4;
+  t4.SetTextSize(0.03);
+  t4.SetTextAlign(13);
+  t4.DrawLatex(850, 0.05, Form("bErr_{new} = %f", bFitErr));
+
+
+
+
+  C->Print(Form("ShapeFactor_%i_allTypes.pdf", octNb));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();
