@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o plotChisquared.o
-SOURCE = plotChisquared
+OBJECTS = BetaSpectrum.o viewRuns.o
+SOURCE = viewRuns
 
 .PHONY: all
 all: $(SOURCE)
