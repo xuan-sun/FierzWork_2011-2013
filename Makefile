@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o ssMCHist.o
-SOURCE = ssMCHist
+OBJECTS = BetaSpectrum.o plotFierz.o
+SOURCE = plotFierz
 
 .PHONY: all
 all: $(SOURCE)

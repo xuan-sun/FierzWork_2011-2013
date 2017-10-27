@@ -43,6 +43,8 @@
 
 using            namespace std;
 
+#define 	TYPE	"type0"
+
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
 
@@ -78,9 +80,9 @@ int main()
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("myhist", "myhist", 100, -30, 200);
+  TH1D *h1 = new TH1D("myhist", "myhist", 64, -8, 8);
 
-  FillArrays("FitterResults_b_type1.txt", h1);
+  FillArrays(Form("BLIND_ExtractedbValues_%s_comparehist.txt", TYPE), h1);
 
   vector <double> xErr;
   vector <double> yErr;
@@ -92,11 +94,11 @@ int main()
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(FierzValues[0]), &(xErr[0]), &(yErr[0]));
 
-  PlotHist(C, 1, 1, h1, "Extracted b values, Type 1", "");
-  PlotGraph(C, 1, 2, g1, "b values by octet, Type 1", "AP");
+  PlotHist(C, 1, 1, h1, Form("Extracted b values, %s", TYPE), "");
+  PlotGraph(C, 1, 2, g1, Form("b values by octet, %s", TYPE), "AP");
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("%s.pdf", "plotFierz"));
+  C -> Print(Form("%s_%s.pdf", "plotFierz", TYPE));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
