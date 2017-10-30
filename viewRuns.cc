@@ -83,6 +83,7 @@ const int index_B4 = 13;
 const int index_B9 = 14;
 const int index_B12 = 15;
 
+
 // Used for visualization, keeps the graph on screen.
 TApplication plot_program("FADC_readin",0,0,0,0);
 
@@ -115,11 +116,26 @@ int main(int argc, char* argv[])
   vector <Event*> evt;
 
   vector <TH1D*> histos;
+  histos.push_back(new TH1D("A2", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A5", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A7", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A10", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B2", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B5", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B7", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B10", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A1", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A4", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A9", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("A12", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B1", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B4", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B9", "Erecon", 120, 0, 1200));
+  histos.push_back(new TH1D("B12", "Erecon", 120, 0, 1200));
 
   for(unsigned int i = 0; i < runsChains.size(); i++)
   {
     evt.push_back(new Event);
-    histos.push_back(new TH1D(Form("tmp%i",i), "Erecon", 120, 0, 1200));
 
     runsChains[i]->SetBranchAddress("EvtN", &evt[i]->eventNum);
     runsChains[i]->SetBranchAddress("Time", &evt[i]->time);
@@ -150,15 +166,37 @@ int main(int argc, char* argv[])
     }
   }
 
-  // creating canvas for plotting
-  TCanvas *C2 = new TCanvas("canvas2", "canvas2");
-  for(unsigned int i = 0; i < histos.size(); i++)
+
+
+  C -> Divide(4,4);
+
+  // for some mega unclear reason, this for-loop doesn't work...
+/*  for(int i = 0; i < 4; i++)
   {
-    PlotHist(C2, 1, i, histos[i], "", "");
+    PlotHist(C, 1, i, histos[i], "", "");
   }
+*/
+  // ... but individually printing all the histograms does.
+  PlotHist(C, 1, 1, histos[0], "", "");
+  PlotHist(C, 1, 2, histos[1], "", "");
+  PlotHist(C, 1, 3, histos[2], "", "");
+  PlotHist(C, 1, 4, histos[3], "", "");
+  PlotHist(C, 1, 5, histos[4], "", "");
+  PlotHist(C, 1, 6, histos[5], "", "");
+  PlotHist(C, 1, 7, histos[6], "", "");
+  PlotHist(C, 1, 8, histos[7], "", "");
+  PlotHist(C, 1, 9, histos[8], "", "");
+  PlotHist(C, 1, 10, histos[9], "", "");
+  PlotHist(C, 1, 11, histos[10], "", "");
+  PlotHist(C, 1, 12, histos[11], "", "");
+  PlotHist(C, 1, 13, histos[12], "", "");
+  PlotHist(C, 1, 14, histos[13], "", "");
+  PlotHist(C, 1, 15, histos[14], "", "");
+  PlotHist(C, 1, 16, histos[15], "", "");
+
 
   // Save our plot and print it out as a pdf.
-  C2 -> Print("viewRuns.pdf");
+  C -> Print("viewRuns.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -340,7 +378,6 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
 {
-  C->Divide(4,4);
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
   hPlot -> GetXaxis() -> SetTitle("Energy (KeV)");
