@@ -25,7 +25,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./comparehist $x
+./viewRuns $x
 make clean
 
 done

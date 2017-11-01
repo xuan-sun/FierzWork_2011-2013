@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o viewRuns.o
-SOURCE = viewRuns
+OBJECTS = BetaSpectrum.o debug_ssDataHist.o
+SOURCE = debug_ssDataHist
 
 .PHONY: all
 all: $(SOURCE)

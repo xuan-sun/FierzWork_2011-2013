@@ -58,9 +58,14 @@ struct Event
 // forward declarations for useful functions
 vector < pair <string,int> >  LoadOctetList(TString fileName);
 vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath);
+vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains);
+TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates);
 
 // plotting functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
+
+// global event number to be saved to super sum hist
+double numberOfEventsInOctet;
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -82,7 +87,6 @@ const int index_B1 = 12;
 const int index_B4 = 13;
 const int index_B9 = 14;
 const int index_B12 = 15;
-
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -109,94 +113,20 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runsChains = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/");
+  // load all the histograms of east and west, turn them into rates.
+  vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
+  TFile f(TString::Format("DEBUG_Octet_%i_ssDataHist.root", octNb), "RECREATE");
+  // Begin processing the read in data now
+  TH1D* SS_Erecon = CreateSuperSum(rates);
+  SS_Erecon->Write();
 
-  // reminder: each evt[i] index corresponds to the indices noted at global scope.
-  vector <Event*> evt;
-
-  vector <TH1D*> histos;
-  histos.push_back(new TH1D("A2", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A5", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A7", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A10", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B2", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B5", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B7", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B10", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A1", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A4", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A9", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("A12", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B1", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B4", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B9", "Erecon", 120, 0, 1200));
-  histos.push_back(new TH1D("B12", "Erecon", 120, 0, 1200));
-
-  for(unsigned int i = 0; i < runsChains.size(); i++)
-  {
-    evt.push_back(new Event);
-
-    runsChains[i]->SetBranchAddress("EvtN", &evt[i]->eventNum);
-    runsChains[i]->SetBranchAddress("Time", &evt[i]->time);
-    runsChains[i]->SetBranchAddress("TimeE", &evt[i]->tE);
-    runsChains[i]->SetBranchAddress("TimeW", &evt[i]->tW);
-    runsChains[i]->SetBranchAddress("Side", &evt[i]->side);
-    runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
-    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
-    runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
-
-    // this additional syntax is needed to get the right leaf inside branch inside tree named "pass3"
-    runsChains[i]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt[i]->xEastPos);
-    runsChains[i]->GetBranch("yE")->GetLeaf("center")->SetAddress(&evt[i]->yEastPos);
-    runsChains[i]->GetBranch("xW")->GetLeaf("center")->SetAddress(&evt[i]->xWestPos);
-    runsChains[i]->GetBranch("yW")->GetLeaf("center")->SetAddress(&evt[i]->yWestPos);
-  }
-
-
-  for(unsigned int j = 0; j < runsChains.size(); j++)
-  {
-    for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
-    {
-      runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
-      {
-        histos[j]->Fill(evt[j]->Erecon);
-      }
-    }
-  }
-
-
-
-  C -> Divide(4,4);
-
-  // for some mega unclear reason, this for-loop doesn't work...
-/*  for(int i = 0; i < 4; i++)
-  {
-    PlotHist(C, 1, i, histos[i], "", "");
-  }
-*/
-  // ... but individually printing all the histograms does.
-  PlotHist(C, 1, 1, histos[0], "", "");
-  PlotHist(C, 1, 2, histos[1], "", "");
-  PlotHist(C, 1, 3, histos[2], "", "");
-  PlotHist(C, 1, 4, histos[3], "", "");
-  PlotHist(C, 1, 5, histos[4], "", "");
-  PlotHist(C, 1, 6, histos[5], "", "");
-  PlotHist(C, 1, 7, histos[6], "", "");
-  PlotHist(C, 1, 8, histos[7], "", "");
-  PlotHist(C, 1, 9, histos[8], "", "");
-  PlotHist(C, 1, 10, histos[9], "", "");
-  PlotHist(C, 1, 11, histos[10], "", "");
-  PlotHist(C, 1, 12, histos[11], "", "");
-  PlotHist(C, 1, 13, histos[12], "", "");
-  PlotHist(C, 1, 14, histos[13], "", "");
-  PlotHist(C, 1, 15, histos[14], "", "");
-  PlotHist(C, 1, 16, histos[15], "", "");
-
+  PlotHist(C, 1, 1, SS_Erecon, "", "");
 
   // Save our plot and print it out as a pdf.
-  C -> Print(Form("RunsForOctet_%i_allTypes.pdf", octNb));
+//  C -> Print("fierz.pdf");
+  f.Close();
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();
 
@@ -376,13 +306,233 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
   return runs;
 }
 
+vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
+{
+  // reminder: each evt[i] index corresponds to the indices noted at global scope.
+  vector <Event*> evt;
+
+  vector < vector <TH1D*> > rateHists;
+
+  vector <TH1D*> rateHistsEast;
+  vector <TH1D*> rateHistsWest;
+
+  for(unsigned int i = 0; i < runsChains.size(); i++)
+  {
+    evt.push_back(new Event);
+    rateHistsEast.push_back(new TH1D(TString::Format("East Rate %i", i), "East Rate", 120, 0, 1200));
+    rateHistsWest.push_back(new TH1D(TString::Format("West Rate %i", i), "West Rate", 120, 0, 1200));
+
+    runsChains[i]->SetBranchAddress("EvtN", &evt[i]->eventNum);
+    runsChains[i]->SetBranchAddress("Time", &evt[i]->time);
+    runsChains[i]->SetBranchAddress("TimeE", &evt[i]->tE);
+    runsChains[i]->SetBranchAddress("TimeW", &evt[i]->tW);
+    runsChains[i]->SetBranchAddress("Side", &evt[i]->side);
+    runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
+    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
+    runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
+
+    // this additional syntax is needed to get the right leaf inside branch inside tree named "pass3"
+    runsChains[i]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt[i]->xEastPos);
+    runsChains[i]->GetBranch("yE")->GetLeaf("center")->SetAddress(&evt[i]->yEastPos);
+    runsChains[i]->GetBranch("xW")->GetLeaf("center")->SetAddress(&evt[i]->xWestPos);
+    runsChains[i]->GetBranch("yW")->GetLeaf("center")->SetAddress(&evt[i]->yWestPos);
+  }
+
+  vector <double> liveTimeEast;
+  vector <double> liveTimeWest;
+
+  int totalEventNum = 0;
+
+  for(unsigned int j = 0; j < runsChains.size(); j++)
+  {
+    for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
+    {
+      runsChains[j]->GetEntry(i);
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+      {
+        if(evt[j]->side == 0)
+        {
+          rateHistsEast[j]->Fill(evt[j]->Erecon);
+        }
+        else if(evt[j]->side == 1)
+        {
+          rateHistsWest[j]->Fill(evt[j]->Erecon);
+        }
+	totalEventNum++;
+      }
+      if(i == runsChains[j]->GetEntriesFast() - 1)
+      {
+        liveTimeEast.push_back(evt[j]->tE);
+        liveTimeWest.push_back(evt[j]->tW);
+      }
+    }
+  }
+
+  numberOfEventsInOctet = totalEventNum;
+
+  cout << "The total number of events for this octet is " << totalEventNum << endl;
+
+  cout << "\n --- Now the rates on the East Side ---" << endl;
+
+  // here we loop back over the event histograms in east and west
+  // and scale them down by time of last event aka live time.
+  for(unsigned int i = 0; i < rateHistsEast.size(); i++)
+  {
+    cout << "liveTimeEast[" << i << "] = " << liveTimeEast[i] << endl;
+    rateHistsEast[i]->Sumw2();
+    rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
+  }
+
+  cout << "\n --- Now the rates on the West side ---" << endl;
+
+  for(unsigned int i = 0; i < rateHistsWest.size(); i++)
+  {
+    cout << "liveTimeWest[" << i << "] = " << liveTimeWest[i] << endl;
+    rateHistsWest[i]->Sumw2();
+    rateHistsWest[i]->Scale(1.0/liveTimeWest[i]);
+  }
+
+  rateHists.push_back(rateHistsEast);
+  rateHists.push_back(rateHistsWest);
+
+  return rateHists;
+
+}
+
+TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
+{
+  TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
+
+  vector <double> mySetErrors;
+
+  // Do the background subtraction
+  for(unsigned int j = 0; j <= 1; j++)
+  {
+    for(unsigned int i = 0; i < (sideRates[j].size())/2; i++)
+    {
+      sideRates[j][i]->Add(sideRates[j][i], sideRates[j][i+8], 1, -1);
+    }
+  }
+
+  // sum the "like" histograms without any statistical weight
+  TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+  eastPlusRates->Sumw2();
+  eastPlusRates->Add(sideRates[0][index_A5]);
+  eastPlusRates->Add(sideRates[0][index_A7]);
+  eastPlusRates->Add(sideRates[0][index_B2]);
+  eastPlusRates->Add(sideRates[0][index_B10]);
+  eastPlusRates->Scale(1.0/4.0);
+
+  TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
+  westPlusRates->Sumw2();
+  westPlusRates->Add(sideRates[1][index_A5]);
+  westPlusRates->Add(sideRates[1][index_A7]);
+  westPlusRates->Add(sideRates[1][index_B2]);
+  westPlusRates->Add(sideRates[1][index_B10]);
+  westPlusRates->Scale(1.0/4.0);
+
+  TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
+  eastMinusRates->Sumw2();
+  eastMinusRates->Add(sideRates[0][index_A2]);
+  eastMinusRates->Add(sideRates[0][index_A10]);
+  eastMinusRates->Add(sideRates[0][index_B5]);
+  eastMinusRates->Add(sideRates[0][index_B7]);
+  eastMinusRates->Scale(1.0/4.0);
+
+  TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
+  westMinusRates->Sumw2();
+  westMinusRates->Add(sideRates[1][index_A2]);
+  westMinusRates->Add(sideRates[1][index_A10]);
+  westMinusRates->Add(sideRates[1][index_B5]);
+  westMinusRates->Add(sideRates[1][index_B7]);
+  eastMinusRates->Scale(1.0/4.0);
+
+  for(int i = 0; i < westMinusRates->GetNbinsX(); i++)
+  {
+    cout << "eastPlusRates->GetBinContent(" << i << ") = " << eastPlusRates->GetBinContent(i) << endl;
+    cout << "westPlusRates->GetBinContent(" << i << ") = " << westPlusRates->GetBinContent(i) << endl;
+    cout << "eastMinusRates->GetBinContent(" << i << ") = " << eastMinusRates->GetBinContent(i) << endl;
+    cout << "westMinusRates->GetBinContent(" << i << ") = " << westMinusRates->GetBinContent(i) << endl;
+
+    cout << "eastPlusRates->GetBinError(" << i << ") = " << eastPlusRates->GetBinError(i) << endl;
+    cout << "westPlusRates->GetBinError(" << i << ") = " << westPlusRates->GetBinError(i) << endl;
+    cout << "eastMinusRates->GetBinError(" << i << ") = " << eastMinusRates->GetBinError(i) << endl;
+    cout << "westMinusRates->GetBinError(" << i << ") = " << westMinusRates->GetBinError(i) << endl;
+  }
+
+  double errorValueEachBin = 0;
+  // add the histograms together to create a super sum
+  for(int i = 0; i <= hist->GetNbinsX(); i++)
+  {
+    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) <= 0)
+	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) <= 0))
+    {
+      hist->SetBinContent(i, 0);
+      mySetErrors.push_back(0);
+    }
+    else
+    {
+      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
+                        + sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+
+      double e1 = westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
+                                *eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i);
+      double e2 = eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
+                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i);
+      double e3 = westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
+                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i);
+      double e4 = eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
+                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i);
+
+      if(e1 <= 0)
+      {
+        e1 = 0;
+      }
+      if(e2 <= 0)
+      {
+        e2 = 0;
+      }
+      if(e3 <= 0)
+      {
+        e3 = 0;
+      }
+      if(e4 <= 0)
+      {
+        e4 = 0;
+      }
+
+      if(e1 == 0 && e2 == 0 && e3 == 0 && e4 == 0)
+      {
+        errorValueEachBin = 0;
+      }
+      else
+      {
+        errorValueEachBin = sqrt(0.25*(e1 + e2 + e3 + e4));
+
+      }
+
+      cout << "For bin " << i << " i.e. energy " << hist->GetBinCenter(i) << " we have error = " << errorValueEachBin << endl;
+
+
+      mySetErrors.push_back(errorValueEachBin);
+    }
+  }
+
+  hist->SetError(&(mySetErrors[0]));
+
+  hist->SetEntries(numberOfEventsInOctet);
+
+  return hist;
+}
+
+
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
   hPlot -> GetXaxis() -> SetTitle("Energy (KeV)");
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("Counts");
+  hPlot -> GetYaxis() -> SetTitle("Rate (mHz/KeV)");
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
