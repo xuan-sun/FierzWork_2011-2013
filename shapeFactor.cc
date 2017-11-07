@@ -38,7 +38,7 @@
 #include	 <TLatex.h>
 using            namespace std;
 
-#define		TYPE	"type0"		// allTypes, type0, type1 are acceptable
+#define		TYPE	"allTypes"		// allTypes, type0, type1 are acceptable
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -69,8 +69,8 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_type0.root", octNb));
-  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/DEBUG_Data_Hists/DEBUG_Octet_%i_ssDataHist.root", octNb));
+  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = Form("FitterResults_b_%s.txt", TYPE);
+  TString fileName = Form("NewTimeFlag_FitterResults_b_%s.txt", TYPE);
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;

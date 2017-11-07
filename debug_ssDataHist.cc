@@ -49,6 +49,7 @@ struct Event
   double tE;
   double tW;
   int pid;
+  int timeFlag;
   double xEastPos;
   double yEastPos;
   double xWestPos;
@@ -109,6 +110,8 @@ int main(int argc, char* argv[])
 
   // read in arguments.
   Int_t octNb = atoi(argv[1]);
+
+  cout << "Running debug_ssDataHist for Octet " << octNb << "..." << endl;
 
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
@@ -330,6 +333,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
     runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
+    runsChains[i]->SetBranchAddress("badTimeFlag", &evt[i]->timeFlag);
 
     // this additional syntax is needed to get the right leaf inside branch inside tree named "pass3"
     runsChains[i]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt[i]->xEastPos);
@@ -342,31 +346,43 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   vector <double> liveTimeWest;
 
   int totalEventNum = 0;
+  int lastEventNum = 0;
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
       {
         if(evt[j]->side == 0)
         {
           rateHistsEast[j]->Fill(evt[j]->Erecon);
+	  lastEventNum = i;
         }
         else if(evt[j]->side == 1)
         {
           rateHistsWest[j]->Fill(evt[j]->Erecon);
+	  lastEventNum = i;
         }
 	totalEventNum++;
       }
-      if(i == runsChains[j]->GetEntriesFast() - 1)
+/*      if(i == runsChains[j]->GetEntriesFast() - 1)
       {
         liveTimeEast.push_back(evt[j]->tE);
         liveTimeWest.push_back(evt[j]->tW);
       }
+*/
     }
   }
+
+  for(unsigned int j = 0; j < runsChains.size(); j++)
+  {
+    runsChains[j]->GetEntry(lastEventNum);
+    liveTimeEast.push_back(evt[j]->tE);
+    liveTimeWest.push_back(evt[j]->tW);
+  }
+
 
   numberOfEventsInOctet = totalEventNum;
 
@@ -446,7 +462,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   westMinusRates->Add(sideRates[1][index_B5]);
   westMinusRates->Add(sideRates[1][index_B7]);
   eastMinusRates->Scale(1.0/4.0);
-
+/*
   for(int i = 0; i < westMinusRates->GetNbinsX(); i++)
   {
     cout << "eastPlusRates->GetBinContent(" << i << ") = " << eastPlusRates->GetBinContent(i) << endl;
@@ -459,7 +475,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
     cout << "eastMinusRates->GetBinError(" << i << ") = " << eastMinusRates->GetBinError(i) << endl;
     cout << "westMinusRates->GetBinError(" << i << ") = " << westMinusRates->GetBinError(i) << endl;
   }
-
+*/
   double errorValueEachBin = 0;
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
@@ -511,7 +527,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 
       }
 
-      cout << "For bin " << i << " i.e. energy " << hist->GetBinCenter(i) << " we have error = " << errorValueEachBin << endl;
+//      cout << "For bin " << i << " i.e. energy " << hist->GetBinCenter(i) << " we have error = " << errorValueEachBin << endl;
 
 
       mySetErrors.push_back(errorValueEachBin);

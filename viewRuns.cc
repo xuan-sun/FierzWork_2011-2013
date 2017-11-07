@@ -49,6 +49,7 @@ struct Event
   double tE;
   double tW;
   int pid;
+  int timeFlag;
   double xEastPos;
   double yEastPos;
   double xWestPos;
@@ -145,6 +146,7 @@ int main(int argc, char* argv[])
     runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
     runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
+    runsChains[i]->SetBranchAddress("badTimeFlag", &evt[i]->timeFlag);
 
     // this additional syntax is needed to get the right leaf inside branch inside tree named "pass3"
     runsChains[i]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt[i]->xEastPos);
@@ -159,7 +161,7 @@ int main(int argc, char* argv[])
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
       {
         histos[j]->Fill(evt[j]->Erecon);
       }
@@ -177,22 +179,22 @@ int main(int argc, char* argv[])
   }
 */
   // ... but individually printing all the histograms does.
-  PlotHist(C, 1, 1, histos[0], "", "");
-  PlotHist(C, 1, 2, histos[1], "", "");
-  PlotHist(C, 1, 3, histos[2], "", "");
-  PlotHist(C, 1, 4, histos[3], "", "");
-  PlotHist(C, 1, 5, histos[4], "", "");
-  PlotHist(C, 1, 6, histos[5], "", "");
-  PlotHist(C, 1, 7, histos[6], "", "");
-  PlotHist(C, 1, 8, histos[7], "", "");
-  PlotHist(C, 1, 9, histos[8], "", "");
-  PlotHist(C, 1, 10, histos[9], "", "");
-  PlotHist(C, 1, 11, histos[10], "", "");
-  PlotHist(C, 1, 12, histos[11], "", "");
-  PlotHist(C, 1, 13, histos[12], "", "");
-  PlotHist(C, 1, 14, histos[13], "", "");
-  PlotHist(C, 1, 15, histos[14], "", "");
-  PlotHist(C, 1, 16, histos[15], "", "");
+  PlotHist(C, 1, 1, histos[0], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 2, histos[1], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 3, histos[2], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 4, histos[3], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 5, histos[4], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 6, histos[5], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 7, histos[6], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 8, histos[7], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 9, histos[8], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 10, histos[9], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 11, histos[10], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 12, histos[11], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 13, histos[12], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 14, histos[13], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 15, histos[14], Form("Octet %i", octNb), "");
+  PlotHist(C, 1, 16, histos[15], Form("Octet %i", octNb), "");
 
 
   // Save our plot and print it out as a pdf.
