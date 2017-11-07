@@ -77,7 +77,7 @@ const int index_B7 = 6;
 const int index_B10 = 7;
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -101,46 +101,24 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
 
-
-
-  // Make two sets of runFiles and rates.
   // Points TChains at the run files idenified in the octet lists above
-
-  cout << "About to make our first chain of runs..." << endl;
   vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_0");
-
-  cout << "Success. Making the second run chain..." << endl;
-
   vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_inf");
 
-  cout << "Success. About to create our first rate histograms.. " << endl;
-
   // load all the histograms of east and west, turn them into rates.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 0.5);
+  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 0.9);
+  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0.1);
 
-  cout << "Success. About to make our second rate histograms... " << endl;
-
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0.5);
-
-  cout << "Success. Going to create a super sum now... " << endl;
-
-  // Insert an extra function that will "mix" the two sets of rates. Then feel that into CreateSuperSum
-
-/*
-  vector < vector < TH1D* > > rates;
-  vector < TH1D* > temp(rates_base[0].size());
-
-  cout << "rates_base.size() = " << rates_base.size() << endl;
-  cout << "rates_base[0].size() = " << rates_base[0].size() << endl;
+  // Sum the two files together.
   for(unsigned int i = 0; i < rates_base.size(); i++)
   {
-    for(unsigned int j = 0; j < rates_base[0].size(); j++)
+    for(unsigned int j = 0; j < rates_base[i].size(); j++)
     {
-      temp[j] -> Add(&(rates_base[i]), &(rates_fierz[i]), 1, 1);
+      rates_base[i][j]->Sumw2();
+      rates_base[i][j]->Add(rates_base[i][j], rates_fierz[i][j], 1, 1);
     }
-    rates.push_back(temp);
+
   }
-*/
 
   TFile f(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_allTypes.root", octNb), "RECREATE");
   // Begin processing the read in data now
@@ -154,7 +132,7 @@ int main(int argc, char* argv[])
   // Save our plot and print it out as a pdf.
 //  C -> Print("fierz.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
@@ -269,15 +247,27 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
 vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, double percentMix)
 {
+  vector < vector <TH1D*> > rateHists;
   TRandom3 *engine = new TRandom3(0);
 
   // reminder: each evt[i] index corresponds to the indices noted at global scope.
   vector <Event*> evt;
-
-  vector < vector <TH1D*> > rateHists;
-
   vector <TH1D*> rateHistsEast;
   vector <TH1D*> rateHistsWest;
+
+  if(percentMix == 0)
+  {
+    for(unsigned int i = 0; i < runsChains.size(); i++)
+    {
+      rateHistsEast.push_back(new TH1D(TString::Format("East Rate %i", i), "East Rate", 120, 0, 1200));
+      rateHistsWest.push_back(new TH1D(TString::Format("West Rate %i", i), "West Rate", 120, 0, 1200));
+    }
+    rateHists.push_back(rateHistsEast);
+    rateHists.push_back(rateHistsWest);
+
+    return rateHists;
+  }
+
 
   for(unsigned int i = 0; i < runsChains.size(); i++)
   {
@@ -326,13 +316,6 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
 
 
   delete engine;
-/*  for(unsigned int i = 0; i < evt.size(); i++)
-  {
-    delete evt[i];
-    delete rateHistsEast[i];
-    delete rateHistsWest[i];
-  }
-*/
   return rateHists;
 
 }
@@ -345,43 +328,43 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 
   // sum the "like" histograms without any statistical weight
   TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
-  sideRates[0][index_A5]->Sumw2();
+//  sideRates[0][index_A5]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_A5]);
-  sideRates[0][index_A7]->Sumw2();
+//  sideRates[0][index_A7]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_A7]);
-  sideRates[0][index_B2]->Sumw2();
+//  sideRates[0][index_B2]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_B2]);
-  sideRates[0][index_B10]->Sumw2();
+//  sideRates[0][index_B10]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_B10]);
 
   TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
-  sideRates[1][index_A5]->Sumw2();
+//  sideRates[1][index_A5]->Sumw2();
   westPlusRates->Add(sideRates[1][index_A5]);
-  sideRates[1][index_A7]->Sumw2();
+//  sideRates[1][index_A7]->Sumw2();
   westPlusRates->Add(sideRates[1][index_A7]);
-  sideRates[1][index_B2]->Sumw2();
+//  sideRates[1][index_B2]->Sumw2();
   westPlusRates->Add(sideRates[1][index_B2]);
-  sideRates[1][index_B10]->Sumw2();
+//  sideRates[1][index_B10]->Sumw2();
   westPlusRates->Add(sideRates[1][index_B10]);
 
   TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
-  sideRates[0][index_A2]->Sumw2();
+//  sideRates[0][index_A2]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_A2]);
-  sideRates[0][index_A10]->Sumw2();
+//  sideRates[0][index_A10]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_A10]);
-  sideRates[0][index_B5]->Sumw2();
+//  sideRates[0][index_B5]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_B5]);
-  sideRates[0][index_B7]->Sumw2();
+//  sideRates[0][index_B7]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_B7]);
 
   TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
-  sideRates[1][index_A2]->Sumw2();
+//  sideRates[1][index_A2]->Sumw2();
   westMinusRates->Add(sideRates[1][index_A2]);
-  sideRates[1][index_A10]->Sumw2();
+//  sideRates[1][index_A10]->Sumw2();
   westMinusRates->Add(sideRates[1][index_A10]);
-  sideRates[1][index_B5]->Sumw2();
+//  sideRates[1][index_B5]->Sumw2();
   westMinusRates->Add(sideRates[1][index_B5]);
-  sideRates[1][index_B7]->Sumw2();
+//  sideRates[1][index_B7]->Sumw2();
   westMinusRates->Add(sideRates[1][index_B7]);
 
   double errorValueEachBin = 0;

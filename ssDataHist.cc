@@ -49,6 +49,7 @@ struct Event
   double tE;
   double tW;
   int pid;
+  int timeFlag;
   double xEastPos;
   double yEastPos;
   double xWestPos;
@@ -330,6 +331,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
     runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
+    runsChains[i]->SetBranchAddress("badTimeFlag", &evt[i]->timeFlag);
 
     // this additional syntax is needed to get the right leaf inside branch inside tree named "pass3"
     runsChains[i]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt[i]->xEastPos);
@@ -342,31 +344,37 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   vector <double> liveTimeWest;
 
   int totalEventNum = 0;
+  int lastEventNum = 0;
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
       {
         if(evt[j]->side == 0)
         {
           rateHistsEast[j]->Fill(evt[j]->Erecon);
+	  lastEventNum = i;
         }
         else if(evt[j]->side == 1)
         {
           rateHistsWest[j]->Fill(evt[j]->Erecon);
+	  lastEventNum = i;
         }
 	totalEventNum++;
       }
-      if(i == runsChains[j]->GetEntriesFast() - 1)
-      {
-        liveTimeEast.push_back(evt[j]->tE);
-        liveTimeWest.push_back(evt[j]->tW);
-      }
     }
   }
+
+  for(unsigned int j = 0; j < runsChains.size(); j++)
+  {
+    runsChains[j]->GetEntry(lastEventNum);
+    liveTimeEast.push_back(evt[j]->tE);
+    liveTimeWest.push_back(evt[j]->tW);
+  }
+
 
   numberOfEventsInOctet = totalEventNum;
 
@@ -445,8 +453,8 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
-    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) < 0)
-	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) < 0))
+    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) <= 0)
+	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) <= 0))
     {
       hist->SetBinContent(i, 0);
       mySetErrors.push_back(0);
@@ -456,22 +464,42 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
       hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
                         + sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
 
-      if(eastPlusRates->GetBinContent(i) == 0 || westMinusRates->GetBinContent(i) == 0
-        || eastMinusRates->GetBinContent(i) == 0 || westPlusRates->GetBinContent(i) == 0)
+      double e1 = westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
+                                *eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i);
+      double e2 = eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
+                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i);
+      double e3 = westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
+                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i);
+      double e4 = eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
+                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i);
+
+      if(e1 <= 0)
+      {
+        e1 = 0;
+      }
+      if(e2 <= 0)
+      {
+        e2 = 0;
+      }
+      if(e3 <= 0)
+      {
+        e3 = 0;
+      }
+      if(e4 <= 0)
+      {
+        e4 = 0;
+      }
+
+      if(e1 == 0 && e2 == 0 && e3 == 0 && e4 == 0)
       {
         errorValueEachBin = 0;
       }
       else
       {
-        errorValueEachBin = sqrt( 0.25*westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
-                                *eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i)
-                          + 0.25*eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
-                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i)
-                          + 0.25*westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
-                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i)
-                          + 0.25*eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
-                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i) );
+        errorValueEachBin = sqrt(0.25*(e1 + e2 + e3 + e4));
+
       }
+
       mySetErrors.push_back(errorValueEachBin);
     }
   }
@@ -490,7 +518,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> SetTitle(title);
   hPlot -> GetXaxis() -> SetTitle("Energy (KeV)");
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("Rate (mHz/KeV)");
+  hPlot -> GetYaxis() -> SetTitle("Rate");
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 

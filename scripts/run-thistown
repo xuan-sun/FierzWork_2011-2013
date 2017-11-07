@@ -19,21 +19,21 @@ if ((x == 59))
 then
 continue
 fi
-if ((x == 10))
-then
-continue
-fi
-if ((x == 11))
-then
-continue
-fi
+#if ((x == 10))
+#then
+#continue
+#fi
+#if ((x == 11))
+#then
+#continue
+#fi
 
 #sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
 # this -i seems to suppress printing out the file to screen. Use it.
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./viewRuns $x
+./blindingMCFiles $x
 make clean
 
 done
