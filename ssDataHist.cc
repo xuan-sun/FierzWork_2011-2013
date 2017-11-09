@@ -368,6 +368,8 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     }
   }
 
+  // This takes the same "lastEventNum" for each run chain which is why they are all approximately the same.
+  // not too sure why they weren't exactly the same, but this needs to be embedded in the outer loop above.
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
     runsChains[j]->GetEntry(lastEventNum);
