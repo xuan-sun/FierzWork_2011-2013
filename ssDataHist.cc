@@ -37,6 +37,7 @@
 #include	 <vector>
 #include	 <utility>
 #include	 <TLeaf.h>
+#include	 <math.h>
 using		 namespace std;
 
 struct Event
@@ -344,7 +345,9 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   vector <double> liveTimeWest;
 
   int totalEventNum = 0;
-  int lastEventNum = 0;
+
+  vector <int> lastEventNum;
+  int lastEventNumPerChain = 0;
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
@@ -356,23 +359,24 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
         if(evt[j]->side == 0)
         {
           rateHistsEast[j]->Fill(evt[j]->Erecon);
-	  lastEventNum = i;
+	  lastEventNumPerChain = i;
         }
         else if(evt[j]->side == 1)
         {
           rateHistsWest[j]->Fill(evt[j]->Erecon);
-	  lastEventNum = i;
+	  lastEventNumPerChain = i;
         }
 	totalEventNum++;
       }
     }
+    lastEventNum.push_back(lastEventNumPerChain);
   }
 
   // This takes the same "lastEventNum" for each run chain which is why they are all approximately the same.
   // not too sure why they weren't exactly the same, but this needs to be embedded in the outer loop above.
-  for(unsigned int j = 0; j < runsChains.size(); j++)
+  for(unsigned int j = 0; j < lastEventNum.size(); j++)
   {
-    runsChains[j]->GetEntry(lastEventNum);
+    runsChains[j]->GetEntry(lastEventNum[j]);
     liveTimeEast.push_back(evt[j]->tE);
     liveTimeWest.push_back(evt[j]->tW);
   }
@@ -384,16 +388,21 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 
   // here we loop back over the event histograms in east and west
   // and scale them down by time of last event aka live time.
+
+  cout << "Live times for East side are: " << endl;
   for(unsigned int i = 0; i < rateHistsEast.size(); i++)
   {
     rateHistsEast[i]->Sumw2();
     rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
+    cout << "liveTimeEast[" << i << "] = " << liveTimeEast[i] << endl;
   }
 
+  cout << "Live times for West side are: " << endl;
   for(unsigned int i = 0; i < rateHistsWest.size(); i++)
   {
     rateHistsWest[i]->Sumw2();
     rateHistsWest[i]->Scale(1.0/liveTimeWest[i]);
+    cout << "liveTimeWest[" << i << "] = " << liveTimeWest[i] << endl;
   }
 
   rateHists.push_back(rateHistsEast);
@@ -451,20 +460,89 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   westMinusRates->Add(sideRates[1][index_B7]);
   eastMinusRates->Scale(1.0/4.0);
 
-  double errorValueEachBin = 0;
+  double R1 = 0;
+  double R2 = 0;
+  double dR1 = 0;
+  double dR2 = 0;
+
+/*
+  sfON = Plus Rates.
+  sfOff = Minus Rates.
+  [0] = East
+  [1] = West
+*/
+
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
+    if(eastPlusRates->GetBinContent(i) > 0 && westMinusRates->GetBinContent(i) > 0)
+    {
+      R2 = sqrt(eastPlusRates->GetBinContent(i) * westMinusRates->GetBinContent(i));
+    }
+    else if(eastPlusRates->GetBinContent(i) <= 0 && westMinusRates->GetBinContent(i) <= 0)
+    {
+      R2 = -sqrt(eastPlusRates->GetBinContent(i) * westMinusRates->GetBinContent(i));
+    }
+    else /* Implicitly, it means if one is negative and the other is positive */
+    {
+      R2 = 0.5*(eastPlusRates->GetBinContent(i) + westMinusRates->GetBinContent(i));
+    }
+
+
+    if(eastMinusRates->GetBinContent(i) > 0 && westPlusRates->GetBinContent(i) > 0)
+    {
+      R1 = sqrt(eastMinusRates->GetBinContent(i) * westPlusRates->GetBinContent(i));
+    }
+    else if(eastMinusRates->GetBinContent(i) <= 0 && westPlusRates->GetBinContent(i) <= 0)
+    {
+      R1 = -sqrt(eastMinusRates->GetBinContent(i) * westPlusRates->GetBinContent(i));
+    }
+    else /* Implicitly, it means if one is negative and the other is positive */
+    {
+      R1 = 0.5*(eastMinusRates->GetBinContent(i) + westPlusRates->GetBinContent(i));
+    }
+
+    if( (eastMinusRates->GetBinContent(i) > 0 && westPlusRates->GetBinContent(i) > 0)
+       || (eastMinusRates->GetBinContent(i) < 0 && westPlusRates->GetBinContent(i) < 0) )
+    {
+      dR1 = 0.5*sqrt((pow((eastMinusRates->GetBinContent(i))*(westPlusRates->GetBinError(i)), 2)
+	    + pow((westPlusRates->GetBinContent(i))*(eastMinusRates->GetBinError(i)), 2))
+	    / (westPlusRates->GetBinContent(i)*eastMinusRates->GetBinContent(i)));
+    }
+    else /* Implicitly means if the product of these rates are negative, then we do the else */
+    {
+      dR1 = 0.5*sqrt(pow(westPlusRates->GetBinError(i), 2) + pow(eastMinusRates->GetBinError(i), 2));
+    }
+
+    if( (eastPlusRates->GetBinContent(i) > 0 && westMinusRates->GetBinContent(i) > 0)
+      || (eastPlusRates->GetBinContent(i) < 0 && westMinusRates->GetBinContent(i) < 0) )
+    {
+      dR2 = 0.5*sqrt((pow((westMinusRates->GetBinContent(i))*(eastPlusRates->GetBinError(i)), 2)
+            + pow((eastPlusRates->GetBinContent(i))*(westMinusRates->GetBinError(i)), 2))
+            / (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i)));
+    }
+    else /* Implicitly means if the product of these rates are negative, then we do the else */
+    {
+      dR2 = 0.5*sqrt(pow(eastPlusRates->GetBinError(i), 2) + pow(westMinusRates->GetBinError(i), 2));
+
+    }
+
+    hist->SetBinContent(i, R1 + R2);
+    mySetErrors.push_back(sqrt(pow(dR1, 2) + pow(dR2, 2)));
+
+
+
+
+/*
     if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) <= 0)
 	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) <= 0))
     {
-      hist->SetBinContent(i, 0);
+      hist->SetBinContent(i, R1 + R2);
       mySetErrors.push_back(0);
     }
     else
     {
-      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
-                        + sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
+      hist->SetBinContent(i, R1 + R2);
 
       double e1 = westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
                                 *eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i);
@@ -504,6 +582,9 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 
       mySetErrors.push_back(errorValueEachBin);
     }
+*/
+
+
   }
 
   hist->SetError(&(mySetErrors[0]));
