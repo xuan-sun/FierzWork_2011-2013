@@ -94,54 +94,131 @@ const int index_B12 = 15;
 
 int main(int argc, char* argv[])
 {
-/*
+
   if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (octet #)" << endl;
+    cout << "(executable) (run type)" << endl;
     return 0;
   }
-  // read in arguments.
-  Int_t octNb = atoi(argv[1]);
-*/
+
+  int runType = atoi(argv[1]);
 
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
-  TFile f("runType_A2_BGTree.root", "RECREATE");
-
-  vector < pair <string,int> > octetIndices;
-  vector < TChain* > runFiles;
-  for(int octNb = 23; octNb < 25; octNb++)
+  int index = -1;
+  TString fileName;
+  if(runType == 8)
   {
-    octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb), octetIndices);
-
-    runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/");
-
+    index = index_A1;
+    fileName = "runType_A1_BGTree_allTypes.root";
+  }
+  else if(runType == 9)
+  {
+    index = index_A4;
+    fileName = "runType_A4_BGTree_allTypes.root";
+  }
+  else if(runType == 10)
+  {
+    index = index_A9;
+    fileName = "runType_A9_BGTree_allTypes.root";
+  }
+  else if(runType == 11)
+  {
+    index = index_A12;
+    fileName = "runType_A12_BGTree_allTypes.root";
+  }
+  else if(runType == 12)
+  {
+    index = index_B1;
+    fileName = "runType_B1_BGTree_allTypes.root";
+  }
+  else if(runType == 13)
+  {
+    index = index_B4;
+    fileName = "runType_B4_BGTree_allTypes.root";
+  }
+  else if(runType == 14)
+  {
+    index = index_B9;
+    fileName = "runType_B9_BGTree_allTypes.root";
+  }
+  else if(runType == 15)
+  {
+    index = index_B12;
+    fileName = "runType_B12_BGTree_allTypes.root";
+  }
+  else
+  {
+    cout << "Value of index doesn't match a background run. Exiting..." << endl;
+    return 0;
   }
 
-  cout << "Size of octetIndices = " << octetIndices.size() << endl;
-  cout << "Number of TChains in runFiles = " << runFiles.size() << endl;
+  TFile f(fileName, "RECREATE");
+
+  cout << "Run type input used to get index... " << index << endl;
+  cout << "Creating file name: " << fileName.Data() << endl;
+
+  vector < pair <string,int> > octetIndices;
+  vector < TChain* > runsChains;
+  for(int octNb = 0; octNb < 60; octNb++)
+  {
+    if(octNb == 9 || octNb == 59)
+    {
+      continue;
+    }
+    octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb), octetIndices);
+    runsChains = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/");
+  }
 
   Event* evt = new Event;
-  runFiles[index_A2] -> SetBranchAddress("Erecon", &evt->Erecon);
-
+  runsChains[index]->SetBranchAddress("EvtN", &evt->eventNum);
+  runsChains[index]->SetBranchAddress("Time", &evt->time);
+  runsChains[index]->SetBranchAddress("TimeE", &evt->tE);
+  runsChains[index]->SetBranchAddress("TimeW", &evt->tW);
+  runsChains[index]->SetBranchAddress("Side", &evt->side);
+  runsChains[index]->SetBranchAddress("Type", &evt->type);
+  runsChains[index]->SetBranchAddress("Erecon", &evt->Erecon);
+  runsChains[index]->SetBranchAddress("PID", &evt->pid);
+  runsChains[index]->SetBranchAddress("badTimeFlag", &evt->timeFlag);
+  runsChains[index]->GetBranch("xE")->GetLeaf("center")->SetAddress(&evt->xEastPos);
+  runsChains[index]->GetBranch("yE")->GetLeaf("center")->SetAddress(&evt->yEastPos);
+  runsChains[index]->GetBranch("xW")->GetLeaf("center")->SetAddress(&evt->xWestPos);
+  runsChains[index]->GetBranch("yW")->GetLeaf("center")->SetAddress(&evt->yWestPos);
 
   Event* evtWrite = new Event;
   TTree *tFill = new TTree("Background", "Background");
   tFill->Branch("Erecon", &evtWrite->Erecon, "Erecon/D");
+  tFill->Branch("EvtN", &evtWrite->eventNum, "EvtN/I");
+  tFill->Branch("Time", &evtWrite->time, "Time/D");
+  tFill->Branch("TimeE", &evtWrite->tE, "TimeE/D");
+  tFill->Branch("TimeW", &evtWrite->tW, "TimeW/D");
+  tFill->Branch("Side", &evtWrite->side, "Side/I");
+  tFill->Branch("Type", &evtWrite->type, "Type/I");
+  tFill->Branch("PID", &evtWrite->pid, "PID/I");
+  tFill->Branch("badTimeFlag", &evtWrite->timeFlag, "badTimeFlag/I");
 
-
-  for(unsigned int i = 0; i < runFiles[index_A2]->GetEntries(); i++)
+  for(unsigned int i = 0; i < runsChains[index]->GetEntries(); i++)
   {
     if(i % 100000 == 0)
-      cout << "Copied entry number " << i << "/" << runFiles[index_A2]->GetEntriesFast() <<  endl;
+      cout << "Copied entry number " << i << "/" << runsChains[index]->GetEntriesFast() <<  endl;
 
-    runFiles[index_A2] -> GetEntry(i);
+    runsChains[index]->GetEntry(i);
 
-    double energyValueReadIn = evt->Erecon;
-    evtWrite->Erecon = energyValueReadIn;
+    if(evt->pid == 1 && evt->type < 4 && evt->Erecon >= 0 && evt->timeFlag == 0)
+    {
+      evtWrite->Erecon = evt->Erecon;
+      evtWrite->eventNum = evt->eventNum;
+      evtWrite->time = evt->time;
+      evtWrite->tE = evt->tE;
+      evtWrite->tW = evt->tW;
+      evtWrite->side = evt->side;
+      evtWrite->type = evt->type;
+      evtWrite->pid = evt->pid;
+      evtWrite->timeFlag = evt->timeFlag;
 
-    tFill->Fill();
+      tFill->Fill();
+    }
   }
 
   f.Write();
