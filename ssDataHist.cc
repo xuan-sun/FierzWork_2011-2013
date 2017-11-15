@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("Octet_%i_ssDataHist.root", octNb), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist_allTypes.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -310,14 +310,67 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
 vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 {
+  // the following was added to implement a background model
+  vector <Event*> bgEvt;
+  vector <TH1D*> refBGHistsEast;
+  vector <TH1D*> refBGHistsWest;
+  vector <TChain*> refBGChains;
+  for(unsigned int i = 0; i < runsChains.size(); i++)
+  {
+    bgEvt.push_back(new Event);
+    refBGHistsEast.push_back(new TH1D(TString::Format("BG East Rate Index %i", i), "BG East Rate", 120, 0, 1200));
+    refBGHistsWest.push_back(new TH1D(TString::Format("BG West Rate Index %i", i), "BG West Rate", 120, 0, 1200));
+    refBGChains.push_back(new TChain("Background"));
+  }
+  refBGChains[index_A1]->Add("ExtractedHistograms/background_trees/runType_A1_BGTree_allTypes.root");
+  refBGChains[index_A4]->Add("ExtractedHistograms/background_trees/runType_A4_BGTree_allTypes.root");
+  refBGChains[index_A9]->Add("ExtractedHistograms/background_trees/runType_A9_BGTree_allTypes.root");
+  refBGChains[index_A12]->Add("ExtractedHistograms/background_trees/runType_A12_BGTree_allTypes.root");
+  refBGChains[index_B1]->Add("ExtractedHistograms/background_trees/runType_B1_BGTree_allTypes.root");
+  refBGChains[index_B4]->Add("ExtractedHistograms/background_trees/runType_B4_BGTree_allTypes.root");
+  refBGChains[index_B9]->Add("ExtractedHistograms/background_trees/runType_B9_BGTree_allTypes.root");
+  refBGChains[index_B12]->Add("ExtractedHistograms/background_trees/runType_B12_BGTree_allTypes.root");
+
+  for(unsigned int i = 8; i < refBGChains.size(); i++)
+  {
+    refBGChains[i]->SetBranchAddress("EvtN", &bgEvt[i]->eventNum);
+    refBGChains[i]->SetBranchAddress("Time", &bgEvt[i]->time);
+    refBGChains[i]->SetBranchAddress("TimeE", &bgEvt[i]->tE);
+    refBGChains[i]->SetBranchAddress("TimeW", &bgEvt[i]->tW);
+    refBGChains[i]->SetBranchAddress("Side", &bgEvt[i]->side);
+    refBGChains[i]->SetBranchAddress("Type", &bgEvt[i]->type);
+    refBGChains[i]->SetBranchAddress("Erecon", &bgEvt[i]->Erecon);
+    refBGChains[i]->SetBranchAddress("PID", &bgEvt[i]->pid);
+    refBGChains[i]->SetBranchAddress("badTimeFlag", &bgEvt[i]->timeFlag);
+  }
+
+  for(unsigned int j = 8; j < refBGChains.size(); j++)
+  {
+    for(unsigned int i = 0; i < refBGChains[j]->GetEntries(); i++)
+    {
+      refBGChains[j]->GetEntry(i);
+      if(bgEvt[j]->pid == 1 && bgEvt[j]->type < 4 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
+      {
+        if(bgEvt[j]->side == 0)
+        {
+          refBGHistsEast[j]->Fill(bgEvt[j]->Erecon);
+        }
+        else if(bgEvt[j]->side == 1)
+        {
+          refBGHistsWest[j]->Fill(bgEvt[j]->Erecon);
+        }
+      }
+    }
+  }
+
+  cout << "Completed filling reference background counts into east and west histograms..." << endl;
+
   // reminder: each evt[i] index corresponds to the indices noted at global scope.
   vector <Event*> evt;
-
   vector < vector <TH1D*> > rateHists;
 
   vector <TH1D*> rateHistsEast;
   vector <TH1D*> rateHistsWest;
-
   for(unsigned int i = 0; i < runsChains.size(); i++)
   {
     evt.push_back(new Event);
@@ -372,8 +425,6 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     lastEventNum.push_back(lastEventNumPerChain);
   }
 
-  // This takes the same "lastEventNum" for each run chain which is why they are all approximately the same.
-  // not too sure why they weren't exactly the same, but this needs to be embedded in the outer loop above.
   for(unsigned int j = 0; j < lastEventNum.size(); j++)
   {
     runsChains[j]->GetEntry(lastEventNum[j]);
@@ -386,23 +437,45 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 
   cout << "The total number of events for this octet is " << totalEventNum << endl;
 
-  // here we loop back over the event histograms in east and west
-  // and scale them down by time of last event aka live time.
-
-  cout << "Live times for East side are: " << endl;
-  for(unsigned int i = 0; i < rateHistsEast.size(); i++)
+  // Now we implement the background model.
+  // If the number of counts < 25 in a channel, use reference spectra to set new error.
+  for(unsigned int j = 0; j < runsChains.size(); j++)
   {
-    rateHistsEast[i]->Sumw2();
-    rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
-    cout << "liveTimeEast[" << i << "] = " << liveTimeEast[i] << endl;
+    rateHistsEast[j]->Sumw2();
+    rateHistsWest[j]->Sumw2();
+  }
+  double nExp = 0;
+  for(unsigned int j = 8; j < runsChains.size(); j++)
+  {
+    for(int i = 0; i < rateHistsEast[j]->GetNbinsX(); i++)
+    {
+      if(rateHistsEast[j]->GetBinContent(i) < 25)
+      {
+        nExp = (refBGHistsEast[j]->GetBinContent(i) / refBGHistsEast[j]->GetEntries()) * rateHistsEast[j]->GetEntries();
+        rateHistsEast[j]->SetBinError(i, nExp);
+      }
+      if(rateHistsWest[j]->GetBinContent(i) < 25)
+      {
+        nExp = (refBGHistsWest[j]->GetBinContent(i) / refBGHistsWest[j]->GetEntries()) * rateHistsWest[j]->GetEntries();
+        rateHistsWest[j]->SetBinError(i, nExp);
+      }
+    }
   }
 
-  cout << "Live times for West side are: " << endl;
+  cout << "Testing, rateHistsEast[index_A1]->GetBinContent(25) = " << rateHistsEast[index_A1]->GetBinContent(25) << endl;
+  cout << "Testing, errors = " << rateHistsEast[index_A1]->GetBinError(25) << endl;
+
+
+  // here we loop back over the event histograms in east and west
+  // and scale them down by time of last event aka live time.
+  for(unsigned int i = 0; i < rateHistsEast.size(); i++)
+  {
+    rateHistsEast[i]->Scale(1.0/liveTimeEast[i]);
+  }
+
   for(unsigned int i = 0; i < rateHistsWest.size(); i++)
   {
-    rateHistsWest[i]->Sumw2();
     rateHistsWest[i]->Scale(1.0/liveTimeWest[i]);
-    cout << "liveTimeWest[" << i << "] = " << liveTimeWest[i] << endl;
   }
 
   rateHists.push_back(rateHistsEast);
@@ -426,6 +499,10 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
       sideRates[j][i]->Add(sideRates[j][i], sideRates[j][i+8], 1, -1);
     }
   }
+
+  // Check each channel of background. If total counts less than 25, use reference spectra
+  // Change only the error on each bin!
+
 
   // sum the "like" histograms without any statistical weight
   TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);

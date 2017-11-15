@@ -7,26 +7,25 @@
 
 cd ..
 
-#for ((x = 0; x < 60; x = x + 1))
-for ((x = 8; x < 16; x = x + 1))
+for ((x = 0; x < 60; x = x + 1))
 
 do
 
-#if ((x == 9))
-#then
-#continue
-#fi
-#if ((x == 59))
-#then
-#continue
-#fi
+if ((x == 9))
+then
+continue
+fi
+if ((x == 59))
+then
+continue
+fi
 
 #sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
 # this -i seems to suppress printing out the file to screen. Use it.
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./createBGTrees $x
+./ssDataHist $x
 make clean
 
 done
