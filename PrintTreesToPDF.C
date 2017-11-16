@@ -8,7 +8,7 @@ PrintTreesToPDF()
       continue;
     }
 
-    TFile f(Form("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", i));
+    TFile f(Form("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_allTypes.root", i));
 	cout << "Opened file.." << endl;
 
     TH1D *h = (TH1D*)f.Get("Super sum");
