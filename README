@@ -2,7 +2,43 @@ June 20, 2017
 
 Starting a directory to do Fierz-only analysis.
 
-fierz.cc creates a super summed reconstructed energy. The cuts are done in there.
 
-Will need to write code that does as reverse calibration in GEANT4 simulation.
+November 29, 2017
 
+Update on what we have.
+
+blindingMCFiles.cc will create blinded MC files to be used instead of b=0.
+This only needs to be done once.
+
+createBGTrees.cc will make the background model trees.
+This only needs to be done once.
+
+comparehist.cc is what we run to get the Fierz fit using TFractionFitter.
+This is done every time we want to redo the fit.
+
+energyRelationsForBrad.cc was getting an Erecon vs primKE plot for Brad.
+It's not used for anything useful.
+
+histfitter.cc - I can't figure out why this is here. I don't think we use it.
+It looks like it was the model for comparehist.cc so we don't need it.
+Checking Github, it looks like histfitter was used with master_histfitter.
+So we could do bulk replacements using bash scripting.
+Hence it's not useful for the Fierz work we are doing right now.
+
+plotChisquared.cc reads in a .txt file and plots the chi squared values. Simple.
+Needs to be run every time we do an overall new comparehist.cc.
+
+plotFierz.cc reads in a .txt file and plots fierz values. Simple.
+Needs to be run every time we do an overall new comparehist.cc
+
+PrintTreesToPDF.C is a ROOT script used to look at the octet energy spectra.
+
+shapeFactor.cc is a big deal. It reads in MC files and creates shape factors.
+It also redoes the fit and makes a new chi-squared measurement (independent of TFractionFitter).
+
+ssDataHist.cc creates super summed rates for octets of data.
+ssMCHist.cc creates super summed counts for MC octets.
+Both only need to be run once to create "base" MC files.
+
+viewRuns.cc is used to print all the runs that go into one octet, and the background, to pdf.
+Was only useful in debugging.
