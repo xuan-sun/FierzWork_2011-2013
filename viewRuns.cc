@@ -37,6 +37,7 @@
 #include	 <vector>
 #include	 <utility>
 #include	 <TLeaf.h>
+#include 	 <TRandom3.h>
 using		 namespace std;
 
 struct Event
@@ -94,6 +95,25 @@ const int index_B12 = 15;
 
 int main(int argc, char* argv[])
 {
+/*
+//This generates the numbers used for b=0 MC "mixing".
+  TRandom3* engine = new TRandom3(0);
+  ofstream outfile;
+  outfile.open("randomMixingSeeds.txt", ios::app);
+  outfile << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+	  << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\t"
+          << engine->Rndm()/10.0 << "\n";
+  outfile.close();
+  return 0;
+*/
+
   if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
