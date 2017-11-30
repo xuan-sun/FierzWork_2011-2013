@@ -102,12 +102,40 @@ int main(int argc, char* argv[])
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
 
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_0");
-  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/A_0_b_inf");
+  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/2011-2012_geom/A_0_b_0");
+  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "fromSept2017Onwards/2011-2012_geom/A_0_b_inf");
+
+  // read in our random mixing seed so I stay pretty blind.
+  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
+  infile1.open("ExtractedHistograms/randomMixingSeeds.txt");
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << "randomMixingSeeds.txt" << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
 
   // load all the histograms of east and west, turn them into rates.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 0.9);
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0.1);
+  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1.0 - s3);
+  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s3);
 
   // Sum the two files together.
   for(unsigned int i = 0; i < rates_base.size(); i++)
@@ -120,7 +148,7 @@ int main(int argc, char* argv[])
 
   }
 
-  TFile f(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_allTypes.root", octNb), "RECREATE");
+  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_allTypes.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();

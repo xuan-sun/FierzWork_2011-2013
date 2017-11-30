@@ -69,8 +69,8 @@ int main(int argc, char* argv[])
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 
-  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/DEBUG_Data_Hists/DEBUG_Octet_%i_ssDataHist.root", octNb));
-  TFile fMCSM(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
+  TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   double mOverE = -1;
   entry evt;
 
-  TString fileName = Form("NewTimeFlag_FitterResults_b_%s.txt", TYPE);
+  TString fileName = Form("BLIND_ExtractedbValues_%s_comparehist.txt", TYPE);
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -209,9 +209,9 @@ int main(int argc, char* argv[])
   TLatex t;
   t.SetTextSize(0.03);
   t.SetTextAlign(13);
-  t.DrawLatex(900, 0.09, Form("b = %f", fierzVal));
+  t.DrawLatex(900, 0.09, Form("b_{TFF} = %f", fierzVal));
 
-  // calculate the chi-squared by hand from the theory with fit b values to shape factor
+  // calculate the chi-squared by hand from the theory with TFractionFitter fit b values to shape factor
   double chisquared = 0;
   double ndf = 0;
   for(unsigned int i = 0; i < Sfactor.size(); i++)
@@ -223,17 +223,8 @@ int main(int argc, char* argv[])
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}}{n} = %f", chisquared/ndf));
+  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{TFF}}{n} = %f", chisquared/ndf));
 
-  // print the chi-sqquared to file so we can plot it in other code.
-  ofstream outfile;
-  TString chisquaredFileName = Form("chisquared_%s_shapeFactor.txt", TYPE);
-  outfile.open(chisquaredFileName.Data(), ios::app);
-  outfile << octNb << "\t"
-	  << chisquared << "\t"
-	  << ndf << "\t"
-	  << chisquared/ndf << "\n";
-  outfile.close();
 
   // Now we want to create a "shape factor" function where b is a variable
   // and fit our existing shape factor points.
@@ -246,17 +237,45 @@ int main(int argc, char* argv[])
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(850, 0.06, Form("b_{new} = %f", bFit));
+  t3.DrawLatex(850, 0.06, Form("b_{HF} = %f", bFit));
 
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(850, 0.05, Form("bErr_{new} = %f", bFitErr));
+  t4.DrawLatex(850, 0.05, Form("bErr_{HF} = %f", bFitErr));
+
+  // get a second measure of chi-squared using the TF1 hist fit.
+  // note: we use the restrictedEnergy vector above because that corresponds to actual x values.
+  // so there is some "cross-over" between these "sections" of code.
+  double chisquared_hf = 0;
+  double ndf_hf = 0;
+  for(unsigned int i = 0; i < restrictedEnergy.size(); i++)
+  {
+    chisquared_hf = chisquared_hf + ((shape[i+10]-fitFunc->Eval(restrictedEnergy[i]))*(shape[i+10]-fitFunc->Eval(restrictedEnergy[i])))
+		/ (shapeErr[i+10]*shapeErr[i+10]);
+    ndf_hf = ndf_hf + 1;
+  }
+
+  TLatex t5;
+  t5.SetTextSize(0.03);
+  t5.SetTextAlign(13);
+  t5.DrawLatex(900, 0.04, Form("#frac{#chi^{2}_{HF}}{n} = %f", chisquared_hf/ndf_hf));
+
+  // print both chi-squareds (TFF and HF) to file so we can plot it in other code.
+  ofstream outfile;
+  TString chisquaredFileName = Form("TFF_HF_chisquared_%s_shapeFactor.txt", TYPE);
+  outfile.open(chisquaredFileName.Data(), ios::app);
+  outfile << octNb << "\t"
+          << chisquared << "\t"
+          << ndf << "\t"
+          << chisquared/ndf << "\t"
+	  << chisquared_hf << "\t"
+	  << ndf_hf << "\t"
+	  << chisquared_hf/ndf_hf << "\n";
+  outfile.close();
 
 
-
-
-  C->Print(Form("ShapeFactor_%i_%s.pdf", octNb, TYPE));
+  C->Print(Form("BLIND_ShapeFactor_%i_%s.pdf", octNb, TYPE));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();

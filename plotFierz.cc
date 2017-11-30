@@ -43,7 +43,7 @@
 
 using            namespace std;
 
-#define 	TYPE	"type0"
+#define 	TYPE	"allTypes"
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -89,7 +89,7 @@ int main()
   for(unsigned int i = 0; i < errorBarsEntries.size(); i++)
   {
     xErr.push_back(0.5);	// half an octet number
-    yErr.push_back(sqrt(2)*10.1 / sqrt(errorBarsEntries[i]));	// converting using Gluck formula for 100KeV and up fit.
+    yErr.push_back(10.1 / sqrt(errorBarsEntries[i]));	// converting using Gluck formula for 100KeV and up fit.
   }
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(FierzValues[0]), &(xErr[0]), &(yErr[0]));

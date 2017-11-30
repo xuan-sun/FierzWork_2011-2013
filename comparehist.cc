@@ -42,8 +42,9 @@ int main(int argc, char* argv[])
                                       "mcFierz", "Test of comparehist code", 100, 0, 1000);
 */
 
-  TFile fData(TString::Format("ExtractedHistograms/DEBUG_Data_Hists/DEBUG_Octet_%i_ssDataHist.root", octNb));
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
   TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist%s.root", octNb, ""));
 
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
@@ -64,7 +65,7 @@ int main(int argc, char* argv[])
   int status = fit->Fit();
 
   int fitPassNumber = 1;
-  double value = 1.69;
+  double value = 1.698;
   int entries = -100;
   int entriesData = -100;
   while(status != 0 || isnan(fit->GetChisquare()))
@@ -87,12 +88,12 @@ int main(int argc, char* argv[])
         entriesData = entriesData + dataHist->GetBinContent(i);
       }
     }
-    value = value - 0.1;     // try again with a seed value slightly lower
+    value = value - 0.05;     // try again with a seed value slightly lower
     fitPassNumber++;
 
-    if(fitPassNumber == 10)
+    if(fitPassNumber >= 30)
     {
-      cout << "Fit attempted 10 times and failed. Exiting..." << endl;
+      cout << "Fit attempted 30 times and failed. Exiting..." << endl;
       break;
     }
   }
@@ -121,7 +122,7 @@ int main(int argc, char* argv[])
   cout << "Entries used in theoretical limit: " << dataHist->GetEntries() << endl;
 
   ofstream outfile;
-  outfile.open(Form("ExtractedbValues_%s_comparehist.txt", TYPE), ios::app);
+  outfile.open(Form("BLIND_ExtractedbValues_%s_comparehist.txt", TYPE), ios::app);
   outfile << octNb << "\t"
 	  << frac1Val/(frac0Val*avg_mE) << "\t"
           << avg_mE << "\t"

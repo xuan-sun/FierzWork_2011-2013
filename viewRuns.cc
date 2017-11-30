@@ -100,16 +100,16 @@ int main(int argc, char* argv[])
   TRandom3* engine = new TRandom3(0);
   ofstream outfile;
   outfile.open("randomMixingSeeds.txt", ios::app);
-  outfile << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-	  << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\t"
-          << engine->Rndm()/10.0 << "\n";
+  outfile << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+	  << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\t"
+          << engine->Rndm()/5.0 << "\n";
   outfile.close();
   return 0;
 */
