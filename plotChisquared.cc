@@ -60,6 +60,9 @@ struct entry
   double chisquared;
   double ndf;
   double xperndf;
+  double chisquared_hf;
+  double ndf_hf;
+  double xperndf_hf;
 };
 
 // global vectors for creating TGraphs.
@@ -74,7 +77,7 @@ int main()
 
   TH1D *h1 = new TH1D("myhist", "myhist", 60, 0, 5);
 
-  FillArrays("chisquared_allTypes_shapeFactor.txt", h1);
+  FillArrays("TFF_HF_chisquared_allTypes_shapeFactor.txt", h1);
 
   TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
 
@@ -202,20 +205,19 @@ void FillArrays(TString fileName, TH1D* hist)
       bufstream1 >> evt.octNb
 		>> evt.chisquared
 		>> evt.ndf
-		>> evt.xperndf;
+		>> evt.xperndf
+		>> evt.chisquared_hf
+		>> evt.ndf_hf
+		>> evt.xperndf_hf;
       {
 	counter++;
-        hist -> Fill(evt.xperndf);
+        hist -> Fill(evt.xperndf_hf);
 	octets.push_back(evt.octNb);
-	chisquared.push_back(evt.xperndf);
-	NDF = evt.ndf;
+	chisquared.push_back(evt.xperndf_hf);
+	NDF = evt.ndf_hf;
       }
     }
 
-//    if(evt.xperndf > 1.75)
-    {
-      cout << "Octet " << evt.octNb << " has chi-squared per dof of " << evt.xperndf << endl;
-    }
 
     if(infile1.eof() == true)
     {

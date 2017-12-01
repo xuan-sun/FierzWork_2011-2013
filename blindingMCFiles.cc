@@ -134,8 +134,8 @@ int main(int argc, char* argv[])
   }
 
   // load all the histograms of east and west, turn them into rates.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1.0 - s3);
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s3);
+  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, s3);
+  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 1.0 - s3);
 
   // Sum the two files together.
   for(unsigned int i = 0; i < rates_base.size(); i++)
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 
   }
 
-  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_allTypes.root", octNb), "RECREATE");
+  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_allTypes.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();
