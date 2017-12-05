@@ -40,6 +40,7 @@
 #include         <TLatex.h>
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
+#include	 <TMinuit.h>
 
 using            namespace std;
 
@@ -70,6 +71,7 @@ vector <double> binContentsMCinf;
 vector <double> binErrorsMCinf;
 vector <double> binContentsData;
 vector <double> binErrorsData;
+double avg_mE;
 
 int main(int argc, char* argv[])
 {
@@ -104,6 +106,26 @@ int main(int argc, char* argv[])
 
   cout << "Finished loading the bin contents and errors into vectors..." << endl;
 
+  Int_t iflag = 0;
+  int fitMin = 10;
+  int fitMax = 65;
+  avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, fitMin, fitMax);
+
+  cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(fitMin) << " and " << dataHist->GetBinCenter(fitMax)
+	<< " at: " << avg_mE << endl;
+
+  TMinuit *gMinuit = new TMinuit(2);
+  gMinuit->SetFCN(chi2);
+
+  Double_t arglist[10];
+  arglist[0] = 1;
+
+  gMinuit->mnexcm("SET ERR", arglist, 1, iflag);
+  gMinuit->mnparm(0, "fierz", 0, 0.001, -1, 1, iflag);
+  gMinuit->mnparm(0, "norm", 10, 1, 0, 100, iflag);
+
+  gMinuit->mnexcm("CALL FCN", arglist, 1, iflag);
+  gMinuit->mnexcm("MIGRAD", arglist, 2, iflag);
 
   // plot everything and visualize
 /*  TCanvas *C = new TCanvas("canvas", "canvas");
@@ -143,12 +165,19 @@ int main(int argc, char* argv[])
 
 void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 {
+  double totChi2 = 0;
+  double b = par[0];
+  double N = par[1];
 
+  for(unsigned int i = 10; i < 65; i++)
+  {
+    totChi2 = totChi2
+	 + pow((binContentsData[i] - N*(binContentsMC0[i] + b*avg_mE*binContentsMCinf[i]))/binErrorsData[i], 2.0);
+  }
 
+  cout << "What value is total Chi2? It is " << totChi2 << endl;
 
-
-
-
+  f = totChi2;
 }
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
