@@ -44,7 +44,7 @@
 using            namespace std;
 
 
-#define		HIST_IMAGE_PRINTOUT_NAME	"Test_comparehist"
+#define		HIST_IMAGE_PRINTOUT_NAME	"TestPlot_newXuanFitter"
 #define		TYPE	"allTypes"
 
 //required later for plot_program
@@ -61,6 +61,15 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot,
 // Perform a few useful, simple calculations
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 
+// functions needed for TMinuit fitter
+void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
+
+vector <double> binContentsMC0;
+vector <double> binErrorsMC0;
+vector <double> binContentsMCinf;
+vector <double> binErrorsMCinf;
+vector <double> binContentsData;
+vector <double> binErrorsData;
 
 int main(int argc, char* argv[])
 {
@@ -74,15 +83,26 @@ int main(int argc, char* argv[])
   int octNb = atoi(argv[1]);
 
   TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
-//  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist%s.root", octNb, ""));
-  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist%s.root", octNb, ""));
+//  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
+  for(int i = 0; i < dataHist->GetNbinsX(); i++)
+  {
+    binContentsMC0.push_back(mcTheoryHistBeta->GetBinContent(i));
+    binErrorsMC0.push_back(mcTheoryHistBeta->GetBinError(i));
+    binContentsMCinf.push_back(mcTheoryHistFierz->GetBinContent(i));
+    binErrorsMCinf.push_back(mcTheoryHistFierz->GetBinError(i));
+    binContentsData.push_back(dataHist->GetBinContent(i));
+    binErrorsData.push_back(dataHist->GetBinError(i));
+  }
+
+  cout << "Finished loading the bin contents and errors into vectors..." << endl;
 
 
   // plot everything and visualize
@@ -120,6 +140,17 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+
+void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+{
+
+
+
+
+
+
+}
+
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
 {
   C -> cd(canvasIndex);
