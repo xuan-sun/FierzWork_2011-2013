@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o comparehist.o
-SOURCE = comparehist
+OBJECTS = BetaSpectrum.o plotPostShapeFactor.o
+SOURCE = plotPostShapeFactor
 
 .PHONY: all
 all: $(SOURCE)

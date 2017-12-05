@@ -262,6 +262,7 @@ int main(int argc, char* argv[])
   t5.DrawLatex(900, 0.04, Form("#frac{#chi^{2}_{HF}}{n} = %f", chisquared_hf/ndf_hf));
 
   // print both chi-squareds (TFF and HF) to file so we can plot it in other code.
+  // and the new fit values using TH1::Fit()
   ofstream outfile;
   TString chisquaredFileName = Form("TFF_HF_chisquared_%s_shapeFactor.txt", TYPE);
   outfile.open(chisquaredFileName.Data(), ios::app);
@@ -271,7 +272,9 @@ int main(int argc, char* argv[])
           << chisquared/ndf << "\t"
 	  << chisquared_hf << "\t"
 	  << ndf_hf << "\t"
-	  << chisquared_hf/ndf_hf << "\n";
+	  << chisquared_hf/ndf_hf << "\t"
+	  << bFit << "\t"
+	  << bFitErr << "\n";
   outfile.close();
 
 

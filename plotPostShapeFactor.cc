@@ -51,7 +51,7 @@ double NDF = 0;
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString command);
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString command);
 void FillArrays(TString fileName, TH1D *hist);
 
 struct entry
@@ -63,11 +63,16 @@ struct entry
   double chisquared_hf;
   double ndf_hf;
   double xperndf_hf;
+  double b;
+  double bErr;
 };
 
 // global vectors for creating TGraphs.
 vector <double> octets;
+vector <double> octetsErr;
 vector <double> chisquared;
+vector <double> bValues;
+vector <double> bErrValues;
 
 int main()
 {
@@ -75,25 +80,25 @@ int main()
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("myhist", "myhist", 60, 0, 5);
+  TH1D *h1 = new TH1D("myhist", "myhist", 80, -0.4, 0.4);
 
   FillArrays("TFF_HF_chisquared_allTypes_shapeFactor.txt", h1);
 
-  TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
+//  TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
+  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bValues[0]), &(octetsErr[0]), &(bErrValues[0]));
 
-  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, all Types", "");
-  PlotGraph(C, 1, 2, g1, "chi squared values by octet, all Types", "AP");
+//  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, all Types", "");
+//  PlotGraph(C, 1, 2, g1, "chi squared values by octet, all Types", "AP");
+  PlotHist(C, 1, 1, h1, "TH1::Fit() b Results, all types", "");
+  PlotGraph(C, 1, 2, g1, "TH1::Fit() b results by octet, all types", "AP");
 
-//  TF1 *theoryChi = new TF1("theory", Form("TMath::ChisquareQuantile((TMath::Prob(x*%f, %f)), %f)", NDF, NDF, NDF), 0, 5);
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
-
-  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-  theoryChiHist->Scale(h1->GetMaximum()/theoryChiHist->GetMaximum());
-
-  PlotHist(C, 2, 1, theoryChiHist, "", "SAME");
+//  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
+//  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+//  theoryChiHist->Scale(h1->GetMaximum()/theoryChiHist->GetMaximum());
+//  PlotHist(C, 2, 1, theoryChiHist, "", "SAME");
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("%s.pdf", "plotChisquared"));
+  C -> Print("resultPlotsOfShapeFactorCode.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -103,7 +108,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
-  hPlot -> GetXaxis() -> SetTitle("Extracted #Chi^{2}");
+  hPlot -> GetXaxis() -> SetTitle("b_{HF}");
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle("N");
   hPlot -> GetYaxis() -> CenterTitle();
@@ -123,13 +128,13 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> Draw(command);
 }
 
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString command)
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString command)
 {
   C->cd(canvasIndex);
   gPlot->SetTitle(title);
   gPlot->GetXaxis()->SetTitle("Octet Number");
   gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle("#frac{#Chi^{2}}{n}");
+  gPlot->GetYaxis()->SetTitle("b_{HF}");
   gPlot->GetYaxis()->CenterTitle();
 
   if(styleIndex == 1)
@@ -208,12 +213,17 @@ void FillArrays(TString fileName, TH1D* hist)
 		>> evt.xperndf
 		>> evt.chisquared_hf
 		>> evt.ndf_hf
-		>> evt.xperndf_hf;
+		>> evt.xperndf_hf
+		>> evt.b
+		>> evt.bErr;
       {
 	counter++;
-        hist -> Fill(evt.xperndf_hf);
+        hist -> Fill(evt.b);
 	octets.push_back(evt.octNb);
+	octetsErr.push_back(0.5);
 	chisquared.push_back(evt.xperndf_hf);
+	bValues.push_back(evt.b);
+	bErrValues.push_back(evt.bErr);
 	NDF = evt.ndf_hf;
       }
     }
