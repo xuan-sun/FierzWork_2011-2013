@@ -38,6 +38,9 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 #include	 <math.h>
+
+#define		TYPE	"type1"
+
 using		 namespace std;
 
 struct Event
@@ -111,42 +114,42 @@ int main(int argc, char* argv[])
   if(runType == 8)
   {
     index = index_A1;
-    fileName = "runType_A1_BGTree_allTypes.root";
+    fileName = Form("runType_A1_BGTree_%s.root", TYPE);
   }
   else if(runType == 9)
   {
     index = index_A4;
-    fileName = "runType_A4_BGTree_allTypes.root";
+    fileName = Form("runType_A4_BGTree_%s.root", TYPE);
   }
   else if(runType == 10)
   {
     index = index_A9;
-    fileName = "runType_A9_BGTree_allTypes.root";
+    fileName = Form("runType_A9_BGTree_%s.root", TYPE);
   }
   else if(runType == 11)
   {
     index = index_A12;
-    fileName = "runType_A12_BGTree_allTypes.root";
+    fileName = Form("runType_A12_BGTree_%s.root", TYPE);
   }
   else if(runType == 12)
   {
     index = index_B1;
-    fileName = "runType_B1_BGTree_allTypes.root";
+    fileName = Form("runType_B1_BGTree_%s.root", TYPE);
   }
   else if(runType == 13)
   {
     index = index_B4;
-    fileName = "runType_B4_BGTree_allTypes.root";
+    fileName = Form("runType_B4_BGTree_%s.root", TYPE);
   }
   else if(runType == 14)
   {
     index = index_B9;
-    fileName = "runType_B9_BGTree_allTypes.root";
+    fileName = Form("runType_B9_BGTree_%s.root", TYPE);
   }
   else if(runType == 15)
   {
     index = index_B12;
-    fileName = "runType_B12_BGTree_allTypes.root";
+    fileName = Form("runType_B12_BGTree_%s.root", TYPE);
   }
   else
   {
@@ -205,7 +208,7 @@ int main(int argc, char* argv[])
 
     runsChains[index]->GetEntry(i);
 
-    if(evt->pid == 1 && evt->type < 4 && evt->Erecon >= 0 && evt->timeFlag == 0)
+    if(evt->pid == 1 && evt->type == 1 && evt->Erecon >= 0 && evt->timeFlag == 0)
     {
       evtWrite->Erecon = evt->Erecon;
       evtWrite->eventNum = evt->eventNum;

@@ -38,6 +38,9 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 #include	 <math.h>
+
+#define		TYPE	"type0"
+
 using		 namespace std;
 
 struct Event
@@ -119,7 +122,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("Octet_%i_ssDataHist_allTypes.root", octNb), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist_%s.root", octNb, TYPE), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -322,14 +325,14 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     refBGHistsWest.push_back(new TH1D(TString::Format("BG West Rate Index %i", i), "BG West Rate", 120, 0, 1200));
     refBGChains.push_back(new TChain("Background"));
   }
-  refBGChains[index_A1]->Add("ExtractedHistograms/background_trees/runType_A1_BGTree_allTypes.root");
-  refBGChains[index_A4]->Add("ExtractedHistograms/background_trees/runType_A4_BGTree_allTypes.root");
-  refBGChains[index_A9]->Add("ExtractedHistograms/background_trees/runType_A9_BGTree_allTypes.root");
-  refBGChains[index_A12]->Add("ExtractedHistograms/background_trees/runType_A12_BGTree_allTypes.root");
-  refBGChains[index_B1]->Add("ExtractedHistograms/background_trees/runType_B1_BGTree_allTypes.root");
-  refBGChains[index_B4]->Add("ExtractedHistograms/background_trees/runType_B4_BGTree_allTypes.root");
-  refBGChains[index_B9]->Add("ExtractedHistograms/background_trees/runType_B9_BGTree_allTypes.root");
-  refBGChains[index_B12]->Add("ExtractedHistograms/background_trees/runType_B12_BGTree_allTypes.root");
+  refBGChains[index_A1]->Add(Form("ExtractedHistograms/background_trees/runType_A1_BGTree_%s.root", TYPE));
+  refBGChains[index_A4]->Add(Form("ExtractedHistograms/background_trees/runType_A4_BGTree_%s.root", TYPE));
+  refBGChains[index_A9]->Add(Form("ExtractedHistograms/background_trees/runType_A9_BGTree_%s.root", TYPE));
+  refBGChains[index_A12]->Add(Form("ExtractedHistograms/background_trees/runType_A12_BGTree_%s.root", TYPE));
+  refBGChains[index_B1]->Add(Form("ExtractedHistograms/background_trees/runType_B1_BGTree_%s.root", TYPE));
+  refBGChains[index_B4]->Add(Form("ExtractedHistograms/background_trees/runType_B4_BGTree_%s.root", TYPE));
+  refBGChains[index_B9]->Add(Form("ExtractedHistograms/background_trees/runType_B9_BGTree_%s.root", TYPE));
+  refBGChains[index_B12]->Add(Form("ExtractedHistograms/background_trees/runType_B12_BGTree_%s.root", TYPE));
 
   for(unsigned int i = 8; i < refBGChains.size(); i++)
   {
@@ -348,8 +351,8 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   {
     for(unsigned int i = 0; i < refBGChains[j]->GetEntries(); i++)
     {
-      refBGChains[j]->GetEntry(i);
-      if(bgEvt[j]->pid == 1 && bgEvt[j]->type < 4 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
+      refBGChains[j]->GetEntry(i);	/* THIS NEEDS TO GET CHANGED FOR NEW TYPE RUNS */
+      if(bgEvt[j]->pid == 1 && bgEvt[j]->type == 0 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
       {
         if(bgEvt[j]->side == 0)
         {
@@ -406,8 +409,8 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
   {
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
-      runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
+      runsChains[j]->GetEntry(i); /* THIS NEEDS TO GET CHANGED FOR DIFFERNT TYPE! */
+      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
       {
         if(evt[j]->side == 0)
         {
@@ -461,9 +464,6 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
       }
     }
   }
-
-  cout << "Testing, rateHistsEast[index_A1]->GetBinContent(25) = " << rateHistsEast[index_A1]->GetBinContent(25) << endl;
-  cout << "Testing, errors = " << rateHistsEast[index_A1]->GetBinError(25) << endl;
 
 
   // here we loop back over the event histograms in east and west
@@ -606,61 +606,6 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 
     hist->SetBinContent(i, R1 + R2);
     mySetErrors.push_back(sqrt(pow(dR1, 2) + pow(dR2, 2)));
-
-
-
-
-/*
-    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) <= 0)
-	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) <= 0))
-    {
-      hist->SetBinContent(i, R1 + R2);
-      mySetErrors.push_back(0);
-    }
-    else
-    {
-      hist->SetBinContent(i, R1 + R2);
-
-      double e1 = westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
-                                *eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i);
-      double e2 = eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
-                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i);
-      double e3 = westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
-                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i);
-      double e4 = eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
-                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i);
-
-      if(e1 <= 0)
-      {
-        e1 = 0;
-      }
-      if(e2 <= 0)
-      {
-        e2 = 0;
-      }
-      if(e3 <= 0)
-      {
-        e3 = 0;
-      }
-      if(e4 <= 0)
-      {
-        e4 = 0;
-      }
-
-      if(e1 == 0 && e2 == 0 && e3 == 0 && e4 == 0)
-      {
-        errorValueEachBin = 0;
-      }
-      else
-      {
-        errorValueEachBin = sqrt(0.25*(e1 + e2 + e3 + e4));
-
-      }
-
-      mySetErrors.push_back(errorValueEachBin);
-    }
-*/
-
 
   }
 
