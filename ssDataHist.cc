@@ -39,7 +39,7 @@
 #include	 <TLeaf.h>
 #include	 <math.h>
 
-#define		TYPE	"type0"
+#define		TYPE	"type1"
 
 using		 namespace std;
 
@@ -352,7 +352,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < refBGChains[j]->GetEntries(); i++)
     {
       refBGChains[j]->GetEntry(i);	/* THIS NEEDS TO GET CHANGED FOR NEW TYPE RUNS */
-      if(bgEvt[j]->pid == 1 && bgEvt[j]->type == 0 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
+      if(bgEvt[j]->pid == 1 && bgEvt[j]->type == 1 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
       {
         if(bgEvt[j]->side == 0)
         {
@@ -410,7 +410,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i); /* THIS NEEDS TO GET CHANGED FOR DIFFERNT TYPE! */
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 1 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
       {
         if(evt[j]->side == 0)
         {

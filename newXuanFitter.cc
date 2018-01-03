@@ -64,6 +64,10 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 
 // functions needed for TMinuit fitter
 void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
+void CalculateChi2(double b);
+
+double bestChi2 = 1000000000;
+double bestFierz = 100000000;
 
 vector <double> binContentsMC0;
 vector <double> binContentsMCinf;
@@ -122,6 +126,19 @@ int main(int argc, char* argv[])
   cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(fitMin) << " and " << dataHist->GetBinCenter(fitMax)
 	<< " at: " << avg_mE << endl;
 
+
+
+  for(double i = -10; i <= 10; i = i + 0.1)
+  {
+    CalculateChi2(i);
+  }
+
+  cout << "Completed testing fit values from -10 to 10..." << endl;
+  cout << "Best fit b = " << bestFierz << endl;
+  cout << "With corresponding chi2/ndf = " << bestChi2 / 54 << endl;
+
+
+/*
   TMinuit *gMinuit = new TMinuit(1);
   gMinuit->SetFCN(chi2);
 
@@ -139,7 +156,7 @@ int main(int argc, char* argv[])
 
   gMinuit->mnexcm("CALL FCN", arglist, 1, iflag);
   gMinuit->mnexcm("MIGRAD", arglist, 2, iflag);
-
+*/
 
 
 
@@ -193,6 +210,42 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
   }
 
   f = totChi2;
+}
+
+
+void CalculateChi2(double b)
+{
+  double totChi2 = 0;
+  double fit = 0;
+
+  double totContentsData = 0;
+  for(unsigned int i = 10; i < 65; i++)
+  {
+    totContentsData = totContentsData + binContentsData[i];
+  }
+
+  for(unsigned int i = 10; i < 65; i++)
+  {
+    fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*(binContentsData[i]*totContentsData)) / (1 + b*avg_mE);
+
+    totChi2 = totChi2 + pow((binContentsData[i] - fit) / binErrorsData[i], 2.0);
+/*
+    if(b > -1.71 && b < -1.69) // there's some rounding error so b == -1.7 isn't working
+    {
+      cout << "For b value " << b << " we have binContentsData[" << i << "] - fit = " << binContentsData[i] - fit << endl;
+      cout << "\t binContentsData[" << i << "] = " << binContentsData[i] << endl;
+      cout << "\t fit = " << fit << endl;
+      cout << "\t binErrorsData[" << i << "] = " << binErrorsData[i] << endl;
+    }
+*/
+  }
+
+  if(totChi2 < bestChi2)
+  {
+    bestChi2 = totChi2;
+    bestFierz = b;
+  }
+
 }
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)

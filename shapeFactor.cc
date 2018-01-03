@@ -38,7 +38,7 @@
 #include	 <TLatex.h>
 using            namespace std;
 
-#define		TYPE	"allTypes"		// allTypes, type0, type1 are acceptable
+#define		TYPE	"type1"		// allTypes, type0, type1 are acceptable
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);

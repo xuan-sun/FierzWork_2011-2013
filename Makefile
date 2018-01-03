@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o ssDataHist.o
-SOURCE = ssDataHist
+OBJECTS = BetaSpectrum.o newXuanFitter.o
+SOURCE = newXuanFitter
 
 .PHONY: all
 all: $(SOURCE)

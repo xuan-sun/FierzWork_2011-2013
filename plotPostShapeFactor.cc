@@ -41,6 +41,8 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 
+#define		TYPE	"type1"
+
 using            namespace std;
 
 // Fundamental constants that get used
@@ -63,8 +65,8 @@ struct entry
   double chisquared_hf;
   double ndf_hf;
   double xperndf_hf;
-  double b;
-  double bErr;
+  double b_hf;
+  double bErr_hf;
 };
 
 // global vectors for creating TGraphs.
@@ -80,25 +82,36 @@ int main()
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("myhist", "myhist", 80, -0.4, 0.4);
+  TH1D *h1 = new TH1D("myhist", "myhist", 80, -2, 2);
 
-  FillArrays("TFF_HF_chisquared_allTypes_shapeFactor.txt", h1);
+  FillArrays(Form("TFF_HF_chisquared_%s_shapeFactor.txt", TYPE), h1);
 
 //  TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bValues[0]), &(octetsErr[0]), &(bErrValues[0]));
 
 //  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, all Types", "");
 //  PlotGraph(C, 1, 2, g1, "chi squared values by octet, all Types", "AP");
-  PlotHist(C, 1, 1, h1, "TH1::Fit() b Results, all types", "");
-  PlotGraph(C, 1, 2, g1, "TH1::Fit() b results by octet, all types", "AP");
+  PlotHist(C, 1, 1, h1, Form("TH1::Fit() b Results, %s", TYPE), "");
+  PlotGraph(C, 1, 2, g1, Form("TH1::Fit() b results by octet, %s", TYPE), "AP");
 
-//  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
-//  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-//  theoryChiHist->Scale(h1->GetMaximum()/theoryChiHist->GetMaximum());
-//  PlotHist(C, 2, 1, theoryChiHist, "", "SAME");
+/*
+  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
+  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+  double h1Tot = 0;
+  double theoryHTot = 0;
+  for(unsigned int i = 0; i <= 80; i++)
+  {
+    h1Tot = h1Tot + h1->GetBinContent(i);
+    theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
 
+  }
+  cout << "h1 has content = " << h1Tot << endl;
+  cout << "theoryChiHist has content = " << theoryHTot << endl;
+  theoryChiHist->Scale(h1Tot / theoryHTot);
+  PlotHist(C, 2, 1, theoryChiHist, "", "SAME");
+*/
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print("resultPlotsOfShapeFactorCode.pdf");
+  C -> Print(Form("resultPlotsOfShapeFactorCode_%s.pdf", TYPE));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -149,7 +162,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   C->Update();
 
   // all the TLine's needed for 2011-2012 calibration periods
-/*  TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
+  TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
   TLine *t2 = new TLine(6.5, gPad->GetUymin(), 6.5, gPad->GetUymax());     // Octet 5-6 inclusive
   TLine *t3 = new TLine(9.5, gPad->GetUymin(), 9.5, gPad->GetUymax());     // Octet 7-9 inclusive
   TLine *t4 = new TLine(14.5, gPad->GetUymin(), 14.5, gPad->GetUymax());   // Octet 10-14 inclusive
@@ -180,7 +193,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   t9->Draw("SAME");
   t11->SetLineStyle(7);
   t11->Draw("SAME");
-*/
+
 }
 
 void FillArrays(TString fileName, TH1D* hist)
@@ -214,16 +227,17 @@ void FillArrays(TString fileName, TH1D* hist)
 		>> evt.chisquared_hf
 		>> evt.ndf_hf
 		>> evt.xperndf_hf
-		>> evt.b
-		>> evt.bErr;
+		>> evt.b_hf
+		>> evt.bErr_hf;
       {
 	counter++;
-        hist -> Fill(evt.b);
+        hist -> Fill(evt.b_hf);
+//	hist->Fill(evt.xperndf_hf);
 	octets.push_back(evt.octNb);
 	octetsErr.push_back(0.5);
 	chisquared.push_back(evt.xperndf_hf);
-	bValues.push_back(evt.b);
-	bErrValues.push_back(evt.bErr);
+	bValues.push_back(evt.b_hf);
+	bErrValues.push_back(evt.bErr_hf);
 	NDF = evt.ndf_hf;
       }
     }

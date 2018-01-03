@@ -1,7 +1,7 @@
 #include	"comparehist.hh"
 
 #define		HIST_IMAGE_PRINTOUT_NAME	"Test_comparehist"
-#define		TYPE	"allTypes"
+#define		TYPE	"type1"
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
 */
 
   TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
-//  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist%s.root", octNb, ""));
-  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist%s.root", octNb, ""));
+//  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
   int status = fit->Fit();
 
   int fitPassNumber = 1;
-  double value = 1.698;
+  double value = 10.1;
   int entries = -100;
   int entriesData = -100;
   while(status != 0 || isnan(fit->GetChisquare()))
@@ -89,12 +89,12 @@ int main(int argc, char* argv[])
         entriesData = entriesData + dataHist->GetBinContent(i);
       }
     }
-    value = value - 0.05;     // try again with a seed value slightly lower
+    value = value - 0.5;     // try again with a seed value slightly lower
     fitPassNumber++;
 
-    if(fitPassNumber >= 30)
+    if(fitPassNumber >= 40)
     {
-      cout << "Fit attempted 30 times and failed. Exiting..." << endl;
+      cout << "Fit attempted 40 times and failed. Exiting..." << endl;
       break;
     }
   }
