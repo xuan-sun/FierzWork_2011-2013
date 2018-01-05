@@ -1,0 +1,46 @@
+#!/bin/bash
+# Linux/UNIX box with ssh key based login enabled
+# SSH User name
+
+# in this loop, set the number of .mac files you want to generate
+# this loop variable also counts the Evts_#.root trees you read in. Only used for betas
+
+cd ..
+
+for ((x = 80; x < 122; x = x + 1))
+
+do
+
+if ((x == 91))
+then
+continue
+fi
+if ((x == 93))
+then
+continue
+fi
+if ((x == 101))
+then
+continue
+fi
+if ((x == 107))
+then
+continue
+fi
+if ((x == 121))
+then
+continue
+fi
+
+
+#sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
+# this -i seems to suppress printing out the file to screen. Use it.
+#sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
+
+make
+./ssMCHist $x
+make clean
+
+done
+
+echo "Done running bash script"

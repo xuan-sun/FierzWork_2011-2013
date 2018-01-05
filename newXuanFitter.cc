@@ -226,18 +226,10 @@ void CalculateChi2(double b)
 
   for(unsigned int i = 10; i < 65; i++)
   {
-    fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*(binContentsData[i]*totContentsData)) / (1 + b*avg_mE);
+    fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*(totContentsData)) / (1 + b*avg_mE);
 
     totChi2 = totChi2 + pow((binContentsData[i] - fit) / binErrorsData[i], 2.0);
-/*
-    if(b > -1.71 && b < -1.69) // there's some rounding error so b == -1.7 isn't working
-    {
-      cout << "For b value " << b << " we have binContentsData[" << i << "] - fit = " << binContentsData[i] - fit << endl;
-      cout << "\t binContentsData[" << i << "] = " << binContentsData[i] << endl;
-      cout << "\t fit = " << fit << endl;
-      cout << "\t binErrorsData[" << i << "] = " << binErrorsData[i] << endl;
-    }
-*/
+
   }
 
   if(totChi2 < bestChi2)

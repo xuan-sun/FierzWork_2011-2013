@@ -39,7 +39,8 @@
 #include	 <TLeaf.h>
 #include	 <math.h>
 
-#define		TYPE	"type1"
+#define		TYPE	"type0"
+#define		GEOM	"2012-2013"
 
 using		 namespace std;
 
@@ -325,14 +326,14 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     refBGHistsWest.push_back(new TH1D(TString::Format("BG West Rate Index %i", i), "BG West Rate", 120, 0, 1200));
     refBGChains.push_back(new TChain("Background"));
   }
-  refBGChains[index_A1]->Add(Form("ExtractedHistograms/background_trees/runType_A1_BGTree_%s.root", TYPE));
-  refBGChains[index_A4]->Add(Form("ExtractedHistograms/background_trees/runType_A4_BGTree_%s.root", TYPE));
-  refBGChains[index_A9]->Add(Form("ExtractedHistograms/background_trees/runType_A9_BGTree_%s.root", TYPE));
-  refBGChains[index_A12]->Add(Form("ExtractedHistograms/background_trees/runType_A12_BGTree_%s.root", TYPE));
-  refBGChains[index_B1]->Add(Form("ExtractedHistograms/background_trees/runType_B1_BGTree_%s.root", TYPE));
-  refBGChains[index_B4]->Add(Form("ExtractedHistograms/background_trees/runType_B4_BGTree_%s.root", TYPE));
-  refBGChains[index_B9]->Add(Form("ExtractedHistograms/background_trees/runType_B9_BGTree_%s.root", TYPE));
-  refBGChains[index_B12]->Add(Form("ExtractedHistograms/background_trees/runType_B12_BGTree_%s.root", TYPE));
+  refBGChains[index_A1]->Add(Form("ExtractedHistograms/background_trees/runType_A1_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_A4]->Add(Form("ExtractedHistograms/background_trees/runType_A4_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_A9]->Add(Form("ExtractedHistograms/background_trees/runType_A9_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_A12]->Add(Form("ExtractedHistograms/background_trees/runType_A12_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_B1]->Add(Form("ExtractedHistograms/background_trees/runType_B1_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_B4]->Add(Form("ExtractedHistograms/background_trees/runType_B4_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_B9]->Add(Form("ExtractedHistograms/background_trees/runType_B9_BGTree_%s_%s.root", TYPE, GEOM));
+  refBGChains[index_B12]->Add(Form("ExtractedHistograms/background_trees/runType_B12_BGTree_%s_%s.root", TYPE, GEOM));
 
   for(unsigned int i = 8; i < refBGChains.size(); i++)
   {
@@ -352,7 +353,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < refBGChains[j]->GetEntries(); i++)
     {
       refBGChains[j]->GetEntry(i);	/* THIS NEEDS TO GET CHANGED FOR NEW TYPE RUNS */
-      if(bgEvt[j]->pid == 1 && bgEvt[j]->type == 1 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
+      if(bgEvt[j]->pid == 1 && bgEvt[j]->type == 0 && bgEvt[j]->Erecon >= 0 && bgEvt[j]->timeFlag == 0)
       {
         if(bgEvt[j]->side == 0)
         {
@@ -410,7 +411,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i); /* THIS NEEDS TO GET CHANGED FOR DIFFERNT TYPE! */
-      if(evt[j]->pid == 1 && evt[j]->type == 1 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0)
       {
         if(evt[j]->side == 0)
         {

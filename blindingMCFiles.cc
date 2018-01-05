@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 
   }
 
-  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_allTypes.root", octNb), "RECREATE");
+  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();
@@ -320,7 +320,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
       if(engine -> Rndm() <= percentMix)
       {
         runsChains[j]->GetEntry(i);
-        if(evt[j]->pid == 1 && evt[j]->type < 4 && evt[j]->Erecon >= 0)
+        if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
         {
           if(evt[j]->side == 0)
           {

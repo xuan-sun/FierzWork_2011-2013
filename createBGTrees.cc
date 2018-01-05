@@ -40,6 +40,7 @@
 #include	 <math.h>
 
 #define		TYPE	"type1"
+#define		GEOM	"2012-2013"
 
 using		 namespace std;
 
@@ -114,42 +115,42 @@ int main(int argc, char* argv[])
   if(runType == 8)
   {
     index = index_A1;
-    fileName = Form("runType_A1_BGTree_%s.root", TYPE);
+    fileName = Form("runType_A1_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 9)
   {
     index = index_A4;
-    fileName = Form("runType_A4_BGTree_%s.root", TYPE);
+    fileName = Form("runType_A4_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 10)
   {
     index = index_A9;
-    fileName = Form("runType_A9_BGTree_%s.root", TYPE);
+    fileName = Form("runType_A9_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 11)
   {
     index = index_A12;
-    fileName = Form("runType_A12_BGTree_%s.root", TYPE);
+    fileName = Form("runType_A12_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 12)
   {
     index = index_B1;
-    fileName = Form("runType_B1_BGTree_%s.root", TYPE);
+    fileName = Form("runType_B1_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 13)
   {
     index = index_B4;
-    fileName = Form("runType_B4_BGTree_%s.root", TYPE);
+    fileName = Form("runType_B4_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 14)
   {
     index = index_B9;
-    fileName = Form("runType_B9_BGTree_%s.root", TYPE);
+    fileName = Form("runType_B9_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else if(runType == 15)
   {
     index = index_B12;
-    fileName = Form("runType_B12_BGTree_%s.root", TYPE);
+    fileName = Form("runType_B12_BGTree_%s_%s.root", TYPE, GEOM);
   }
   else
   {
@@ -164,9 +165,10 @@ int main(int argc, char* argv[])
 
   vector < pair <string,int> > octetIndices;
   vector < TChain* > runsChains;
-  for(int octNb = 0; octNb < 60; octNb++)
+
+  for(int octNb = 80; octNb < 122; octNb++)
   {
-    if(octNb == 9 || octNb == 59)
+    if(octNb == 91 || octNb == 93 || octNb == 101 || octNb == 107 || octNb == 121)
     {
       continue;
     }
