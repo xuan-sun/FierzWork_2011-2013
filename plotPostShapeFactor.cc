@@ -41,7 +41,7 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 
-#define		TYPE	"type1"
+#define		TYPE	"type0"
 
 using            namespace std;
 
@@ -53,7 +53,7 @@ double NDF = 0;
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString command);
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString command);
 void FillArrays(TString fileName, TH1D *hist);
 
 struct entry
@@ -82,17 +82,18 @@ int main()
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("myhist", "myhist", 80, -2, 2);
+//  TH1D *h1 = new TH1D("fierz", "fierz", 80, -2, 2);
+  TH1D *h1 = new TH1D("chi2","chi2", 80, 0, 4);
 
   FillArrays(Form("TFF_HF_chisquared_%s_shapeFactor.txt", TYPE), h1);
 
-//  TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
-  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bValues[0]), &(octetsErr[0]), &(bErrValues[0]));
+  TGraph *g1 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
+//  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bValues[0]), &(octetsErr[0]), &(bErrValues[0]));
 
-//  PlotHist(C, 1, 1, h1, "Extracted chi squared per dof values, all Types", "");
-//  PlotGraph(C, 1, 2, g1, "chi squared values by octet, all Types", "AP");
-  PlotHist(C, 1, 1, h1, Form("TH1::Fit() b Results, %s", TYPE), "");
-  PlotGraph(C, 1, 2, g1, Form("TH1::Fit() b results by octet, %s", TYPE), "AP");
+  PlotHist(C, 1, 1, h1, Form("Extracted chi squared per dof values, %s", TYPE), "");
+  PlotGraph(C, 1, 2, g1, Form("chi squared values by octet, %s", TYPE), "AP");
+//  PlotHist(C, 1, 1, h1, Form("TH1::Fit() b Results, %s", TYPE), "");
+//  PlotGraph(C, 1, 2, g1, Form("TH1::Fit() b results by octet, %s", TYPE), "AP");
 
 /*
   TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
@@ -121,7 +122,8 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
-  hPlot -> GetXaxis() -> SetTitle("b_{HF}");
+  hPlot->GetXaxis()->SetTitle("#Chi^{2}_{HF}");
+//  hPlot -> GetXaxis() -> SetTitle("b_{HF}");
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle("N");
   hPlot -> GetYaxis() -> CenterTitle();
@@ -141,13 +143,14 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> Draw(command);
 }
 
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString command)
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString command)
 {
   C->cd(canvasIndex);
   gPlot->SetTitle(title);
   gPlot->GetXaxis()->SetTitle("Octet Number");
   gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle("b_{HF}");
+  gPlot->GetYaxis()->SetTitle("#Chi^{2}_{HF}");
+//  gPlot->GetYaxis()->SetTitle("b_{HF}");
   gPlot->GetYaxis()->CenterTitle();
 
   if(styleIndex == 1)
@@ -160,7 +163,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->Draw(command);
 
   C->Update();
-
+/*
   // all the TLine's needed for 2011-2012 calibration periods
   TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
   TLine *t2 = new TLine(6.5, gPad->GetUymin(), 6.5, gPad->GetUymax());     // Octet 5-6 inclusive
@@ -193,6 +196,25 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   t9->Draw("SAME");
   t11->SetLineStyle(7);
   t11->Draw("SAME");
+*/
+
+  // all the TLine's needed for 2012-2013 calibration periods
+  TLine *t12 = new TLine(79.5, gPad->GetUymin(), 79.5, gPad->GetUymax());     // Octet 80-85 inclusive
+  TLine *t13 = new TLine(85.5, gPad->GetUymin(), 85.5, gPad->GetUymax());     // Octet 86-91 inclusive
+  TLine *t14 = new TLine(91.5, gPad->GetUymin(), 91.5, gPad->GetUymax());     // Octet 92-95 inclusive
+  TLine *t15 = new TLine(95.5, gPad->GetUymin(), 95.5, gPad->GetUymax());   // Octet 96-105 inclusive
+  TLine *t16 = new TLine(105.5, gPad->GetUymin(), 105.5, gPad->GetUymax());   // Octet 105-120 inclusive
+
+  t12->SetLineStyle(7);
+  t12->Draw("SAME");
+  t13->SetLineStyle(7);
+  t13->Draw("SAME");
+  t14->SetLineStyle(7);
+  t14->Draw("SAME");
+  t15->SetLineStyle(7);
+  t15->Draw("SAME");
+  t16->SetLineStyle(7);
+  t16->Draw("SAME");
 
 }
 
@@ -231,8 +253,8 @@ void FillArrays(TString fileName, TH1D* hist)
 		>> evt.bErr_hf;
       {
 	counter++;
-        hist -> Fill(evt.b_hf);
-//	hist->Fill(evt.xperndf_hf);
+//        hist -> Fill(evt.b_hf);
+	hist->Fill(evt.xperndf_hf);
 	octets.push_back(evt.octNb);
 	octetsErr.push_back(0.5);
 	chisquared.push_back(evt.xperndf_hf);

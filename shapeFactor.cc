@@ -38,7 +38,7 @@
 #include	 <TLatex.h>
 using            namespace std;
 
-#define		TYPE	"type1"		// allTypes, type0, type1 are acceptable
+#define		TYPE	"type0"		// allTypes, type0, type1 are acceptable
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
 
   TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -135,8 +135,8 @@ int main(int argc, char* argv[])
   double fierzVal = -1;
   double mOverE = -1;
   entry evt;
-
-  TString fileName = Form("BLIND_ExtractedbValues_%s_comparehist.txt", TYPE);
+/*
+  TString fileName = Form("BLIND_ExtractedbValues_%s_comparehist_2012-2013.txt", TYPE);
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -198,14 +198,14 @@ int main(int argc, char* argv[])
   gb -> SetLineWidth(3.0);
   gb -> SetLineColor(30);
   gb -> Draw("LSAME");
-
+*/
   TLine *yLow = new TLine(95, -0.1, 95, 0.1);
   yLow -> SetLineStyle(9);
   TLine *yHigh = new TLine(645, -0.1, 645, 0.1);
   yHigh -> SetLineStyle(9);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
-
+/*
   TLatex t;
   t.SetTextSize(0.03);
   t.SetTextAlign(13);
@@ -224,6 +224,14 @@ int main(int argc, char* argv[])
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
   t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{TFF}}{n} = %f", chisquared/ndf));
+*/
+
+  // This is the code I copied from above to make sure it would still compile.
+  vector <double> restrictedEnergy;
+  for(int i = 10; i <= 65; i++)
+  {
+    restrictedEnergy.push_back(energy[i]);
+  }
 
 
   // Now we want to create a "shape factor" function where b is a variable
@@ -267,9 +275,12 @@ int main(int argc, char* argv[])
   TString chisquaredFileName = Form("TFF_HF_chisquared_%s_shapeFactor.txt", TYPE);
   outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
-          << chisquared << "\t"
-          << ndf << "\t"
-          << chisquared/ndf << "\t"
+//          << chisquared << "\t"
+//          << ndf << "\t"
+//          << chisquared/ndf << "\t"
+	  << chisquared_hf << "\t"
+	  << ndf_hf << "\t"
+	  << chisquared_hf/ndf_hf << "\t"
 	  << chisquared_hf << "\t"
 	  << ndf_hf << "\t"
 	  << chisquared_hf/ndf_hf << "\t"
