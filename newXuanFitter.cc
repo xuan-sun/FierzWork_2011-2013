@@ -46,13 +46,14 @@ using            namespace std;
 
 
 #define		GEOM	"2011-2012"
-#define		TYPE	"allTypes"
+#define		TYPE	"type0"
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
+double ndf = 54.0;		// 55 "data points" aka bin centers minus 1 parameter (the b value).
 
 // Plot things for visualisation
 void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString title, TString command);
@@ -87,9 +88,9 @@ int main(int argc, char* argv[])
   int octNb = atoi(argv[1]);
 
   TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/%s_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", GEOM, octNb, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist%s.root", octNb, ""));
-  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist%s.root", octNb, ""));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
@@ -179,24 +180,27 @@ int main(int argc, char* argv[])
   cout << "internalInt = " << internalInt << endl;
 
   // get the internal statistics aka chi-squared
-  Double_t amin,edm,errdef;
-  Int_t nvpar,nparx,icstat;
-  gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
+  Double_t functionMin, distanceToMin, errorParamDef;
+  Int_t nVariableParams, nUserParams, covMatrixStatus;
+  gMinuit->mnstat(functionMin, distanceToMin, errorParamDef, nVariableParams, nUserParams, covMatrixStatus);
 
-  cout << "Minimum chi-squared: " << amin << endl;
-  cout << "Estimated vertical distance to min: " << edm << endl;
-  cout << "Value of UP defining parameter uncertainties: " << errdef << endl;
-  cout << "Number of variable parameters: " << nvpar << endl;
-  cout << "Highest number of parameters defined by user: " << nparx << endl;
-  cout << "Status of covariance matrix: " << icstat << endl;
-
+  cout << "Minimum chi-squared: " << functionMin << endl;
+  cout << "Estimated vertical distance to min: " << distanceToMin << endl;
+  cout << "Value of UP defining parameter uncertainties: " << errorParamDef << endl;
+  cout << "Number of variable parameters: " << nVariableParams << endl;
+  cout << "Highest number of parameters defined by user: " << nUserParams << endl;
+  cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
   outfile.open(Form("BLIND_TMinuitbValues_%s_%s.txt", TYPE, GEOM), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
+	  << functionMin << "\t"
+	  << ndf << "\t"
+	  << functionMin/ndf << "\t"
           << fitVal << "\t"
-          << fitErr << "\n";
+          << fitErr << "\t"
+	  << covMatrixStatus << "\n";
   outfile.close();
 
 
