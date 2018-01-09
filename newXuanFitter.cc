@@ -45,7 +45,7 @@
 using            namespace std;
 
 
-#define		HIST_IMAGE_PRINTOUT_NAME	"TestPlot_newXuanFitter"
+#define		GEOM	"2011-2012"
 #define		TYPE	"allTypes"
 
 //required later for plot_program
@@ -126,8 +126,7 @@ int main(int argc, char* argv[])
   cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(fitMin) << " and " << dataHist->GetBinCenter(fitMax)
 	<< " at: " << avg_mE << endl;
 
-
-
+/*
   for(double i = -10; i <= 10; i = i + 0.1)
   {
     CalculateChi2(i);
@@ -136,27 +135,69 @@ int main(int argc, char* argv[])
   cout << "Completed testing fit values from -10 to 10..." << endl;
   cout << "Best fit b = " << bestFierz << endl;
   cout << "With corresponding chi2/ndf = " << bestChi2 / 54 << endl;
+*/
 
 
-/*
   TMinuit *gMinuit = new TMinuit(1);
   gMinuit->SetFCN(chi2);
 
   Double_t arglist[10];
   Int_t iflag = 0;
 
-  arglist[0] = 1;
+  arglist[0] = 2.0;	// here arglist[0] = 2 means use strategy 2, aka make sure the errors are right
+  gMinuit->mnexcm("SET STR", arglist, 1, iflag);
 
+  arglist[0] = 1.0;	// 1.0 = 1 standard deviation errors. If you want 2 standard deviations, use 4.0.
   gMinuit->mnexcm("SET ERR", arglist, 1, iflag);
 
-  gMinuit->mnparm(0, "fierz", 0, 0.01, -100, 100, iflag);
+  gMinuit->mnparm(0, "fierz", 0, 0.01, -10, 10, iflag);
 
   arglist[0] = 500;
   arglist[1] = 1;
 
   gMinuit->mnexcm("CALL FCN", arglist, 1, iflag);
   gMinuit->mnexcm("MIGRAD", arglist, 2, iflag);
-*/
+
+  cout << "------------ Fit is finished --------------" << endl;
+
+  // can also use GetParameter(...);
+  //  double paramValue, paramError;
+  //  gMinuit->GetParameter(0, paramValue, paramError);
+
+  Int_t internalInt;
+  Double_t fitVal, fitErr, lowLimit, highLimit;
+  TString paramName;
+
+  // gets the values of parameter 0
+  gMinuit->mnpout(0, paramName, fitVal, fitErr, lowLimit, highLimit, internalInt);
+
+  cout << "paramName = " << paramName << endl;
+  cout << "fitVal = " << fitVal << endl;
+  cout << "fitErr = " << fitErr << endl;
+  cout << "lowLimit = " << lowLimit << endl;
+  cout << "highLimit = " << highLimit << endl;
+  cout << "internalInt = " << internalInt << endl;
+
+  // get the internal statistics aka chi-squared
+  Double_t amin,edm,errdef;
+  Int_t nvpar,nparx,icstat;
+  gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
+
+  cout << "Minimum chi-squared: " << amin << endl;
+  cout << "Estimated vertical distance to min: " << edm << endl;
+  cout << "Value of UP defining parameter uncertainties: " << errdef << endl;
+  cout << "Number of variable parameters: " << nvpar << endl;
+  cout << "Highest number of parameters defined by user: " << nparx << endl;
+  cout << "Status of covariance matrix: " << icstat << endl;
+
+
+  ofstream outfile;
+  outfile.open(Form("BLIND_TMinuitbValues_%s_%s.txt", TYPE, GEOM), ios::app);
+  outfile << octNb << "\t"
+          << avg_mE << "\t"
+          << fitVal << "\t"
+          << fitErr << "\n";
+  outfile.close();
 
 
 
@@ -202,9 +243,15 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
   double b = par[0];
   double fit = 0;
 
+  double totContentsData = 0;
   for(unsigned int i = 10; i < 65; i++)
   {
-    fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*binContentsData[i]) / (1 + b*avg_mE);
+    totContentsData = totContentsData + binContentsData[i];
+  }
+
+  for(unsigned int i = 10; i < 65; i++)
+  {
+    fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*totContentsData) / (1 + b*avg_mE);
 
     totChi2 = totChi2 + pow((binContentsData[i] - fit) / binErrorsData[i], 2.0);
   }
