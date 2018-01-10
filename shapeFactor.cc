@@ -39,6 +39,7 @@
 using            namespace std;
 
 #define		TYPE	"type0"		// allTypes, type0, type1 are acceptable
+#define		GEOM	"2011-2012"	// 2011-2012, 2012-2013
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -46,14 +47,13 @@ using            namespace std;
 struct entry
 {
   int octetNum;
-  double b;
   double avg_mE;
   double chisquared;
   double ndf;
+  double chisquaredperdf;
+  double b;
   double bErr;
-  double GluckErr;
-  double dataEntriesNumber;
-  double fitEntriesNumber;
+  int fitStatus;
 };
 
 int main(int argc, char* argv[])
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
 
   TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/%s_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", GEOM, octNb, TYPE));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -135,8 +135,8 @@ int main(int argc, char* argv[])
   double fierzVal = -1;
   double mOverE = -1;
   entry evt;
-/*
-  TString fileName = Form("BLIND_ExtractedbValues_%s_comparehist_2012-2013.txt", TYPE);
+
+  TString fileName = Form("BLIND_TMinuitbValues_%s_%s.txt", TYPE, GEOM);
 
   //opens the file that I name in DATA_FILE_IN
   string buf1;
@@ -156,14 +156,13 @@ int main(int argc, char* argv[])
     if(!infile1.eof())
     {
       bufstream1 >> evt.octetNum
-                >> evt.b
                 >> evt.avg_mE
                 >> evt.chisquared
                 >> evt.ndf
+		>> evt.chisquaredperdf
+		>> evt.b
                 >> evt.bErr
-                >> evt.GluckErr
-                >> evt.dataEntriesNumber
-                >> evt.fitEntriesNumber;
+                >> evt.fitStatus;
       if(evt.octetNum == octNb)
       {
         fierzVal = evt.b;
@@ -198,20 +197,20 @@ int main(int argc, char* argv[])
   gb -> SetLineWidth(3.0);
   gb -> SetLineColor(30);
   gb -> Draw("LSAME");
-*/
+
   TLine *yLow = new TLine(95, -0.1, 95, 0.1);
   yLow -> SetLineStyle(9);
   TLine *yHigh = new TLine(645, -0.1, 645, 0.1);
   yHigh -> SetLineStyle(9);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
-/*
+
   TLatex t;
   t.SetTextSize(0.03);
   t.SetTextAlign(13);
-  t.DrawLatex(900, 0.09, Form("b_{TFF} = %f", fierzVal));
+  t.DrawLatex(900, 0.09, Form("b_{Minuit} = %f", fierzVal));
 
-  // calculate the chi-squared by hand from the theory with TFractionFitter fit b values to shape factor
+  // calculate the chi-squared by hand from the theory with TMinuit fit b values to shape factor
   double chisquared = 0;
   double ndf = 0;
   for(unsigned int i = 0; i < Sfactor.size(); i++)
@@ -223,16 +222,7 @@ int main(int argc, char* argv[])
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{TFF}}{n} = %f", chisquared/ndf));
-*/
-
-  // This is the code I copied from above to make sure it would still compile.
-  vector <double> restrictedEnergy;
-  for(int i = 10; i <= 65; i++)
-  {
-    restrictedEnergy.push_back(energy[i]);
-  }
-
+  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{Minuit}}{n} = %f", chisquared/ndf));
 
   // Now we want to create a "shape factor" function where b is a variable
   // and fit our existing shape factor points.
@@ -272,15 +262,12 @@ int main(int argc, char* argv[])
   // print both chi-squareds (TFF and HF) to file so we can plot it in other code.
   // and the new fit values using TH1::Fit()
   ofstream outfile;
-  TString chisquaredFileName = Form("TFF_HF_chisquared_%s_shapeFactor.txt", TYPE);
+  TString chisquaredFileName = Form("Minuit_HF_chisquared_%s_%s_shapeFactor.txt", TYPE, GEOM);
   outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
-//          << chisquared << "\t"
-//          << ndf << "\t"
-//          << chisquared/ndf << "\t"
-	  << chisquared_hf << "\t"
-	  << ndf_hf << "\t"
-	  << chisquared_hf/ndf_hf << "\t"
+          << chisquared << "\t"
+          << ndf << "\t"
+          << chisquared/ndf << "\t"
 	  << chisquared_hf << "\t"
 	  << ndf_hf << "\t"
 	  << chisquared_hf/ndf_hf << "\t"
