@@ -38,8 +38,8 @@
 #include	 <TLatex.h>
 using            namespace std;
 
-#define		TYPE	"type0"		// allTypes, type0, type1 are acceptable
-#define		GEOM	"2011-2012"	// 2011-2012, 2012-2013
+#define		TYPE	"allTypes"		// allTypes, type0, type1 are acceptable
+#define		GEOM	"2012-2013"	// 2011-2012, 2012-2013
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -48,9 +48,9 @@ struct entry
 {
   int octetNum;
   double avg_mE;
-  double chisquared;
-  double ndf;
-  double chisquaredperdf;
+  double chisquared_readin;
+  double ndf_readin;
+  double chisquaredperdf_readin;
   double b;
   double bErr;
   int fitStatus;
@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
   double fierzVal = -1;
   double mOverE = -1;
   entry evt;
+  entry correctOctetEntry;
 
   TString fileName = Form("BLIND_TMinuitbValues_%s_%s.txt", TYPE, GEOM);
 
@@ -157,9 +158,9 @@ int main(int argc, char* argv[])
     {
       bufstream1 >> evt.octetNum
                 >> evt.avg_mE
-                >> evt.chisquared
-                >> evt.ndf
-		>> evt.chisquaredperdf
+                >> evt.chisquared_readin
+                >> evt.ndf_readin
+		>> evt.chisquaredperdf_readin
 		>> evt.b
                 >> evt.bErr
                 >> evt.fitStatus;
@@ -167,6 +168,14 @@ int main(int argc, char* argv[])
       {
         fierzVal = evt.b;
 	mOverE = evt.avg_mE;
+	correctOctetEntry.octetNum = evt.octetNum;
+	correctOctetEntry.avg_mE = evt.avg_mE;
+	correctOctetEntry.chisquared_readin = evt.chisquared_readin;
+	correctOctetEntry.ndf_readin = evt.ndf_readin;
+	correctOctetEntry.chisquaredperdf_readin = evt.chisquaredperdf_readin;
+	correctOctetEntry.b = evt.b;
+	correctOctetEntry.bErr = evt.bErr;
+	correctOctetEntry.fitStatus = evt.fitStatus;
       }
     }
 
@@ -211,18 +220,18 @@ int main(int argc, char* argv[])
   t.DrawLatex(900, 0.09, Form("b_{Minuit} = %f", fierzVal));
 
   // calculate the chi-squared by hand from the theory with TMinuit fit b values to shape factor
-  double chisquared = 0;
-  double ndf = 0;
+  double chisquared_minuitShape = 0;
+  double ndf_minuitShape = 0;
   for(unsigned int i = 0; i < Sfactor.size(); i++)
   {
-    chisquared = chisquared + ((shape[i+10]-Sfactor[i])*(shape[i+10]-Sfactor[i]))/(shapeErr[i+10]*shapeErr[i+10]);
-    ndf = ndf + 1;
+    chisquared_minuitShape = chisquared_minuitShape + ((shape[i+10]-Sfactor[i])*(shape[i+10]-Sfactor[i]))/(shapeErr[i+10]*shapeErr[i+10]);
+    ndf_minuitShape = ndf_minuitShape + 1;
   }
 
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{Minuit}}{n} = %f", chisquared/ndf));
+  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{MinuitShape}}{n} = %f", chisquared_minuitShape/ndf_minuitShape));
 
   // Now we want to create a "shape factor" function where b is a variable
   // and fit our existing shape factor points.
@@ -265,18 +274,23 @@ int main(int argc, char* argv[])
   TString chisquaredFileName = Form("Minuit_HF_chisquared_%s_%s_shapeFactor.txt", TYPE, GEOM);
   outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
-          << chisquared << "\t"
-          << ndf << "\t"
-          << chisquared/ndf << "\t"
+	  << correctOctetEntry.fitStatus << "\t"
+          << chisquared_minuitShape << "\t"
+          << ndf_minuitShape << "\t"
+          << chisquared_minuitShape/ndf_minuitShape << "\t"
 	  << chisquared_hf << "\t"
 	  << ndf_hf << "\t"
 	  << chisquared_hf/ndf_hf << "\t"
+	  << correctOctetEntry.chisquared_readin << "\t"
+	  << correctOctetEntry.ndf_readin << "\t"
+	  << correctOctetEntry.chisquaredperdf_readin << "\t"
+	  << correctOctetEntry.b << "\t"
+	  << correctOctetEntry.bErr << "\t"
 	  << bFit << "\t"
 	  << bFitErr << "\n";
   outfile.close();
 
-
-  C->Print(Form("BLIND_ShapeFactor_%i_%s.pdf", octNb, TYPE));
+  C->Print(Form("BLIND_ShapeFactor_%03i_%s.pdf", octNb, TYPE));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();
