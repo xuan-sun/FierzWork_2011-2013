@@ -2,6 +2,7 @@ June 20, 2017
 
 Starting a directory to do Fierz-only analysis.
 
+----------------------------------------------------------------------------------
 
 November 29, 2017
 
@@ -42,3 +43,18 @@ Both only need to be run once to create "base" MC files.
 
 viewRuns.cc is used to print all the runs that go into one octet, and the background, to pdf.
 Was only useful in debugging.
+
+-----------------------------------------------------------------------------------------
+
+January 19, 2018
+
+In order to "re-run" for new results, here's the order:
+
+0. Make sure you have the right histograms from ssDataHist.cc and ssMCHist.cc/blindingMCFiles.cc.
+
+1. Run newXuanFitter.cc to get the TMinuit fit results.
+
+2. Run shapeFactor.cc to plot shape factors for TMinuit Fit, and TH1::Fit().
+This will also spit out chisquared values for the two shape factors plus the chisquared of the TMinuit fit.
+
+3. Run plotPostShapeFactor.cc to plot the Fierz values or chisquared values.
