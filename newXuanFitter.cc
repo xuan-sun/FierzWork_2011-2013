@@ -44,16 +44,15 @@
 
 using            namespace std;
 
-
 #define		GEOM	"2011-2012"
-#define		TYPE	"type0"
+#define		TYPE	"allTypes"
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-double ndf = 54.0;		// 55 "data points" aka bin centers minus 1 parameter (the b value).
+double ndf = -1;		// value set in code by fitMax - fitMin - 1 (for the 1 parameter, b).
 
 // Plot things for visualisation
 void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString title, TString command);
@@ -65,10 +64,6 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 
 // functions needed for TMinuit fitter
 void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
-void CalculateChi2(double b);
-
-double bestChi2 = 1000000000;
-double bestFierz = 100000000;
 
 vector <double> binContentsMC0;
 vector <double> binContentsMCinf;
@@ -96,7 +91,7 @@ int main(int argc, char* argv[])
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
-  int fitMin = 10;
+  int fitMin = 9;
   int fitMax = 65;
 
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
@@ -109,11 +104,14 @@ int main(int argc, char* argv[])
 
   double totalMC0 = 0;
   double totalMCinf = 0;
+  double counter_ndf = 0;
   for(int i = fitMin; i < fitMax; i++)
   {
     totalMC0 = totalMC0 + binContentsMC0[i];
     totalMCinf = totalMCinf + binContentsMCinf[i];
+    counter_ndf = counter_ndf + 1;
   }
+  ndf = counter_ndf - 1;	// -1 is the single parameter in the fit.
   for(int i = fitMin; i < fitMax; i++)
   {
     binContentsMC0[i] = binContentsMC0[i] / totalMC0;
@@ -126,18 +124,6 @@ int main(int argc, char* argv[])
 
   cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(fitMin) << " and " << dataHist->GetBinCenter(fitMax)
 	<< " at: " << avg_mE << endl;
-
-/*
-  for(double i = -10; i <= 10; i = i + 0.1)
-  {
-    CalculateChi2(i);
-  }
-
-  cout << "Completed testing fit values from -10 to 10..." << endl;
-  cout << "Best fit b = " << bestFierz << endl;
-  cout << "With corresponding chi2/ndf = " << bestChi2 / 54 << endl;
-*/
-
 
   TMinuit *gMinuit = new TMinuit(1);
   gMinuit->SetFCN(chi2);
@@ -192,7 +178,7 @@ int main(int argc, char* argv[])
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("BLIND_TMinuitbValues_%s_%s.txt", TYPE, GEOM), ios::app);
+  outfile.open(Form("BLIND_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, fitMin, fitMax), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -261,34 +247,6 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
   }
 
   f = totChi2;
-}
-
-
-void CalculateChi2(double b)
-{
-  double totChi2 = 0;
-  double fit = 0;
-
-  double totContentsData = 0;
-  for(unsigned int i = 10; i < 65; i++)
-  {
-    totContentsData = totContentsData + binContentsData[i];
-  }
-
-  for(unsigned int i = 10; i < 65; i++)
-  {
-    fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*(totContentsData)) / (1 + b*avg_mE);
-
-    totChi2 = totChi2 + pow((binContentsData[i] - fit) / binErrorsData[i], 2.0);
-
-  }
-
-  if(totChi2 < bestChi2)
-  {
-    bestChi2 = totChi2;
-    bestFierz = b;
-  }
-
 }
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
