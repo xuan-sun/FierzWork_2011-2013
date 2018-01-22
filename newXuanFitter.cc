@@ -46,6 +46,8 @@ using            namespace std;
 
 #define		GEOM	"2011-2012"
 #define		TYPE	"allTypes"
+#define		FITMINBIN	15
+#define		FITMAXBIN	65
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -91,8 +93,6 @@ int main(int argc, char* argv[])
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
-  int fitMin = 9;
-  int fitMax = 65;
 
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
   {
@@ -105,14 +105,14 @@ int main(int argc, char* argv[])
   double totalMC0 = 0;
   double totalMCinf = 0;
   double counter_ndf = 0;
-  for(int i = fitMin; i < fitMax; i++)
+  for(int i = FITMINBIN; i < FITMAXBIN; i++)
   {
     totalMC0 = totalMC0 + binContentsMC0[i];
     totalMCinf = totalMCinf + binContentsMCinf[i];
     counter_ndf = counter_ndf + 1;
   }
   ndf = counter_ndf - 1;	// -1 is the single parameter in the fit.
-  for(int i = fitMin; i < fitMax; i++)
+  for(int i = FITMINBIN; i < FITMAXBIN; i++)
   {
     binContentsMC0[i] = binContentsMC0[i] / totalMC0;
     binContentsMCinf[i] = binContentsMCinf[i] / totalMCinf;
@@ -120,9 +120,10 @@ int main(int argc, char* argv[])
 
   cout << "Finished loading the bin contents and errors into vectors..." << endl;
 
-  avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, fitMin, fitMax);
+  avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, FITMINBIN, FITMAXBIN);
 
-  cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(fitMin) << " and " << dataHist->GetBinCenter(fitMax)
+  cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(FITMINBIN)
+	<< " and " << dataHist->GetBinCenter(FITMAXBIN)
 	<< " at: " << avg_mE << endl;
 
   TMinuit *gMinuit = new TMinuit(1);
@@ -178,7 +179,7 @@ int main(int argc, char* argv[])
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("BLIND_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, fitMin, fitMax), ios::app);
+  outfile.open(Form("BLIND_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -234,12 +235,12 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
   double fit = 0;
 
   double totContentsData = 0;
-  for(unsigned int i = 10; i < 65; i++)
+  for(unsigned int i = FITMINBIN; i < FITMAXBIN; i++)
   {
     totContentsData = totContentsData + binContentsData[i];
   }
 
-  for(unsigned int i = 10; i < 65; i++)
+  for(unsigned int i = FITMINBIN; i < FITMAXBIN; i++)
   {
     fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*totContentsData) / (1 + b*avg_mE);
 
