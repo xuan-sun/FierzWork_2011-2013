@@ -44,12 +44,14 @@
 
 #define		TYPE	"allTypes"
 #define		GEOM	"2012-2013"
+#define		FITMINBIN	17
+#define		FITMAXBIN	65
 
 using            namespace std;
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-double NDF = 55;
+double NDF = -1;
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
@@ -100,6 +102,8 @@ int main(int argc, char* argv[])
 
   int option = atoi(argv[1]);
 
+  NDF = FITMAXBIN - FITMINBIN - 1;
+
   TCanvas *C = new TCanvas("canvas", "canvas");
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
@@ -110,7 +114,7 @@ int main(int argc, char* argv[])
     TH1D *h2 = new TH1D("fierz hf", "fierz", 40, -1, 1);
     TH1D *h6 = new TH1D("filler", "filler", 1, 0, 10);
 
-    FillArrays(Form("Minuit_HF_chisquared_%s_%s_shapeFactor.txt", TYPE, GEOM), h1, h2, h6, option);
+    FillArrays(Form("Minuit_HF_chisquared_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, h2, h6, option);
 
     TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
     TGraphErrors *g2 = new TGraphErrors(octets.size(), &(octets[0]), &(bHFValues[0]), &(octetsErr[0]), &(bErrHFValues[0]));
@@ -134,7 +138,7 @@ int main(int argc, char* argv[])
     TH1D *h4 = new TH1D("chi2 Minuit Shape", "Chi2 Minuit Shape", 80, 0, 4);
     TH1D *h5 = new TH1D("chi2 HF Shape", "Chi2 HF Shape", 80, 0, 4);
 
-    FillArrays(Form("Minuit_HF_chisquared_%s_%s_shapeFactor.txt", TYPE, GEOM), h3, h4, h5, option);
+    FillArrays(Form("Minuit_HF_chisquared_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h4, h5, option);
 
     TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minFit[0]));
     TGraph *g4 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minShape[0]));
@@ -177,7 +181,7 @@ int main(int argc, char* argv[])
   }
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("resultPlotsOfShapeFactorCode_%s_%s.pdf", TYPE, GEOM));
+  C -> Print(Form("resultPlotsOfShapeFactorCode_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

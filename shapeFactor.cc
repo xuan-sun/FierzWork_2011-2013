@@ -39,7 +39,9 @@
 using            namespace std;
 
 #define		TYPE	"allTypes"		// allTypes, type0, type1 are acceptable
-#define		GEOM	"2012-2013"	// 2011-2012, 2012-2013
+#define		GEOM	"2011-2012"	// 2011-2012, 2012-2013
+#define		FITMINBIN	17
+#define		FITMAXBIN	65
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -82,7 +84,7 @@ int main(int argc, char* argv[])
   double hDataNorm = 0;
   double hMCNorm = 0;
 
-  for(int i = 10; i <= 65; i++)
+  for(int i = FITMINBIN; i <= FITMAXBIN; i++)
   {
     hDataNorm = hDataNorm + hData->GetBinContent(i);
     hMCNorm = hMCNorm + hMCSM->GetBinContent(i);
@@ -137,9 +139,9 @@ int main(int argc, char* argv[])
   entry evt;
   entry correctOctetEntry;
 
-  TString fileName = Form("BLIND_TMinuitbValues_%s_%s.txt", TYPE, GEOM);
+  TString fileName = Form("BLIND_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
 
-  //opens the file that I name in DATA_FILE_IN
+  // opens the file named above
   string buf1;
   ifstream infile1;
   cout << "The file being opened is: " << fileName << endl;
@@ -194,7 +196,7 @@ int main(int argc, char* argv[])
   vector <double> restrictedEnergy;
   int restrictedNumPoints = 0;
   double sFierz = 0;
-  for(int i = 10; i <= 65; i++)
+  for(int i = FITMINBIN; i <= FITMAXBIN; i++)
   {
     sFierz = ( fierzVal*( (511.0 / (511.0 + energy[i])) - mOverE ) ) / (1 + fierzVal*mOverE);
     Sfactor.push_back(sFierz);
@@ -202,14 +204,17 @@ int main(int argc, char* argv[])
     restrictedNumPoints++;
   }
 
+  int energyMin = hData->GetBinCenter(FITMINBIN);
+  int energyMax = hData->GetBinCenter(FITMAXBIN);
+
   TGraph *gb = new TGraph(restrictedNumPoints, &(restrictedEnergy[0]), &(Sfactor[0]));
   gb -> SetLineWidth(3.0);
   gb -> SetLineColor(30);
   gb -> Draw("LSAME");
 
-  TLine *yLow = new TLine(95, -0.1, 95, 0.1);
+  TLine *yLow = new TLine(energyMin, -0.1, energyMin, 0.1);
   yLow -> SetLineStyle(9);
-  TLine *yHigh = new TLine(645, -0.1, 645, 0.1);
+  TLine *yHigh = new TLine(energyMax, -0.1, energyMax, 0.1);
   yHigh -> SetLineStyle(9);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
@@ -227,6 +232,7 @@ int main(int argc, char* argv[])
     chisquared_minuitShape = chisquared_minuitShape + ((shape[i+10]-Sfactor[i])*(shape[i+10]-Sfactor[i]))/(shapeErr[i+10]*shapeErr[i+10]);
     ndf_minuitShape = ndf_minuitShape + 1;
   }
+  ndf_minuitShape = ndf_minuitShape - 1;	// because 1 degree of freedom used in the 'b' fit.
 
   TLatex t2;
   t2.SetTextSize(0.03);
@@ -235,8 +241,9 @@ int main(int argc, char* argv[])
 
   // Now we want to create a "shape factor" function where b is a variable
   // and fit our existing shape factor points.
-  TF1 *fShapeFit = new TF1("Shape factor b fit", Form("([0]*( (511.0 / (511.0 + x)) - %f )) / (1 + [0]*%f)", mOverE, mOverE), 95, 645);
-  g->Fit(fShapeFit, "R", "", 95, 645);
+  TF1 *fShapeFit = new TF1("Shape factor b fit", Form("([0]*( (511.0 / (511.0 + x)) - %f )) / (1 + [0]*%f)", mOverE, mOverE)
+				, energyMin, energyMax);
+  g->Fit(fShapeFit, "R", "", energyMin, energyMax);
   TF1 *fitFunc = g->GetFunction("Shape factor b fit");
   double bFit = fitFunc->GetParameter(0);
   double bFitErr = fitFunc->GetParError(0);
@@ -262,6 +269,7 @@ int main(int argc, char* argv[])
 		/ (shapeErr[i+10]*shapeErr[i+10]);
     ndf_hf = ndf_hf + 1;
   }
+  ndf_hf = ndf_hf - 1;	// again, because 1 dof used in 'b' param fit.
 
   TLatex t5;
   t5.SetTextSize(0.03);
@@ -271,7 +279,7 @@ int main(int argc, char* argv[])
   // print both chi-squareds (TFF and HF) to file so we can plot it in other code.
   // and the new fit values using TH1::Fit()
   ofstream outfile;
-  TString chisquaredFileName = Form("Minuit_HF_chisquared_%s_%s_shapeFactor.txt", TYPE, GEOM);
+  TString chisquaredFileName = Form("Minuit_HF_chisquared_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
   outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
 	  << correctOctetEntry.fitStatus << "\t"
@@ -290,7 +298,7 @@ int main(int argc, char* argv[])
 	  << bFitErr << "\n";
   outfile.close();
 
-  C->Print(Form("BLIND_ShapeFactor_%03i_%s.pdf", octNb, TYPE));
+  C->Print(Form("BLIND_ShapeFactor_%03i_%s_%i-%iKeV.pdf", octNb, TYPE, energyMin, energyMax));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();

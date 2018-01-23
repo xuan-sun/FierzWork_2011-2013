@@ -46,7 +46,7 @@ using            namespace std;
 
 #define		GEOM	"2011-2012"
 #define		TYPE	"allTypes"
-#define		FITMINBIN	15
+#define		FITMINBIN	17
 #define		FITMAXBIN	65
 
 //required later for plot_program
