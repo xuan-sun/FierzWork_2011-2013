@@ -76,7 +76,7 @@ const int index_B7 = 6;
 const int index_B10 = 7;
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -112,17 +112,16 @@ int main(int argc, char* argv[])
   // make a file and write the output of the calculations to it
   TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
   TH1D* superRatio_Erecon = CreateSuperRatio(counts);
-  TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
-  asymm_Erecon->Write();
+//  TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
+//  asymm_Erecon->Write();
 
 
-
-//  PlotHist(C, 1, 1, SS_Erecon, "", "");
+  PlotHist(C, 1, 1, superRatio_Erecon, "", "");
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("fierz.pdf");
+  C -> Print("asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
@@ -293,57 +292,68 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
   // we assume background subtraction is already done (makes sense, it's a sim)
   // and that rates and counts are effectively the same thing (makes sense, no blinded live times in a sim).
 
+  for(unsigned int i = 0; i < 2; i++)
+  {
+    for(unsigned int j = 0; j < sideCounts[i].size(); j++)
+    {
+      // ensure that all the errors are gonna get propagated correctly later.
+      // This is a mandatory ROOT trick.
+      sideCounts[i][j]->Sumw2();
+    }
+  }
 
-  TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
 
-/*
+  TH1D* hist = new TH1D("Super ratio", "Super ratio", 120, 0, 1200);
+
   vector <double> mySetErrors;
 
   // sum the "like" histograms without any statistical weight
-  TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
-  sideRates[0][index_A5]->Sumw2();
-  eastPlusRates->Add(sideRates[0][index_A5]);
-  sideRates[0][index_A7]->Sumw2();
-  eastPlusRates->Add(sideRates[0][index_A7]);
-  sideRates[0][index_B2]->Sumw2();
-  eastPlusRates->Add(sideRates[0][index_B2]);
-  sideRates[0][index_B10]->Sumw2();
-  eastPlusRates->Add(sideRates[0][index_B10]);
+  TH1D* eastPlusCounts = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+  eastPlusCounts->Add(sideCounts[0][index_A5]);
+  eastPlusCounts->Add(sideCounts[0][index_A7]);
+  eastPlusCounts->Add(sideCounts[0][index_B2]);
+  eastPlusCounts->Add(sideCounts[0][index_B10]);
 
-  TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
-  sideRates[1][index_A5]->Sumw2();
-  westPlusRates->Add(sideRates[1][index_A5]);
-  sideRates[1][index_A7]->Sumw2();
-  westPlusRates->Add(sideRates[1][index_A7]);
-  sideRates[1][index_B2]->Sumw2();
-  westPlusRates->Add(sideRates[1][index_B2]);
-  sideRates[1][index_B10]->Sumw2();
-  westPlusRates->Add(sideRates[1][index_B10]);
+  TH1D* westPlusCounts =new TH1D("West Plus", "West Plus", 120, 0, 1200);
+  westPlusCounts->Add(sideCounts[1][index_A5]);
+  westPlusCounts->Add(sideCounts[1][index_A7]);
+  westPlusCounts->Add(sideCounts[1][index_B2]);
+  westPlusCounts->Add(sideCounts[1][index_B10]);
 
-  TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
-  sideRates[0][index_A2]->Sumw2();
-  eastMinusRates->Add(sideRates[0][index_A2]);
-  sideRates[0][index_A10]->Sumw2();
-  eastMinusRates->Add(sideRates[0][index_A10]);
-  sideRates[0][index_B5]->Sumw2();
-  eastMinusRates->Add(sideRates[0][index_B5]);
-  sideRates[0][index_B7]->Sumw2();
-  eastMinusRates->Add(sideRates[0][index_B7]);
+  TH1D* eastMinusCounts = new TH1D("East Minus", "East Minus", 120, 0, 1200);
+  eastMinusCounts->Add(sideCounts[0][index_A2]);
+  eastMinusCounts->Add(sideCounts[0][index_A10]);
+  eastMinusCounts->Add(sideCounts[0][index_B5]);
+  eastMinusCounts->Add(sideCounts[0][index_B7]);
 
-  TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
-  sideRates[1][index_A2]->Sumw2();
-  westMinusRates->Add(sideRates[1][index_A2]);
-  sideRates[1][index_A10]->Sumw2();
-  westMinusRates->Add(sideRates[1][index_A10]);
-  sideRates[1][index_B5]->Sumw2();
-  westMinusRates->Add(sideRates[1][index_B5]);
-  sideRates[1][index_B7]->Sumw2();
-  westMinusRates->Add(sideRates[1][index_B7]);
+  TH1D* westMinusCounts =new TH1D("West Minus", "West Minus", 120, 0, 1200);
+  westMinusCounts->Add(sideCounts[1][index_A2]);
+  westMinusCounts->Add(sideCounts[1][index_A10]);
+  westMinusCounts->Add(sideCounts[1][index_B5]);
+  westMinusCounts->Add(sideCounts[1][index_B7]);
 
-  double errorValueEachBin = 0;
+  double errorValueEachBin = 0.1;
+  double r1up, r1down, r2up, r2down;
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
+    r1up = eastPlusCounts->GetBinContent(i);
+    r1down = eastMinusCounts->GetBinContent(i);
+    r2up = westPlusCounts->GetBinContent(i);
+    r2down = westMinusCounts->GetBinContent(i);
+
+    if(r1up <= 0 || r1down <= 0 || r2up <= 0 || r2down <= 0 )
+    {
+      hist->SetBinContent(i, 0);
+    }
+    else
+    {
+      hist->SetBinContent(i, r1down*r2up / r1up*r2down);
+    }
+    mySetErrors.push_back(errorValueEachBin);
+
+
+/*
     if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) < 0)
 	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) < 0))
     {
@@ -373,17 +383,20 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
       }
       mySetErrors.push_back(errorValueEachBin);
     }
+  */
+
+
   }
 
   hist->SetError(&(mySetErrors[0]));
-*/
+
   return hist;
 }
 
 TH1D* CalculateAofE(TH1D* R)
 {
   TH1D* hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
- 
+
 
 
 
