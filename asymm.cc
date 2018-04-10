@@ -91,27 +91,31 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   // read in arguments.
   Int_t octNb = atoi(argv[1]);
 
+  cout << "Running executable asymm for octet " << octNb << " ..." << endl;
+
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
   vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/AbFit_Fierz_2011-2013/2011-2012_geom/");
   // load all the histograms of east and west given the cuts of interest
-  vector < vector < TH1D* > > rates = CreateMCCountsHistograms(runFiles);
+  vector < vector < TH1D* > > counts = CreateMCCountsHistograms(runFiles);
 
+  cout << "Completed loading all counts from simulations..." << endl;
+
+  // make a file and write the output of the calculations to it
   TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
-  // Begin processing the read in data now
-//  TH1D* SS_Erecon = CreateSuperSum(rates);
-//  SS_Erecon->Write();
-  rates[0][1]->Write();
+  TH1D* superRatio_Erecon = CreateSuperRatio(counts);
+  TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
+  asymm_Erecon->Write();
 
 
-  cout << "About to plot the histogram now..." << endl;
 
 //  PlotHist(C, 1, 1, SS_Erecon, "", "");
 
@@ -292,11 +296,11 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
 
   TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
 
+/*
   vector <double> mySetErrors;
 
-
   // sum the "like" histograms without any statistical weight
-/*  TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+  TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
   sideRates[0][index_A5]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_A5]);
   sideRates[0][index_A7]->Sumw2();
@@ -370,9 +374,9 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
       mySetErrors.push_back(errorValueEachBin);
     }
   }
-*/
-  hist->SetError(&(mySetErrors[0]));
 
+  hist->SetError(&(mySetErrors[0]));
+*/
   return hist;
 }
 
