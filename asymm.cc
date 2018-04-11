@@ -112,14 +112,14 @@ int main(int argc, char* argv[])
   // make a file and write the output of the calculations to it
   TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
   TH1D* superRatio_Erecon = CreateSuperRatio(counts);
-//  TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
+  TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
 //  asymm_Erecon->Write();
 
 
-  PlotHist(C, 1, 1, superRatio_Erecon, "", "");
+  PlotHist(C, 1, 1, asymm_Erecon, "", "");
 
   // Save our plot and print it out as a pdf.
-  C -> Print("asymm.pdf");
+//  C -> Print("asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -190,6 +190,9 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 {
   vector < TChain* > runs;
 
+  TString asymmDown = "A_-1_b_0";
+  TString asymmUp = "A_1_b_0";
+
   for(unsigned int i = 0; i < 8; i++)
   {
     runs.push_back(new TChain("revCalSim"));
@@ -199,35 +202,35 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
   {
     if(octetList[l].first == "A2")
     {
-      runs[index_A2] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A2] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A5")
     {
-      runs[index_A5] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A5] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A7")
     {
-      runs[index_A7] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A7] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A10")
     {
-      runs[index_A10] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A10] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B2")
     {
-      runs[index_B2] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B2] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B5")
     {
-      runs[index_B5] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B5] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B7")
     {
-      runs[index_B7] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B7] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B10")
     {
-      runs[index_B10] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B10] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
     }
   }
 
@@ -352,40 +355,6 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     }
     mySetErrors.push_back(errorValueEachBin);
 
-
-/*
-    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) < 0)
-	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) < 0))
-    {
-      hist->SetBinContent(i, 0);
-      mySetErrors.push_back(0);
-    }
-    else
-    {
-      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
-			+ sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
-
-      if(eastPlusRates->GetBinContent(i) == 0 || westMinusRates->GetBinContent(i) == 0
-	|| eastMinusRates->GetBinContent(i) == 0 || westPlusRates->GetBinContent(i) == 0)
-      {
-        errorValueEachBin = 0;
-      }
-      else
-      {
-	errorValueEachBin = sqrt( 0.25*westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
-				*eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i)
-			  + 0.25*eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
-                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i)
-                          + 0.25*westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
-                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i)
-                          + 0.25*eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
-                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i) );
-      }
-      mySetErrors.push_back(errorValueEachBin);
-    }
-  */
-
-
   }
 
   hist->SetError(&(mySetErrors[0]));
@@ -397,8 +366,13 @@ TH1D* CalculateAofE(TH1D* R)
 {
   TH1D* hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
 
+  double asymm = 0;
 
-
+  for(int i = 0; i <= R->GetNbinsX(); i++)
+  {
+    asymm = (1 - sqrt(R->GetBinContent(i)) ) / ( 1 + sqrt(R->GetBinContent(i)) );
+    hAofE -> SetBinContent(i, asymm);
+  }
 
   return hAofE;
 }
@@ -408,9 +382,9 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
-  hPlot -> GetXaxis() -> SetTitle("Energy (KeV)");
+  hPlot -> GetXaxis() -> SetTitle("Energy (keV)");
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("Rate (mHz/KeV)");
+  hPlot -> GetYaxis() -> SetTitle("Asymmetry");
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
