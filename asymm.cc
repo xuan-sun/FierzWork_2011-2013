@@ -190,8 +190,8 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 {
   vector < TChain* > runs;
 
-  TString asymmDown = "A_-1_b_0";
-  TString asymmUp = "A_1_b_0";
+  TString asymmDown = "A_1_b_0";
+  TString asymmUp = "A_-1_b_0";
 
   for(unsigned int i = 0; i < 8; i++)
   {
@@ -202,35 +202,35 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
   {
     if(octetList[l].first == "A2")
     {
-      runs[index_A2] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A2] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A5")
     {
-      runs[index_A5] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A5] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A7")
     {
-      runs[index_A7] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A7] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A10")
     {
-      runs[index_A10] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_A10] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B2")
     {
-      runs[index_B2] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B2] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B5")
     {
-      runs[index_B5] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B5] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B7")
     {
-      runs[index_B7] -> Add(TString::Format("%s/A_1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B7] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B10")
     {
-      runs[index_B10] -> Add(TString::Format("%s/A_-1_b_0/revCalSim_%i.root", dataPath.Data(), octetList[l].second));
+      runs[index_B10] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
   }
 
@@ -258,7 +258,6 @@ vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains
     runsChains[i]->SetBranchAddress("type", &evt[i]->type);
     runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
-
     runsChains[i]->SetBranchAddress("time", &evt[i]->time);
   }
 
@@ -323,6 +322,8 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
   westPlusCounts->Add(sideCounts[1][index_B2]);
   westPlusCounts->Add(sideCounts[1][index_B10]);
 
+  double normPlusRuns = eastPlusCounts->GetEntries() + westPlusCounts->GetEntries();
+
   TH1D* eastMinusCounts = new TH1D("East Minus", "East Minus", 120, 0, 1200);
   eastMinusCounts->Add(sideCounts[0][index_A2]);
   eastMinusCounts->Add(sideCounts[0][index_A10]);
@@ -335,15 +336,18 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
   westMinusCounts->Add(sideCounts[1][index_B5]);
   westMinusCounts->Add(sideCounts[1][index_B7]);
 
+  double normMinusRuns = eastMinusCounts->GetEntries() + westMinusCounts->GetEntries();
+
+
   double errorValueEachBin = 0.1;
   double r1up, r1down, r2up, r2down;
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
-    r1up = eastPlusCounts->GetBinContent(i);
-    r1down = eastMinusCounts->GetBinContent(i);
-    r2up = westPlusCounts->GetBinContent(i);
-    r2down = westMinusCounts->GetBinContent(i);
+    r1up = eastPlusCounts->GetBinContent(i) / normPlusRuns;
+    r1down = eastMinusCounts->GetBinContent(i) / normMinusRuns;
+    r2up = westPlusCounts->GetBinContent(i) / normPlusRuns;
+    r2down = westMinusCounts->GetBinContent(i) / normMinusRuns;
 
     if(r1up <= 0 || r1down <= 0 || r2up <= 0 || r2down <= 0 )
     {
@@ -355,6 +359,14 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     }
     mySetErrors.push_back(errorValueEachBin);
 
+    if(i > 20 && i < 30)
+    {
+    cout << "For bin " << i << " we have: \n"
+         << "r1down = " << r1down << " \n"
+	 << "r1up = " << r1up << " \n"
+	 << "r2down = " << r2down << "\n"
+	 << "r2up = " << r2up << endl;
+    }
   }
 
   hist->SetError(&(mySetErrors[0]));
@@ -384,7 +396,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> SetTitle(title);
   hPlot -> GetXaxis() -> SetTitle("Energy (keV)");
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("Asymmetry");
+  hPlot -> GetYaxis() -> SetTitle("Super ratio");
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
