@@ -62,8 +62,11 @@ vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains
 TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts);
 TH1D* CalculateAofE(TH1D* R);
 
+// debugging functions
+TH1D* SingleRunAsymm(vector < vector < TH1D* > > sideCounts);
+
 // plotting functions
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command);
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -94,6 +97,7 @@ int main(int argc, char* argv[])
 
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
+  C->Divide(2,1);
 
   // read in arguments.
   Int_t octNb = atoi(argv[1]);
@@ -110,13 +114,14 @@ int main(int argc, char* argv[])
   cout << "Completed loading all counts from simulations..." << endl;
 
   // make a file and write the output of the calculations to it
-  TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
+//  TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
   TH1D* superRatio_Erecon = CreateSuperRatio(counts);
   TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
 //  asymm_Erecon->Write();
+//  TH1D* singleRunAsymm = SingleRunAsymm(counts);
 
-
-  PlotHist(C, 1, 1, asymm_Erecon, "", "");
+  PlotHist(C, 1, 1, superRatio_Erecon, "", "Energy (keV)", "Super Ratio", "");
+  PlotHist(C, 1, 2, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "");
 
   // Save our plot and print it out as a pdf.
 //  C -> Print("asymm.pdf");
@@ -190,8 +195,8 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 {
   vector < TChain* > runs;
 
-  TString asymmDown = "A_1_b_0";
-  TString asymmUp = "A_-1_b_0";
+  TString asymmDown = "A_-1_b_0";
+  TString asymmUp = "A_1_b_0";
 
   for(unsigned int i = 0; i < 8; i++)
   {
@@ -301,6 +306,7 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
       // ensure that all the errors are gonna get propagated correctly later.
       // This is a mandatory ROOT trick.
       sideCounts[i][j]->Sumw2();
+//      sideCounts[i][j]->Scale(sideCounts[i][j]->GetEntries() / (sideCounts[0][j]->GetEntries() + sideCounts[1][j]->GetEntries()));
     }
   }
 
@@ -322,8 +328,6 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
   westPlusCounts->Add(sideCounts[1][index_B2]);
   westPlusCounts->Add(sideCounts[1][index_B10]);
 
-  double normPlusRuns = eastPlusCounts->GetEntries() + westPlusCounts->GetEntries();
-
   TH1D* eastMinusCounts = new TH1D("East Minus", "East Minus", 120, 0, 1200);
   eastMinusCounts->Add(sideCounts[0][index_A2]);
   eastMinusCounts->Add(sideCounts[0][index_A10]);
@@ -336,18 +340,15 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
   westMinusCounts->Add(sideCounts[1][index_B5]);
   westMinusCounts->Add(sideCounts[1][index_B7]);
 
-  double normMinusRuns = eastMinusCounts->GetEntries() + westMinusCounts->GetEntries();
-
-
   double errorValueEachBin = 0.1;
   double r1up, r1down, r2up, r2down;
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
-    r1up = eastPlusCounts->GetBinContent(i) / normPlusRuns;
-    r1down = eastMinusCounts->GetBinContent(i) / normMinusRuns;
-    r2up = westPlusCounts->GetBinContent(i) / normPlusRuns;
-    r2down = westMinusCounts->GetBinContent(i) / normMinusRuns;
+    r1up = eastPlusCounts->GetBinContent(i);
+    r1down = eastMinusCounts->GetBinContent(i);
+    r2up = westPlusCounts->GetBinContent(i);
+    r2down = westMinusCounts->GetBinContent(i);
 
     if(r1up <= 0 || r1down <= 0 || r2up <= 0 || r2down <= 0 )
     {
@@ -355,18 +356,9 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     }
     else
     {
-      hist->SetBinContent(i, r1down*r2up / r1up*r2down);
+      hist->SetBinContent(i, (r1down*r2up) / (r1up*r2down));
     }
     mySetErrors.push_back(errorValueEachBin);
-
-    if(i > 20 && i < 30)
-    {
-    cout << "For bin " << i << " we have: \n"
-         << "r1down = " << r1down << " \n"
-	 << "r1up = " << r1up << " \n"
-	 << "r2down = " << r2down << "\n"
-	 << "r2up = " << r2up << endl;
-    }
   }
 
   hist->SetError(&(mySetErrors[0]));
@@ -389,14 +381,13 @@ TH1D* CalculateAofE(TH1D* R)
   return hAofE;
 }
 
-
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command)
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command)
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
-  hPlot -> GetXaxis() -> SetTitle("Energy (keV)");
+  hPlot -> GetXaxis() -> SetTitle(xTitle);
   hPlot -> GetXaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetTitle("Super ratio");
+  hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
 //  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
@@ -422,3 +413,36 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> Draw(command);
   C -> Update();
 }
+
+
+// Debugging functions down below.
+// Asymmetry doesn't look right.
+
+TH1D* SingleRunAsymm(vector < vector < TH1D* > > sideCounts)
+{
+  TH1D *hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
+
+  int index = index_A2;
+
+  double asymm = 0;
+  for(int i = 0; i <= sideCounts[0][index]->GetNbinsX(); i++)
+  {
+    cout << "sideCounts[0][index_A2]->GetBinContent(" << i << ") = " << sideCounts[0][index]->GetBinContent(i) << endl;
+
+    if(sideCounts[0][index]->GetBinContent(i) == 0 || sideCounts[1][index]->GetBinContent(i) == 0)
+    {
+      asymm = 0;
+    }
+    else
+    {
+      asymm = ( sideCounts[0][index]->GetBinContent(i) - sideCounts[1][index]->GetBinContent(i) )
+	    / ( sideCounts[0][index]->GetBinContent(i) + sideCounts[1][index]->GetBinContent(i) );
+    }
+
+    hAofE->SetBinContent(i, asymm);
+  }
+
+  return hAofE;
+
+}
+
