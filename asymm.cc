@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 //  TH1D* singleRunAsymm = SingleRunAsymm(counts);
 
   PlotHist(C, 1, 1, superRatio_Erecon, "", "Energy (keV)", "Super Ratio", "");
-  PlotHist(C, 1, 2, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "");
+  PlotHist(C, 1, 2, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "E0");
 
   // Save our plot and print it out as a pdf.
 //  C -> Print("asymm.pdf");
@@ -342,23 +342,35 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
 
   double errorValueEachBin = 0.1;
   double r1up, r1down, r2up, r2down;
-  // add the histograms together to create a super sum
+  double er1up, er1down, er2up, er2down;
+
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
     r1up = eastPlusCounts->GetBinContent(i);
     r1down = eastMinusCounts->GetBinContent(i);
     r2up = westPlusCounts->GetBinContent(i);
     r2down = westMinusCounts->GetBinContent(i);
+    er1up = eastPlusCounts->GetBinError(i);
+    er1down = eastMinusCounts->GetBinError(i);
+    er2up = westPlusCounts->GetBinError(i);
+    er2down = westMinusCounts->GetBinError(i);
+
 
     if(r1up <= 0 || r1down <= 0 || r2up <= 0 || r2down <= 0 )
     {
       hist->SetBinContent(i, 0);
+      mySetErrors.push_back(1);
     }
     else
     {
       hist->SetBinContent(i, (r1down*r2up) / (r1up*r2down));
+
+      mySetErrors.push_back( ( (r1down*r2up) / (r1up*r2down) )
+                           * sqrt( (er1down/r1down)*(er1down/r1down)
+				 + (er2up/r2up)*(er2up/r2up)
+				 + (er1up/r1up)*(er1up/r1up)
+				 + (er2down/r2down)*(er2down/r2down) ) );
     }
-    mySetErrors.push_back(errorValueEachBin);
   }
 
   hist->SetError(&(mySetErrors[0]));
