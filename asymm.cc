@@ -37,6 +37,7 @@
 #include	 <vector>
 #include	 <utility>
 #include	 <TLeaf.h>
+#include	 <TLine.h>
 using		 namespace std;
 
 struct Event
@@ -61,6 +62,7 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains);
 TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts);
 TH1D* CalculateAofE(TH1D* R);
+TH1D* DivideByMBAsymm(TH1D* AofE);
 
 // debugging functions
 TH1D* SingleRunAsymm(vector < vector < TH1D* > > sideCounts);
@@ -115,13 +117,26 @@ int main(int argc, char* argv[])
 //  TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
   TH1D* superRatio_Erecon = CreateSuperRatio(counts);
   TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
-//  asymm_Erecon->Write();
-//  TH1D* singleRunAsymm = SingleRunAsymm(counts);
 
-  PlotHist(C, 1, 1, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "E0");
+  TH1D* flattenedAsymm_Erecon = DivideByMBAsymm(asymm_Erecon);
+
+//  asymm_Erecon->Write();
+
+  PlotHist(C, 1, 1, flattenedAsymm_Erecon, "", "Energy (keV)", "Asymmetry", "");
+
+  TLine *yLow = new TLine(180, 0.2, 180, 0.6);
+  TLine *yHigh = new TLine(780, 0.2, 780, 0.6);
+  yLow->SetLineWidth(2);
+  yHigh->SetLineWidth(2);
+  yLow->SetLineColor(1);
+  yHigh->SetLineColor(1);
+  yLow->Draw("SAME");
+  yHigh->Draw("SAME");
+
+
 
   // Save our plot and print it out as a pdf.
-  C -> Print("statsWeighted_SR_asymm.pdf");
+  C -> Print("flattened_SR_asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -491,6 +506,69 @@ TH1D* CalculateAofE(TH1D* R)
   return hAofE;
 }
 
+TH1D* DivideByMBAsymm(TH1D* AofE)
+{
+  TH1D* hCorrAofE = new TH1D("Corrected AofE", "Corrected AofE", 120, 0, 1200);
+
+  double energy, asymm, asymmErr;
+  double bin, binCounts, binError;
+
+  TString fileName = Form("UnCorr_OctetAsymmetries_AnaChA_180-780_Octets_0-59_BinByBin.txt");
+  // opens the file named above
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName << endl;
+  infile1.open(fileName);
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> energy >> asymm >> asymmErr;
+
+/*
+      cout << "At energy = " << energy << ", asymm = " << asymm << ", we have AofE->FindBin(energy) = "
+	   << AofE->FindBin(energy) << ", and AofE->GetBinContent(this bin) = "
+	   << AofE->GetBinContent(AofE->FindBin(energy)) << endl;
+
+      cout << "By comparison, AofE->GetBinCenter(" << incrementor << ") = " << AofE->GetBinCenter(incrementor)
+	   << ", and AofE->GetBinContent(" << incrementor << ") = " << AofE->GetBinContent(incrementor) << endl;
+*/
+
+      bin = AofE->FindBin(energy);
+      binCounts = AofE->GetBinContent(bin);
+      binError = AofE->GetBinError(bin);
+
+      if(asymm == 0)
+      {
+        hCorrAofE->SetBinContent(bin, 0);
+        hCorrAofE->SetBinError(bin, binError);
+      }
+      else
+      {
+        hCorrAofE->SetBinContent(bin, binCounts / abs(asymm));
+        hCorrAofE->SetBinError(bin, sqrt(binError*binError + asymmErr*asymmErr));
+      }
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+
+  return hCorrAofE;
+}
+
+
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command)
 {
   C -> cd(canvasIndex);
@@ -499,7 +577,8 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetRangeUser(-0.1, 0.1);
+  hPlot -> GetYaxis() -> SetRangeUser(0.2, 0.6);
+
 
   if(styleIndex == 1)
   {
@@ -521,6 +600,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   }
 
   hPlot -> Draw(command);
+
   C -> Update();
 }
 
