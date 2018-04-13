@@ -94,10 +94,8 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
-  C->Divide(2,1);
 
   // read in arguments.
   Int_t octNb = atoi(argv[1]);
@@ -120,11 +118,10 @@ int main(int argc, char* argv[])
 //  asymm_Erecon->Write();
 //  TH1D* singleRunAsymm = SingleRunAsymm(counts);
 
-  PlotHist(C, 1, 1, superRatio_Erecon, "", "Energy (keV)", "Super Ratio", "");
-  PlotHist(C, 1, 2, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "E0");
+  PlotHist(C, 1, 1, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "E0");
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("asymm.pdf");
+  C -> Print("statsWeighted_SR_asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -309,58 +306,129 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     }
   }
 
-  cout << "Checking the statistical errors are done correctly." << endl;
-  cout << "Counts on sideCounts[0][index_A5], bin 25 = " << sideCounts[0][index_A5]->GetBinContent(25) << "\n"
-       << "sideCounts[0][index_A7], bin 25 = " << sideCounts[0][index_A7]->GetBinContent(25) << "\n"
-       << "sideCounts[0][index_B2], bin 25 = " << sideCounts[0][index_B2]->GetBinContent(25) << "\n"
-       << "sideCounts[0][index_B10], bin 25 = " << sideCounts[0][index_B10]->GetBinContent(25) << endl;
 
   TH1D* hist = new TH1D("Super ratio", "Super ratio", 120, 0, 1200);
+  TH1D* eastPlusCounts = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+  TH1D* westPlusCounts =new TH1D("West Plus", "West Plus", 120, 0, 1200);
+  TH1D* eastMinusCounts = new TH1D("East Minus", "East Minus", 120, 0, 1200);
+  TH1D* westMinusCounts =new TH1D("West Minus", "West Minus", 120, 0, 1200);
 
   vector <double> mySetErrors;
 
   // sum the "like" histograms without any statistical weight
   // we want to replace this such that it adds things using a weighted average.
-  TH1D* eastPlusCounts = new TH1D("East Plus", "East Plus", 120, 0, 1200);
+
+  double nEP, nWP, nEM, nWM;
+  double eEP2, eWP2, eEM2, eWM2;
+
+  double nEA5, nEA7, nEB2, nEB10, nWA5, nWA7, nWB2, nWB10;
+  double nEA2, nEA10, nEB5, nEB7, nWA2, nWA10, nWB5, nWB7;
+
+  for(int i = 0; i < sideCounts[0][index_A2]->GetNbinsX(); i++)
+  {
+    nEA5 = sideCounts[0][index_A5]->GetBinContent(i);
+    nEA7 = sideCounts[0][index_A7]->GetBinContent(i);
+    nEB2 = sideCounts[0][index_B2]->GetBinContent(i);
+    nEB10 = sideCounts[0][index_B10]->GetBinContent(i);
+
+    nWA5 = sideCounts[1][index_A5]->GetBinContent(i);
+    nWA7 = sideCounts[1][index_A7]->GetBinContent(i);
+    nWB2 = sideCounts[1][index_B2]->GetBinContent(i);
+    nWB10 = sideCounts[1][index_B10]->GetBinContent(i);
+
+    nEA2 = sideCounts[0][index_A2]->GetBinContent(i);
+    nEA10 = sideCounts[0][index_A10]->GetBinContent(i);
+    nEB5 = sideCounts[0][index_B5]->GetBinContent(i);
+    nEB7 = sideCounts[0][index_B7]->GetBinContent(i);
+
+    nWA2 = sideCounts[1][index_A2]->GetBinContent(i);
+    nWA10 = sideCounts[1][index_A10]->GetBinContent(i);
+    nWB5 = sideCounts[1][index_B5]->GetBinContent(i);
+    nWB7 = sideCounts[1][index_B7]->GetBinContent(i);
+
+    // using error formula sigma_avg^2 = (sum) w^2 sigma^2
+    eEP2 = ( nEA5 + nEA7 + nEB2 + nEB10 );
+    eWP2 = ( nWA5 + nWA7 + nWB2 + nWB10 );
+    eEM2 = ( nEA2 + nEA10 + nEB5 + nEB7 );
+    eWM2 = ( nWA2 + nWA10 + nWB5 + nWB7 );
+
+    if(eEP2 == 0 || eWP2 == 0 || eEM2 == 0 || eWM2 == 0)
+    {
+      nEP = 0;
+      nWP = 0;
+      nEM = 0;
+      nWM = 0;
+    }
+    else
+    {
+      // using weight formula N_avg = (sum) sigma^-2 * N / (sum) sigma^-2
+      nEP = ( nEA5*nEA5 + nEA7*nEA7 + nEB2*nEB2 + nEB10*nEB10 )
+	/ ( nEA5 + nEA7 + nEB2 + nEB10 );
+      nWP = ( nWA5*nWA5 + nWA7*nWA7 + nWB2*nWB2 + nWB10*nWB10 )
+	/ ( nWA5 + nWA7 + nWB2 + nWB10 );
+      nEM = ( nEA2*nEA2 + nEA10*nEA10 + nEB5*nEB5 + nEB7*nEB7 )
+	/ ( nEA2 + nEA10 + nEB5 + nEB7 );
+      nWM = ( nWA2*nWA2 + nWA10*nWA10 + nWB5*nWB5 + nWB7*nWB7 )
+	/ ( nWA2 + nWA10 + nWB5 + nWB7);
+    }
+
+    eastPlusCounts->SetBinContent(i, nEP);
+    eastPlusCounts->SetBinError(i, sqrt(eEP2));
+    westPlusCounts->SetBinContent(i, nWP);
+    westPlusCounts->SetBinError(i, sqrt(eWP2));
+    eastMinusCounts->SetBinContent(i, nEM);
+    eastMinusCounts->SetBinError(i, sqrt(eEM2));
+    westMinusCounts->SetBinContent(i, nWM);
+    westMinusCounts->SetBinError(i, sqrt(eWM2));
+/*
+    if(i == 25)
+    {
+      cout << "For bin " << i << ", we have eastPlusCounts " << nEP << " +/- " << sqrt(eEP2) << endl;
+      cout << "For bin " << i << ", we have westPlusCounts " << nWP << " +/- " << sqrt(eWP2) << endl;
+      cout << "For bin " << i << ", we have eastMinusCounts " << nEM << " +/- " << sqrt(eEM2) << endl;
+      cout << "For bin " << i << ", we have westMinusCounts " << nWM << " +/- " << sqrt(eWM2) << endl;
+    }
+*/
+  }
+
+/*
   eastPlusCounts->Add(sideCounts[0][index_A5]);
   eastPlusCounts->Add(sideCounts[0][index_A7]);
   eastPlusCounts->Add(sideCounts[0][index_B2]);
   eastPlusCounts->Add(sideCounts[0][index_B10]);
+  eastPlusCounts->Scale(1/4.0);
 
-  cout << "After summing, eastPlusCounts, bin 25 counts = " << eastPlusCounts->GetBinContent(25)
-	<< ", error of " << eastPlusCounts->GetBinError(25) << endl;
-
-  TH1D* westPlusCounts =new TH1D("West Plus", "West Plus", 120, 0, 1200);
   westPlusCounts->Add(sideCounts[1][index_A5]);
   westPlusCounts->Add(sideCounts[1][index_A7]);
   westPlusCounts->Add(sideCounts[1][index_B2]);
   westPlusCounts->Add(sideCounts[1][index_B10]);
+  westPlusCounts->Scale(1/4.0);
 
-  cout << "After summing, westPlusCounts, bin 25 counts = " << westPlusCounts->GetBinContent(25)
-	<< ", error of " << westPlusCounts->GetBinError(25) << endl;
-
-  TH1D* eastMinusCounts = new TH1D("East Minus", "East Minus", 120, 0, 1200);
   eastMinusCounts->Add(sideCounts[0][index_A2]);
   eastMinusCounts->Add(sideCounts[0][index_A10]);
   eastMinusCounts->Add(sideCounts[0][index_B5]);
   eastMinusCounts->Add(sideCounts[0][index_B7]);
+  eastMinusCounts->Scale(1/4.0);
 
-  cout << "After summing, eastMinusCounts, bin 25 counts = " << eastMinusCounts->GetBinContent(25)
-	<< ", error of " << eastMinusCounts->GetBinError(25) << endl;
-
-  TH1D* westMinusCounts =new TH1D("West Minus", "West Minus", 120, 0, 1200);
   westMinusCounts->Add(sideCounts[1][index_A2]);
   westMinusCounts->Add(sideCounts[1][index_A10]);
   westMinusCounts->Add(sideCounts[1][index_B5]);
   westMinusCounts->Add(sideCounts[1][index_B7]);
+  westMinusCounts->Scale(1/4.0);
 
-  cout << "After summing, westMinusCounts, bin 25 counts = " << westMinusCounts->GetBinContent(25)
-	<< ", error of " << westMinusCounts->GetBinError(25) << endl;
+  cout << "Bin 25 east A5 = " << sideCounts[0][index_A5]->GetBinContent(25) << endl;
+  cout << "Bin 25 east A7 = " << sideCounts[0][index_A7]->GetBinContent(25) << endl;
+  cout << "Bin 25 east B2 = " << sideCounts[0][index_B2]->GetBinContent(25) << endl;
+  cout << "Bin 25 east B10 = " << sideCounts[0][index_B10]->GetBinContent(25) << endl;
 
-  double errorValueEachBin = 0.1;
+  cout << "Bin 25 has flat counts, errors, for eastPlusCounts = " << eastPlusCounts->GetBinContent(25) << " +/- " << eastPlusCounts->GetBinError(25) << endl;
+  cout << "Bin 25 has flat counts, errors, for westPlusCounts = " << westPlusCounts->GetBinContent(25) << " +/- " << westPlusCounts->GetBinError(25) << endl;
+  cout << "Bin 25 has flat counts, errors, for eastMinusCounts = " << eastMinusCounts->GetBinContent(25) << " +/- " << eastMinusCounts->GetBinError(25) << endl;
+  cout << "Bin 25 has flat counts, errors, for westMinusCounts = " << westMinusCounts->GetBinContent(25) << " +/- " << westMinusCounts->GetBinError(25) << endl;
+*/
+
   double r1up, r1down, r2up, r2down;
   double er1up, er1down, er2up, er2down;
-
   for(int i = 0; i <= hist->GetNbinsX(); i++)
   {
     r1up = eastPlusCounts->GetBinContent(i);
@@ -376,7 +444,7 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     if(r1up <= 0 || r1down <= 0 || r2up <= 0 || r2down <= 0 )
     {
       hist->SetBinContent(i, 0);
-      mySetErrors.push_back(1);
+      mySetErrors.push_back(0);
     }
     else
     {
@@ -407,7 +475,7 @@ TH1D* CalculateAofE(TH1D* R)
     if(R->GetBinContent(i) == 0)
     {
       asymm = 0;
-      asymmErr = 0.2;
+      asymmErr = 0;
     }
     else
     {
@@ -431,7 +499,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
+  hPlot -> GetYaxis() -> SetRangeUser(-0.1, 0.1);
 
   if(styleIndex == 1)
   {
