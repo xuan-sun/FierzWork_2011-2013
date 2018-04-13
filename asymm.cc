@@ -306,21 +306,29 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
       // ensure that all the errors are gonna get propagated correctly later.
       // This is a mandatory ROOT trick.
       sideCounts[i][j]->Sumw2();
-//      sideCounts[i][j]->Scale(sideCounts[i][j]->GetEntries() / (sideCounts[0][j]->GetEntries() + sideCounts[1][j]->GetEntries()));
     }
   }
 
+  cout << "Checking the statistical errors are done correctly." << endl;
+  cout << "Counts on sideCounts[0][index_A5], bin 25 = " << sideCounts[0][index_A5]->GetBinContent(25) << "\n"
+       << "sideCounts[0][index_A7], bin 25 = " << sideCounts[0][index_A7]->GetBinContent(25) << "\n"
+       << "sideCounts[0][index_B2], bin 25 = " << sideCounts[0][index_B2]->GetBinContent(25) << "\n"
+       << "sideCounts[0][index_B10], bin 25 = " << sideCounts[0][index_B10]->GetBinContent(25) << endl;
 
   TH1D* hist = new TH1D("Super ratio", "Super ratio", 120, 0, 1200);
 
   vector <double> mySetErrors;
 
   // sum the "like" histograms without any statistical weight
+  // we want to replace this such that it adds things using a weighted average.
   TH1D* eastPlusCounts = new TH1D("East Plus", "East Plus", 120, 0, 1200);
   eastPlusCounts->Add(sideCounts[0][index_A5]);
   eastPlusCounts->Add(sideCounts[0][index_A7]);
   eastPlusCounts->Add(sideCounts[0][index_B2]);
   eastPlusCounts->Add(sideCounts[0][index_B10]);
+
+  cout << "After summing, eastPlusCounts, bin 25 counts = " << eastPlusCounts->GetBinContent(25)
+	<< ", error of " << eastPlusCounts->GetBinError(25) << endl;
 
   TH1D* westPlusCounts =new TH1D("West Plus", "West Plus", 120, 0, 1200);
   westPlusCounts->Add(sideCounts[1][index_A5]);
@@ -328,17 +336,26 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
   westPlusCounts->Add(sideCounts[1][index_B2]);
   westPlusCounts->Add(sideCounts[1][index_B10]);
 
+  cout << "After summing, westPlusCounts, bin 25 counts = " << westPlusCounts->GetBinContent(25)
+	<< ", error of " << westPlusCounts->GetBinError(25) << endl;
+
   TH1D* eastMinusCounts = new TH1D("East Minus", "East Minus", 120, 0, 1200);
   eastMinusCounts->Add(sideCounts[0][index_A2]);
   eastMinusCounts->Add(sideCounts[0][index_A10]);
   eastMinusCounts->Add(sideCounts[0][index_B5]);
   eastMinusCounts->Add(sideCounts[0][index_B7]);
 
+  cout << "After summing, eastMinusCounts, bin 25 counts = " << eastMinusCounts->GetBinContent(25)
+	<< ", error of " << eastMinusCounts->GetBinError(25) << endl;
+
   TH1D* westMinusCounts =new TH1D("West Minus", "West Minus", 120, 0, 1200);
   westMinusCounts->Add(sideCounts[1][index_A2]);
   westMinusCounts->Add(sideCounts[1][index_A10]);
   westMinusCounts->Add(sideCounts[1][index_B5]);
   westMinusCounts->Add(sideCounts[1][index_B7]);
+
+  cout << "After summing, westMinusCounts, bin 25 counts = " << westMinusCounts->GetBinContent(25)
+	<< ", error of " << westMinusCounts->GetBinError(25) << endl;
 
   double errorValueEachBin = 0.1;
   double r1up, r1down, r2up, r2down;
@@ -383,11 +400,24 @@ TH1D* CalculateAofE(TH1D* R)
   TH1D* hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
 
   double asymm = 0;
+  double asymmErr = 0;
 
   for(int i = 0; i <= R->GetNbinsX(); i++)
   {
-    asymm = (1 - sqrt(R->GetBinContent(i)) ) / ( 1 + sqrt(R->GetBinContent(i)) );
-    hAofE -> SetBinContent(i, asymm);
+    if(R->GetBinContent(i) == 0)
+    {
+      asymm = 0;
+      asymmErr = 0.2;
+    }
+    else
+    {
+      asymm = (1 - sqrt(R->GetBinContent(i)) ) / ( 1 + sqrt(R->GetBinContent(i)) );
+      asymmErr = (R->GetBinError(i))
+		 / ( sqrt(R->GetBinContent(i)) * (sqrt(R->GetBinContent(i)) + 1) * (sqrt(R->GetBinContent(i)) + 1) );
+    }
+
+    hAofE->SetBinContent(i, asymm);
+    hAofE->SetBinError(i, asymmErr);
   }
 
   return hAofE;
