@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o asymm.o
-SOURCE = asymm
+OBJECTS = BetaSpectrum.o asymm_preMichael.o
+SOURCE = asymm_preMichael
 
 .PHONY: all
 all: $(SOURCE)
@@ -29,7 +29,6 @@ $(SOURCE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(SOURCE) $(OBJECTS) $(LIBS)
 
 BetaSpectrum.o: BetaSpectrum.hh
-#comparehist.o: comparehist.hh
 
 # -------------------------------------------------------------------------------
 #  Generic compilation and linking step to make an executable from
