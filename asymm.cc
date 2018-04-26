@@ -43,6 +43,7 @@ using		 namespace std;
 
 struct Event
 {
+  double primKE;
   double Erecon;
   int side;
   int type;
@@ -109,6 +110,7 @@ int main(int argc, char* argv[])
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
   vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/AbFit_Fierz_2011-2013/2011-2012_geom/");
+//  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/Octet47/");
   // load all the histograms of east and west given the cuts of interest
   vector < vector < TH1D* > > counts = CreateMCCountsHistograms(runFiles);
 
@@ -119,20 +121,25 @@ int main(int argc, char* argv[])
   TH1D* superRatio_Erecon = CreateSuperRatio(counts);
   TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
 
-  TH1D* flattenedAsymm_Erecon = DivideByMBAsymm(asymm_Erecon);
+//  TH1D* flattenedAsymm_Erecon = DivideByMBAsymm(asymm_Erecon);
 
   double xMin = 180;
   double xMax = 780;
+
 /*
-  TF1 *fit = new TF1("line fit", "[0] + [1]*x", xMin, xMax);
-  fit->SetParName(0, "offset");
-  fit->SetParName(1, "slope");
-  flattenedAsymm_Erecon->Fit("line fit");
+  TF1 *fit = new TF1("beta fit", "[0]*sqrt(x*x +2*511*x) / (511 + x)", xMin, xMax);
+
+  fit->SetParName(0, "normalization");
+  asymm_Erecon->Fit("beta fit");
+  TF1 *fitResults = asymm_Erecon->GetFunction("beta fit");
+  cout << "Chi squared value is " << fitResults->GetChisquare()
+	<< " with ndf of " << fitResults->GetNDF()
+	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 */
 
 //  asymm_Erecon->Write();
 
-  PlotHist(C, 1, 1, asymm_Erecon, "", "Energy (keV)", "Asymmetry", "");
+  PlotHist(C, 1, 1, asymm_Erecon, "", "Primary Energy (keV)", "Asymmetry", "");
 
   TLine *yLow = new TLine(xMin, 0.02, xMin, 0.08);
   TLine *yHigh = new TLine(xMax, 0.02, xMax, 0.08);
@@ -145,7 +152,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print("statsWeighted_SR_asymm.pdf");
+//  C -> Print("statsWeighted_SR_asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -283,6 +290,7 @@ vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains
     runsChains[i]->SetBranchAddress("side", &evt[i]->side);
     runsChains[i]->SetBranchAddress("type", &evt[i]->type);
     runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
+    runsChains[i]->SetBranchAddress("primaryKE", &evt[i]->primKE);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
     runsChains[i]->SetBranchAddress("time", &evt[i]->time);
   }
@@ -292,15 +300,17 @@ vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 0 /*&& evt[j]->Erecon >= 0*/)
       {
         if(evt[j]->side == 0)
         {
-          countHistsEast[j]->Fill(evt[j]->Erecon);
+	    countHistsEast[j]->Fill(evt[j]->primKE);
+//          countHistsEast[j]->Fill(evt[j]->Erecon);
         }
         else if(evt[j]->side == 1)
         {
-          countHistsWest[j]->Fill(evt[j]->Erecon);
+	    countHistsWest[j]->Fill(evt[j]->primKE);
+//          countHistsWest[j]->Fill(evt[j]->Erecon);
         }
       }
     }
@@ -367,13 +377,6 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     nWB5 = sideCounts[1][index_B5]->GetBinContent(i);
     nWB7 = sideCounts[1][index_B7]->GetBinContent(i);
 
-/*
-    // using error formula sigma_avg^2 = (sum) w^2 sigma^2
-    eEP2 = ( nEA5 + nEA7 + nEB2 + nEB10 );
-    eWP2 = ( nWA5 + nWA7 + nWB2 + nWB10 );
-    eEM2 = ( nEA2 + nEA10 + nEB5 + nEB7 );
-    eWM2 = ( nWA2 + nWA10 + nWB5 + nWB7 );
-*/
     sumEP2 = ( 1.0/nEA5 + 1.0/nEA7 + 1.0/nEB2 + 1.0/nEB10 );
     sumWP2 = ( 1.0/nWA5 + 1.0/nWA7 + 1.0/nWB2 + 1.0/nWB10 );
     sumEM2 = ( 1.0/nEA2 + 1.0/nEA10 + 1.0/nEB5 + 1.0/nEB7 );
@@ -389,23 +392,11 @@ TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts)
     }
     else
     {
-/*
-      // using weight formula N_avg = (sum) sigma^-2 * N / (sum) sigma^-2
-      nEP = ( nEA5*nEA5 + nEA7*nEA7 + nEB2*nEB2 + nEB10*nEB10 )
-	/ ( nEA5 + nEA7 + nEB2 + nEB10 );
-      nWP = ( nWA5*nWA5 + nWA7*nWA7 + nWB2*nWB2 + nWB10*nWB10 )
-	/ ( nWA5 + nWA7 + nWB2 + nWB10 );
-      nEM = ( nEA2*nEA2 + nEA10*nEA10 + nEB5*nEB5 + nEB7*nEB7 )
-	/ ( nEA2 + nEA10 + nEB5 + nEB7 );
-      nWM = ( nWA2*nWA2 + nWA10*nWA10 + nWB5*nWB5 + nWB7*nWB7 )
-	/ ( nWA2 + nWA10 + nWB5 + nWB7);
-*/
       // using weight formula N_avg = (sum) sigma^-2 * N / (sum) sigma^-2
       nEP = 4.0 / sumEP2;
       nWP = 4.0 / sumWP2;
       nEM = 4.0 / sumEM2;
       nWM = 4.0 / sumWM2;
-
     }
 
     eastPlusCounts->SetBinContent(i, nEP);
@@ -508,15 +499,6 @@ TH1D* DivideByMBAsymm(TH1D* AofE)
     if(!infile1.eof())
     {
       bufstream1 >> energy >> asymm >> asymmErr;
-
-/*
-      cout << "At energy = " << energy << ", asymm = " << asymm << ", we have AofE->FindBin(energy) = "
-	   << AofE->FindBin(energy) << ", and AofE->GetBinContent(this bin) = "
-	   << AofE->GetBinContent(AofE->FindBin(energy)) << endl;
-
-      cout << "By comparison, AofE->GetBinCenter(" << incrementor << ") = " << AofE->GetBinCenter(incrementor)
-	   << ", and AofE->GetBinContent(" << incrementor << ") = " << AofE->GetBinContent(incrementor) << endl;
-*/
 
       bin = AofE->FindBin(energy);
       binCounts = AofE->GetBinContent(bin);
