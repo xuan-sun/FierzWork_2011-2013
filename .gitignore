@@ -1,3 +1,6 @@
+*.txt
+*.pdf
+Evts_Files/*
 Octet40/*
 Data/*
 fromSept2017Onwards/*
