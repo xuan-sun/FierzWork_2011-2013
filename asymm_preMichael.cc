@@ -43,19 +43,13 @@ using		 namespace std;
 
 struct Event
 {
-  double primKE;
-  double Erecon;
-  int side;
-  int type;
-  int eventNum;
-  double time[2];
-  double tE;
-  double tW;
-  int pid;
-  double xEastPos;
-  double yEastPos;
-  double xWestPos;
-  double yWestPos;
+  int num;
+  int PID;
+  double KE;
+  double vertex[3];
+  double direction[3];
+  double time;
+  double weight;
 };
 
 // forward declarations for useful functions
@@ -64,7 +58,7 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains);
 TH1D* CreateSuperRatio(vector < vector < TH1D* > > sideCounts);
 TH1D* CalculateAofE(TH1D* R);
-TH1D* DivideByMBAsymm(TH1D* AofE);
+TH1D* DivideMPMEffects(TH1D* AofE);
 
 // debugging functions
 TH1D* SingleRunAsymm(vector < vector < TH1D* > > sideCounts);
@@ -109,8 +103,7 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/AbFit_Fierz_2011-2013/2011-2012_geom/");
-//  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/Octet47/");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Evts_Files/testing_asymm_2");
   // load all the histograms of east and west given the cuts of interest
   vector < vector < TH1D* > > counts = CreateMCCountsHistograms(runFiles);
 
@@ -120,11 +113,7 @@ int main(int argc, char* argv[])
 //  TFile f(TString::Format("MC_asymm_Octet_%i_type0.root", octNb), "RECREATE");
   TH1D* superRatio_Erecon = CreateSuperRatio(counts);
   TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
-
-//  TH1D* flattenedAsymm_Erecon = DivideByMBAsymm(asymm_Erecon);
-
-  double xMin = 180;
-  double xMax = 780;
+  TH1D* flattenedAsymm = DivideMPMEffects(asymm_Erecon);
 
 /*
   TF1 *fit = new TF1("beta fit", "[0]*sqrt(x*x +2*511*x) / (511 + x)", xMin, xMax);
@@ -139,20 +128,11 @@ int main(int argc, char* argv[])
 
 //  asymm_Erecon->Write();
 
-  PlotHist(C, 1, 1, asymm_Erecon, "", "Primary Energy (keV)", "Asymmetry", "");
-
-  TLine *yLow = new TLine(xMin, 0.02, xMin, 0.08);
-  TLine *yHigh = new TLine(xMax, 0.02, xMax, 0.08);
-  yLow->SetLineWidth(2);
-  yHigh->SetLineWidth(2);
-  yLow->SetLineColor(1);
-  yHigh->SetLineColor(1);
-  yLow->Draw("SAME");
-  yHigh->Draw("SAME");
+  PlotHist(C, 1, 1, flattenedAsymm, "", "Primary Energy (keV)", "Asymmetry", "");
 
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("statsWeighted_SR_asymm.pdf");
+//  C -> Print("preMichael_statsWeighted_SR_asymm_2.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -228,42 +208,42 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
   for(unsigned int i = 0; i < 8; i++)
   {
-    runs.push_back(new TChain("revCalSim"));
+    runs.push_back(new TChain("Evts"));
   }
 
   for(unsigned int l = 0; l < octetList.size(); l++)
   {
     if(octetList[l].first == "A2")
     {
-      runs[index_A2] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
+      runs[index_A2] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A5")
     {
-      runs[index_A5] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
+      runs[index_A5] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A7")
     {
-      runs[index_A7] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
+      runs[index_A7] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "A10")
     {
-      runs[index_A10] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
+      runs[index_A10] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B2")
     {
-      runs[index_B2] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
+      runs[index_B2] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B5")
     {
-      runs[index_B5] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
+      runs[index_B5] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B7")
     {
-      runs[index_B7] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
+      runs[index_B7] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmDown.Data(), octetList[l].second));
     }
     else if(octetList[l].first == "B10")
     {
-      runs[index_B10] -> Add(TString::Format("%s/%s/revCalSim_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
+      runs[index_B10] -> Add(TString::Format("%s/%s/Evts_%i.root", dataPath.Data(), asymmUp.Data(), octetList[l].second));
     }
   }
 
@@ -286,32 +266,32 @@ vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains
     countHistsEast.push_back(new TH1D(TString::Format("East Counts %i", i), "East Counts", 120, 0, 1200));
     countHistsWest.push_back(new TH1D(TString::Format("West Counts %i", i), "West Counts", 120, 0, 1200));
 
-    runsChains[i]->SetBranchAddress("PrimaryID", &evt[i]->eventNum);
-    runsChains[i]->SetBranchAddress("side", &evt[i]->side);
-    runsChains[i]->SetBranchAddress("type", &evt[i]->type);
-    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
-    runsChains[i]->SetBranchAddress("primaryKE", &evt[i]->primKE);
-    runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
+    runsChains[i]->SetBranchAddress("num", &evt[i]->num);
+    runsChains[i]->SetBranchAddress("PID", &evt[i]->PID);
+    runsChains[i]->SetBranchAddress("KE", &evt[i]->KE);
+    runsChains[i]->SetBranchAddress("vertex", &evt[i]->vertex);
+    runsChains[i]->SetBranchAddress("direction", &evt[i]->direction);
     runsChains[i]->SetBranchAddress("time", &evt[i]->time);
+    runsChains[i]->SetBranchAddress("weight", &evt[i]->weight);
   }
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
-    for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
+    cout << "For chain j = " << j << " we have number of events = " << runsChains[j]->GetEntries() << endl;
+
+    for(unsigned int i = 0; i < runsChains[j]->GetEntries(); i++)
     {
       runsChains[j]->GetEntry(i);
 
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+      if(evt[j]->PID == 11)
       {
-        if(evt[j]->side == 0)
+        if(evt[j]->direction[2] < 0)
         {
-	    countHistsEast[j]->Fill(evt[j]->primKE);
-//          countHistsEast[j]->Fill(evt[j]->Erecon);
+	    countHistsEast[j]->Fill(evt[j]->KE);
         }
-        else if(evt[j]->side == 1)
+        else if(evt[j]->direction[2] > 0)
         {
-	    countHistsWest[j]->Fill(evt[j]->primKE);
-//          countHistsWest[j]->Fill(evt[j]->Erecon);
+	    countHistsWest[j]->Fill(evt[j]->KE);
         }
       }
     }
@@ -474,60 +454,6 @@ TH1D* CalculateAofE(TH1D* R)
   return hAofE;
 }
 
-TH1D* DivideByMBAsymm(TH1D* AofE)
-{
-  TH1D* hCorrAofE = new TH1D("Corrected AofE", "Corrected AofE", 120, 0, 1200);
-
-  double energy, asymm, asymmErr;
-  double bin, binCounts, binError;
-
-  TString fileName = Form("UnCorr_OctetAsymmetries_AnaChA_180-780_Octets_0-59_BinByBin_withEnergyDependence.txt");
-  // opens the file named above
-  string buf1;
-  ifstream infile1;
-  cout << "The file being opened is: " << fileName << endl;
-  infile1.open(fileName);
-
-  //a check to make sure the file is open
-  if(!infile1.is_open())
-    cout << "Problem opening " << fileName << endl;
-
-  while(true)
-  {
-    getline(infile1, buf1);
-    istringstream bufstream1(buf1);
-
-    if(!infile1.eof())
-    {
-      bufstream1 >> energy >> asymm >> asymmErr;
-
-      bin = AofE->FindBin(energy);
-      binCounts = AofE->GetBinContent(bin);
-      binError = AofE->GetBinError(bin);
-
-      if(asymm == 0)
-      {
-        hCorrAofE->SetBinContent(bin, 0);
-        hCorrAofE->SetBinError(bin, binError);
-      }
-      else
-      {
-        hCorrAofE->SetBinContent(bin, binCounts / abs(asymm));
-        hCorrAofE->SetBinError(bin, sqrt(binError*binError + asymmErr*asymmErr));
-      }
-    }
-
-    if(infile1.eof() == true)
-    {
-      break;
-    }
-  }
-
-
-  return hCorrAofE;
-}
-
-
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command)
 {
   C -> cd(canvasIndex);
@@ -536,7 +462,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetRangeUser(0.02, 0.08);
+//  hPlot -> GetYaxis() -> SetRangeUser(0.02, 0.08);
 
 
   if(styleIndex == 1)
@@ -561,16 +487,57 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> Draw(command);
 
   C -> Update();
+
+  double xMin = 180;
+  double xMax = 780;
+
+  TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
+  TLine *yHigh = new TLine(xMax, gPad->GetUymin(), xMax, gPad->GetUymax());
+  yLow->SetLineWidth(2);
+  yHigh->SetLineWidth(2);
+  yLow->SetLineColor(1);
+  yHigh->SetLineColor(1);
+  yLow->Draw("SAME");
+  yHigh->Draw("SAME");
+
+}
+
+TH1D* DivideMPMEffects(TH1D* AofE)
+{
+  cout << "Dividing out the corrections from BetaSpectrum.hh ... " << endl;
+
+  TH1D* hCorrectionDivided = new TH1D("corrected", "MPM corrected", 120, 0, 1200);
+
+  for(int i = 0; i <= AofE->GetNbinsX(); i++)
+  {
+    hCorrectionDivided->SetBinContent(i, AofE->GetBinContent(i) / correctedAsymmetry(AofE->GetBinCenter(i)));
+    hCorrectionDivided->SetBinError(i, AofE->GetBinError(i) / correctedAsymmetry(AofE->GetBinCenter(i)));
+  }
+
+  cout << "Created new histogram with energy effects divided out..." << endl;
+
+  return hCorrectionDivided;
+
 }
 
 
-// Debugging functions down below.
-// Asymmetry doesn't look right.
 
 TH1D* SingleRunAsymm(vector < vector < TH1D* > > sideCounts)
 {
-  TH1D *hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
+  for(unsigned int i = 0; i < 2; i++)
+  {
+    for(unsigned int j = 0; j < sideCounts[i].size(); j++)
+    {
+      // ensure that all the errors are gonna get propagated correctly later.
+      // This is a mandatory ROOT trick.
+      sideCounts[i][j]->Sumw2();
+    }
+  }
 
+  TH1D *hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
+  hAofE->Sumw2();
+
+  vector <double> mySetErrors;
   int index = index_A2;
 
   double asymm = 0;
@@ -585,7 +552,9 @@ TH1D* SingleRunAsymm(vector < vector < TH1D* > > sideCounts)
     else
     {
       asymm = ( sideCounts[0][index]->GetBinContent(i) - sideCounts[1][index]->GetBinContent(i) )
-	    / ( sideCounts[0][index]->GetBinContent(i) + sideCounts[1][index]->GetBinContent(i) );
+            / ( sideCounts[0][index]->GetBinContent(i) + sideCounts[1][index]->GetBinContent(i) );
+
+
     }
 
     hAofE->SetBinContent(i, asymm);

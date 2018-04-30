@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/AbFit_Fierz_2011-2013/2011-2012_geom/");
-//  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/Octet47/");
+//  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/AbFit_Fierz_2011-2013/2011-2012_geom/");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/G4Sims_AbFit/Octet47/");
   // load all the histograms of east and west given the cuts of interest
   vector < vector < TH1D* > > counts = CreateMCCountsHistograms(runFiles);
 
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("statsWeighted_SR_asymm.pdf");
+  C -> Print("100xStats_statsWeighted_SR_asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -297,6 +297,8 @@ vector < vector < TH1D* > > CreateMCCountsHistograms(vector <TChain*> runsChains
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
+    cout << "runsChains[" << j << "]->GetEntries() = " << runsChains[j]->GetEntries() << endl;
+
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
