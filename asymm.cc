@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print("100xStats_statsWeighted_SR_asymm.pdf");
+//  C -> Print("100xStats_statsWeighted_SR_asymm.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
