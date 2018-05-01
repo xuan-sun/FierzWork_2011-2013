@@ -115,13 +115,13 @@ int main(int argc, char* argv[])
   TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
   TH1D* flattenedAsymm = DivideMPMEffects(asymm_Erecon);
 
-
   double xMin = 180;
   double xMax = 780;
 
-  TF1 *fit = new TF1("asymm fit", "[0]", xMin, xMax);
+  TF1 *fit = new TF1("asymm fit", "[0] + [1]*x", xMin, xMax);
 
   fit->SetParName(0, "A0");
+  fit->SetParName(1, "weak magnetism");
   flattenedAsymm->Fit("asymm fit");
   TF1 *fitResults = flattenedAsymm->GetFunction("asymm fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -133,9 +133,8 @@ int main(int argc, char* argv[])
 
   PlotHist(C, 1, 1, flattenedAsymm, "", "Primary Energy (keV)", "Asymmetry", "");
 
-
   // Save our plot and print it out as a pdf.
-//  C -> Print("preMichael_statsWeighted_SR_asymm_2.pdf");
+  C -> Print("preMichael_flattenedAsymm_noMPMEffects.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -512,8 +511,8 @@ TH1D* DivideMPMEffects(TH1D* AofE)
 
   for(int i = 0; i <= AofE->GetNbinsX(); i++)
   {
-    energyEffects = (beta(AofE->GetBinCenter(i)) / 2.0)
-		  * (1.0 + WilkinsonACorrection((AofE->GetBinCenter(i) + m_e) / m_e) + shann_h_minus_g_a2pi((AofE->GetBinCenter(i) + m_e) / m_e));
+    energyEffects = (beta(AofE->GetBinCenter(i)) / 2.0);
+//		  * (1.0 + WilkinsonACorrection((AofE->GetBinCenter(i) + m_e) / m_e) + shann_h_minus_g_a2pi((AofE->GetBinCenter(i) + m_e) / m_e));
     hCorrectionDivided->SetBinContent(i, AofE->GetBinContent(i) / energyEffects);
     hCorrectionDivided->SetBinError(i, AofE->GetBinError(i) / energyEffects);
   }
