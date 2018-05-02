@@ -46,6 +46,10 @@
 
 using            namespace std;
 
+// forward declarations for useful functions
+TH1D* CalculateAverageSRAsymmetry(vector <TH1D*> asymms);
+
+
 // required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
@@ -66,9 +70,10 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
   gROOT->SetStyle("Plain");	//on my computer this sets background to white, finally!
 
+  cout << "Begin loading all files and histograms into vectors..." << endl;
+
   vector <TFile*> octetFiles;
   vector <TH1D*> octetAsymm;
-
   for(int i = 0; i < 60; i++)
   {
     if(i == 9 || i == 59)
@@ -80,10 +85,15 @@ int main(int argc, char* argv[])
     octetAsymm[octetAsymm.size() - 1] = (TH1D*)octetFiles[octetFiles.size() - 1]->Get("AofE");
   }
 
-  cout << "After loading all the octets, our vector size is " << octetAsymm.size() << endl;
+  cout << "After loading, our total number of octets used is " << octetAsymm.size() << endl;
 
-  PlotHist(C, 1, 1, octetAsymm[29], "Asymmetry as a function of Energy", "Reconstructed Energy (keV)", "Asymmetry", "");
+  cout << "Calculating statistically weighted average of asymmetries..." << endl;
 
+  TH1D* weightedAvgAsymm = CalculateAverageSRAsymmetry(octetAsymm);
+
+  cout << "Plotting final asymmetry..." << endl;
+
+  PlotHist(C, 1, 1, weightedAvgAsymm, "Asymmetry as a function of Energy", "Reconstructed Energy (keV)", "Asymmetry", "");
 
   //prints the canvas with a dynamic TString name of the name of the file
   C -> Print("statsWeighted_SRAsymm_allOctets_2011-2012.pdf");
@@ -100,7 +110,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yAxis);
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot->GetYaxis()->SetRangeUser(0, hPlot->GetMaximum()*1.5);
+  hPlot->GetYaxis()->SetRangeUser(0.02, 0.08);
 
   if(styleIndex == 1)
   {
@@ -124,6 +134,18 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   }
 
   hPlot -> Draw(command);
+
+  C->Update();
+
+  TLine *yLow = new TLine(180, gPad->GetUymin(), 180, gPad->GetUymax());
+  TLine *yHigh = new TLine(780, gPad->GetUymin(), 780, gPad->GetUymax());
+  yLow->SetLineWidth(2);
+  yHigh->SetLineWidth(2);
+  yLow->SetLineColor(1);
+  yHigh->SetLineColor(1);
+  yLow->Draw("SAME");
+  yHigh->Draw("SAME");
+
 }
 
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command)
@@ -187,3 +209,43 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
   C->Update();
 }
 
+
+TH1D* CalculateAverageSRAsymmetry(vector <TH1D*> asymms)
+{
+  TH1D* avgAsymm = new TH1D("avgAsymm", "Statistically weighted asymmetry", 120, 0, 1200);
+
+  double thisBinContent_numerator = 0;
+  double thisBinContent_denominator = 0;
+
+  // this calculation of statistically weighted average uses the input error as sigma
+  // formula can be found on Wikipedia: https://en.wikipedia.org/wiki/Weighted_arithmetic_mean
+  for(int i = 0; i <= avgAsymm->GetNbinsX(); i++)
+  {
+    for(unsigned int j = 0; j < asymms.size(); j++)
+    {
+      if(asymms[j]->GetBinContent(i) != 0 && asymms[j]->GetBinError(i) != 0)
+      {
+        thisBinContent_numerator = thisBinContent_numerator
+		     		 + asymms[j]->GetBinContent(i) * (1.0 / ( asymms[j]->GetBinError(i) * asymms[j]->GetBinError(i) ) );
+        thisBinContent_denominator = thisBinContent_denominator
+		     		   + (1.0 / ( asymms[j]->GetBinError(i) * asymms[j]->GetBinError(i) ) );
+      }
+    }
+
+    if(thisBinContent_numerator == 0 || thisBinContent_denominator == 0)
+    {
+      avgAsymm->SetBinContent(i, 0);
+      avgAsymm->SetBinError(i, 0);
+    }
+    else
+    {
+      avgAsymm->SetBinContent(i, thisBinContent_numerator / thisBinContent_denominator);
+      avgAsymm->SetBinError(i, 1.0 / sqrt(thisBinContent_denominator));
+    }
+
+    thisBinContent_numerator = 0;
+    thisBinContent_denominator = 0;
+  }
+
+  return avgAsymm;
+}
