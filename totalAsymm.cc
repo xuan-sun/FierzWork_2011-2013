@@ -46,9 +46,6 @@
 
 using            namespace std;
 
-// forward declarations for necessary functions
-vector <TH1D*> LoadAllOctets();
-
 // required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
@@ -69,29 +66,23 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
   gROOT->SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-//  vector <TH1D*> octetsAsymm = LoadAllOctets();
-
   vector <TFile*> octetFiles;
   vector <TH1D*> octetAsymm;
 
-  octetAsymm.push_back(new TH1D());
-  octetAsymm.push_back(new TH1D());
-
-  octetFiles.push_back(new TFile("Xuan_asymmetries/MC_asymm_Octet_30_type0.root"));
-  octetFiles.push_back(new TFile("Xuan_asymmetries/MC_asymm_Octet_37_type0.root"));
-
-//  TFile f("Xuan_asymmetries/MC_asymm_Octet_30_type0.root");
-  octetAsymm[0] = (TH1D*)octetFiles[0]->Get("AofE");
-
-//  f.Open("Xuan_asymmetries/MC_asymm_Octet_37_type0.root");
-  octetAsymm[1] = (TH1D*)octetFiles[1]->Get("AofE");
+  for(int i = 0; i < 60; i++)
+  {
+    if(i == 9 || i == 59)
+    {
+      continue;
+    }
+    octetAsymm.push_back(new TH1D());
+    octetFiles.push_back(new TFile(Form("Xuan_asymmetries/MC_asymm_Octet_%i_type0.root", i)));
+    octetAsymm[octetAsymm.size() - 1] = (TH1D*)octetFiles[octetFiles.size() - 1]->Get("AofE");
+  }
 
   cout << "After loading all the octets, our vector size is " << octetAsymm.size() << endl;
 
-  octetAsymm[0]->Draw();
-
-
-//  PlotHist(C, 1, 1, octetsAsymm[20], "Asymmetry as a function of Energy", "Reconstructed Energy (keV)", "Asymmetry", "");
+  PlotHist(C, 1, 1, octetAsymm[29], "Asymmetry as a function of Energy", "Reconstructed Energy (keV)", "Asymmetry", "");
 
 
   //prints the canvas with a dynamic TString name of the name of the file
@@ -196,33 +187,3 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
   C->Update();
 }
 
-vector <TH1D*> LoadAllOctets()
-{
-  vector <TH1D*> octets;
-
-  for(int i = 0; i < 60; i++)
-  {
-    if(i == 9 || i == 59)
-    {
-      continue;
-    }
-
-    octets.push_back(new TH1D(Form("octet_%i", i), Form("Octet %i", i), 120, 0, 1200));
-
-  }
-
-  for(int i = 0; i < 60; i++)
-  {
-    if(i == 9 || i == 59)
-    {
-      continue;
-    }
-
-    TFile fTemp(Form("Xuan_asymmetries/MC_asymm_Octet_%i_type0.root", i));
-    octets[i] = (TH1D*)fTemp.Get("AofE");
-
-    octets[i]->Draw();
-  }
-
-  return octets;
-}
