@@ -48,15 +48,13 @@ using            namespace std;
 
 // forward declarations for useful functions
 TH1D* CalculateAverageSRAsymmetry(vector <TH1D*> asymms);
-
+TH1D* DivideMPMEffects(TH1D* AofE);
 
 // required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 // visualization functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 
 int main(int argc, char* argv[])
 {
@@ -91,9 +89,23 @@ int main(int argc, char* argv[])
 
   TH1D* weightedAvgAsymm = CalculateAverageSRAsymmetry(octetAsymm);
 
-  cout << "Plotting final asymmetry..." << endl;
+  TH1D* flattenedAsymm = DivideMPMEffects(weightedAvgAsymm);
 
-  PlotHist(C, 1, 1, weightedAvgAsymm, "Asymmetry as a function of Energy", "Reconstructed Energy (keV)", "Asymmetry", "");
+  double xMin = 220;
+  double xMax = 680;
+
+  TF1 *fit = new TF1("asymm fit", "[0]", xMin, xMax);
+
+  fit->SetParName(0, "A0");
+//  fit->SetParName(1, "weak magnetism");
+  flattenedAsymm->Fit("asymm fit", "R");
+  TF1 *fitResults = flattenedAsymm->GetFunction("asymm fit");
+  cout << "Chi squared value is " << fitResults->GetChisquare()
+        << " with ndf of " << fitResults->GetNDF()
+        << ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
+
+  cout << "Plotting asymmetry..." << endl;
+  PlotHist(C, 1, 1, flattenedAsymm, "Asymmetry as a function of Energy", "Reconstructed Energy (keV)", "Asymmetry", "");
 
   //prints the canvas with a dynamic TString name of the name of the file
   C -> Print("statsWeighted_SRAsymm_allOctets_2011-2012.pdf");
@@ -102,6 +114,7 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command)
 {
   C -> cd(canvasIndex);
@@ -110,7 +123,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yAxis);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot->GetYaxis()->SetRangeUser(0.02, 0.08);
+  hPlot->GetYaxis()->SetRangeUser(0.1, 0.15);
 
   if(styleIndex == 1)
   {
@@ -146,67 +159,6 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
 
-}
-
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command)
-{
-  C->cd(canvasIndex);
-  gPlot->SetTitle(title);
-  gPlot->GetXaxis()->SetTitle(xAxis);
-  gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle(yAxis);
-  gPlot->GetYaxis()->CenterTitle();
-
-  if(styleIndex == 1)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(2);
-  }
-  if(styleIndex == 2)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(4);
-  }
-
-  gPlot->Draw(command);
-
-  C->Update();
-
-}
-
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command)
-{
-  C->cd(canvasIndex);
-  gPlot->SetTitle(title);
-  gPlot->GetXaxis()->SetTitle(xAxis);
-  gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle(yAxis);
-  gPlot->GetYaxis()->CenterTitle();
-
-  if(styleIndex == 1)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(2);
-  }
-  if(styleIndex == 2)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(4);
-  }
-  if(styleIndex == 3)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(3);
-  }
-
-  gPlot->Draw(command);
-
-  C->Update();
 }
 
 
@@ -249,3 +201,25 @@ TH1D* CalculateAverageSRAsymmetry(vector <TH1D*> asymms)
 
   return avgAsymm;
 }
+
+TH1D* DivideMPMEffects(TH1D* AofE)
+{
+  cout << "Dividing out the corrections from BetaSpectrum.hh ... " << endl;
+
+  TH1D* hCorrectionDivided = new TH1D("corrected", "MPM corrected", 120, 0, 1200);
+
+  double energyEffects = 0;
+
+  for(int i = 0; i <= AofE->GetNbinsX(); i++)
+  {
+    energyEffects = (beta(AofE->GetBinCenter(i)) / 2.0)
+                * (1.0 + WilkinsonACorrection((AofE->GetBinCenter(i) + m_e) / m_e) + shann_h_minus_g_a2pi((AofE->GetBinCenter(i) + m_e) / m_e));
+    hCorrectionDivided->SetBinContent(i, AofE->GetBinContent(i) / energyEffects);
+    hCorrectionDivided->SetBinError(i, AofE->GetBinError(i) / energyEffects);
+  }
+
+  cout << "Created new histogram with energy effects divided out..." << endl;
+
+  return hCorrectionDivided;
+}
+
