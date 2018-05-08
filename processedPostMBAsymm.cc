@@ -61,7 +61,7 @@ struct Event
 // forward declarations for useful functions
 TH1D* CalculateAofE(TH1D* R);
 TH1D* DivideByMBAsymm(TH1D* AofE);
-double CalculatebFromPercentageMixing(TString fileName, int seed);
+double CalculatebFromPercentageMixing(TString fileName);
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 
 // plotting functions
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
-  int octNb = 47;
+  int octNb = 43;
   double xMin = 165;
   double xMax = 645;
 
@@ -106,7 +106,12 @@ int main(int argc, char* argv[])
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
-  cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE << endl;
+  cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE
+ 	<< " over a fit range of " << xMin << " to " << xMax << endl;
+
+  double bMixing = CalculatebFromPercentageMixing("ExtractedHistograms/randomMixingSeeds.txt");
+
+  cout << "For octet " << octNb << ", using random seed s0, we get a b value of " << bMixing << endl;
 
 
   // make a file and write the output of the calculations to it
@@ -264,14 +269,46 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   C -> Update();
 }
 
-double CalculatebFromPercentageMixing(TString fileName, int seed)
+double CalculatebFromPercentageMixing(TString fileName)
 {
-  
+  double b = 0;
 
+  // read in our random mixing seed so I stay pretty blind.
+  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
 
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName.Data() << endl;
+  infile1.open(fileName);
 
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName.Data() << endl;
 
-  return 0;
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  // load all the histograms of east and west, turn them into rates.
+  // ALWAYS USE S3 FOR MIXING.
+//  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s3);
+//  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s3);
+
+  b = s0 / ( (1 - s0) * (avg_mE) );
+
+  return b;
 }
 
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
