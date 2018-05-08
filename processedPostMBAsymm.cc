@@ -306,7 +306,7 @@ double CalculatebFromPercentageMixing(TString fileName)
 //  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s3);
 //  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s3);
 
-  b = s0 / ( (1 - s0) * (avg_mE) );
+  b = s4 / ( (1 - s4) * (avg_mE) );
 
   return b;
 }

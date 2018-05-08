@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o debuggingFitter.o
-SOURCE = debuggingFitter
+OBJECTS = BetaSpectrum.o newXuanFitter.o
+SOURCE = newXuanFitter
 
 .PHONY: all
 all: $(SOURCE)
@@ -29,6 +29,7 @@ $(SOURCE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(SOURCE) $(OBJECTS) $(LIBS)
 
 BetaSpectrum.o: BetaSpectrum.hh
+#histfitter.o: comparehist.hh
 
 # -------------------------------------------------------------------------------
 #  Generic compilation and linking step to make an executable from

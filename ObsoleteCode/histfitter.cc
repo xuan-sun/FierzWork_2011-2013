@@ -30,9 +30,9 @@ int main(int argc, char* argv[])
   TH1D* dataHist = ExtractHistFromChain(variableName, cutsUsed, dataChain, "myHist", "Data", 100, 0, 1000);
 */
 
-  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist.root", octNb));
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist.root", octNb));
-  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist.root", octNb));
+  TFile fData(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s_s4.root", octNb, "type0"));
+  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
+  TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, "type0"));
 
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
   TFractionFitter* fit = new TFractionFitter(dataHist, MCTheory, "Q");  // initialise
   TVirtualFitter* vfit = fit->GetFitter();
 
-  int fitMin = 10;
+  int fitMin = 17;
   int fitMax = 65;
   fit -> SetRangeX(fitMin, fitMax);
 

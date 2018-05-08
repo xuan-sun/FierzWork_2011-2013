@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/%s/octet_list_%i.dat", "OctetLists", octNb));
 
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2012-2013_geom/A_0_b_0");
-  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2012-2013_geom/A_0_b_inf");
+  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2011-2012_geom/A_0_b_0");
+  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2011-2012_geom/A_0_b_inf");
 
   // read in our random mixing seed so I stay pretty blind.
   double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
@@ -135,8 +135,8 @@ int main(int argc, char* argv[])
 
   // load all the histograms of east and west, turn them into rates.
   // ALWAYS USE S3 FOR MIXING.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s3);
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s3);
+  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s4);
+  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s4);
 
   // Sum the two files together.
   for(unsigned int i = 0; i < rates_base.size(); i++)
@@ -149,7 +149,8 @@ int main(int argc, char* argv[])
 
   }
 
-  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
+//  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
+  TFile f(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ObsoleteCode/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0_s4.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();
