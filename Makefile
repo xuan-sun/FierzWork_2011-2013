@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o debuggingFitter.o
-SOURCE = debuggingFitter
+OBJECTS = BetaSpectrum.o blindingMCFiles.o
+SOURCE = blindingMCFiles
 
 .PHONY: all
 all: $(SOURCE)

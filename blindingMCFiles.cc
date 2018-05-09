@@ -135,22 +135,22 @@ int main(int argc, char* argv[])
 
   // load all the histograms of east and west, turn them into rates.
   // ALWAYS USE S3 FOR MIXING.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s4);
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s4);
+  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - 0.05);
+  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0.05);
 
   // Sum the two files together.
   for(unsigned int i = 0; i < rates_base.size(); i++)
   {
     for(unsigned int j = 0; j < rates_base[i].size(); j++)
     {
-      rates_base[i][j]->Sumw2();
       rates_base[i][j]->Add(rates_base[i][j], rates_fierz[i][j], 1, 1);
     }
 
   }
 
 //  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
-  TFile f(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ObsoleteCode/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0_s4.root", octNb), "RECREATE");
+//  TFile f(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ObsoleteCode/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0_20.root", octNb), "RECREATE");
+  TFile f(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0_05.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();
@@ -352,51 +352,128 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
 
 TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 {
+  for(unsigned int i = 0; i < sideRates.size(); i++)
+  {
+    for(unsigned int j = 0; j < sideRates[i].size(); j++)
+    {
+      sideRates[i][j]->Sumw2();
+    }
+  }
+
   TH1D* hist = new TH1D("Super sum", "Super sum Erecon spectrum", 120, 0, 1200);
 
   vector <double> mySetErrors;
 
   // sum the "like" histograms without any statistical weight
   TH1D* eastPlusRates = new TH1D("East Plus", "East Plus", 120, 0, 1200);
-//  sideRates[0][index_A5]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_A5]);
-//  sideRates[0][index_A7]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_A7]);
-//  sideRates[0][index_B2]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_B2]);
-//  sideRates[0][index_B10]->Sumw2();
   eastPlusRates->Add(sideRates[0][index_B10]);
 
   TH1D* westPlusRates =new TH1D("West Plus", "West Plus", 120, 0, 1200);
-//  sideRates[1][index_A5]->Sumw2();
   westPlusRates->Add(sideRates[1][index_A5]);
-//  sideRates[1][index_A7]->Sumw2();
   westPlusRates->Add(sideRates[1][index_A7]);
-//  sideRates[1][index_B2]->Sumw2();
   westPlusRates->Add(sideRates[1][index_B2]);
-//  sideRates[1][index_B10]->Sumw2();
   westPlusRates->Add(sideRates[1][index_B10]);
 
   TH1D* eastMinusRates = new TH1D("East Minus", "East Minus", 120, 0, 1200);
-//  sideRates[0][index_A2]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_A2]);
-//  sideRates[0][index_A10]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_A10]);
-//  sideRates[0][index_B5]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_B5]);
-//  sideRates[0][index_B7]->Sumw2();
   eastMinusRates->Add(sideRates[0][index_B7]);
 
   TH1D* westMinusRates =new TH1D("West Minus", "West Minus", 120, 0, 1200);
-//  sideRates[1][index_A2]->Sumw2();
   westMinusRates->Add(sideRates[1][index_A2]);
-//  sideRates[1][index_A10]->Sumw2();
   westMinusRates->Add(sideRates[1][index_A10]);
-//  sideRates[1][index_B5]->Sumw2();
   westMinusRates->Add(sideRates[1][index_B5]);
-//  sideRates[1][index_B7]->Sumw2();
   westMinusRates->Add(sideRates[1][index_B7]);
 
+  double R1 = 0;
+  double R2 = 0;
+  double dR1 = 0;
+  double dR2 = 0;
+
+/*
+  sfON = Plus Rates.
+  sfOff = Minus Rates.
+  [0] = East
+  [1] = West
+*/
+
+  // add the histograms together to create a super sum
+  for(int i = 0; i <= hist->GetNbinsX(); i++)
+  {
+    if(eastPlusRates->GetBinContent(i) > 0 && westMinusRates->GetBinContent(i) > 0)
+    {
+      R2 = sqrt(eastPlusRates->GetBinContent(i) * westMinusRates->GetBinContent(i));
+    }
+    else if(eastPlusRates->GetBinContent(i) <= 0 && westMinusRates->GetBinContent(i) <= 0)
+    {
+      R2 = -sqrt(eastPlusRates->GetBinContent(i) * westMinusRates->GetBinContent(i));
+    }
+    else /* Implicitly, it means if one is negative and the other is positive */
+    {
+      R2 = 0.5*(eastPlusRates->GetBinContent(i) + westMinusRates->GetBinContent(i));
+    }
+
+
+    if(eastMinusRates->GetBinContent(i) > 0 && westPlusRates->GetBinContent(i) > 0)
+    {
+      R1 = sqrt(eastMinusRates->GetBinContent(i) * westPlusRates->GetBinContent(i));
+    }
+    else if(eastMinusRates->GetBinContent(i) <= 0 && westPlusRates->GetBinContent(i) <= 0)
+    {
+      R1 = -sqrt(eastMinusRates->GetBinContent(i) * westPlusRates->GetBinContent(i));
+    }
+    else /* Implicitly, it means if one is negative and the other is positive */
+    {
+      R1 = 0.5*(eastMinusRates->GetBinContent(i) + westPlusRates->GetBinContent(i));
+    }
+
+    if( (eastMinusRates->GetBinContent(i) > 0 && westPlusRates->GetBinContent(i) > 0)
+       || (eastMinusRates->GetBinContent(i) < 0 && westPlusRates->GetBinContent(i) < 0) )
+    {
+      dR1 = 0.5*sqrt((pow((eastMinusRates->GetBinContent(i))*(westPlusRates->GetBinError(i)), 2)
+            + pow((westPlusRates->GetBinContent(i))*(eastMinusRates->GetBinError(i)), 2))
+            / (westPlusRates->GetBinContent(i)*eastMinusRates->GetBinContent(i)));
+    }
+    else /* Implicitly means if the product of these rates are negative, then we do the else */
+    {
+      dR1 = 0.5*sqrt(pow(westPlusRates->GetBinError(i), 2) + pow(eastMinusRates->GetBinError(i), 2));
+    }
+
+    if( (eastPlusRates->GetBinContent(i) > 0 && westMinusRates->GetBinContent(i) > 0)
+      || (eastPlusRates->GetBinContent(i) < 0 && westMinusRates->GetBinContent(i) < 0) )
+    {
+      dR1 = 0.5*sqrt((pow((eastMinusRates->GetBinContent(i))*(westPlusRates->GetBinError(i)), 2)
+            + pow((westPlusRates->GetBinContent(i))*(eastMinusRates->GetBinError(i)), 2))
+            / (westPlusRates->GetBinContent(i)*eastMinusRates->GetBinContent(i)));
+    }
+    else /* Implicitly means if the product of these rates are negative, then we do the else */
+    {
+      dR1 = 0.5*sqrt(pow(westPlusRates->GetBinError(i), 2) + pow(eastMinusRates->GetBinError(i), 2));
+    }
+
+    if( (eastPlusRates->GetBinContent(i) > 0 && westMinusRates->GetBinContent(i) > 0)
+      || (eastPlusRates->GetBinContent(i) < 0 && westMinusRates->GetBinContent(i) < 0) )
+    {
+      dR2 = 0.5*sqrt((pow((westMinusRates->GetBinContent(i))*(eastPlusRates->GetBinError(i)), 2)
+            + pow((eastPlusRates->GetBinContent(i))*(westMinusRates->GetBinError(i)), 2))
+            / (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i)));
+    }
+    else /* Implicitly means if the product of these rates are negative, then we do the else */
+    {
+      dR2 = 0.5*sqrt(pow(eastPlusRates->GetBinError(i), 2) + pow(westMinusRates->GetBinError(i), 2));
+
+    }
+
+    hist->SetBinContent(i, R1 + R2);
+    mySetErrors.push_back(sqrt(pow(dR1, 2) + pow(dR2, 2)));
+
+  }
+
+/*
   double errorValueEachBin = 0;
   // add the histograms together to create a super sum
   for(int i = 0; i <= hist->GetNbinsX(); i++)
@@ -431,7 +508,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
       mySetErrors.push_back(errorValueEachBin);
     }
   }
-
+*/
   hist->SetError(&(mySetErrors[0]));
 
   return hist;
