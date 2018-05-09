@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o blindingMCFiles.o
-SOURCE = blindingMCFiles
+OBJECTS = BetaSpectrum.o processedPostMBAsymm.o
+SOURCE = processedPostMBAsymm
 
 .PHONY: all
 all: $(SOURCE)

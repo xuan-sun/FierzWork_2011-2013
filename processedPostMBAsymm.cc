@@ -59,10 +59,10 @@ struct Event
 };
 
 // forward declarations for useful functions
-TH1D* CalculateAofE(TH1D* R);
-TH1D* DivideByMBAsymm(TH1D* AofE);
 double CalculatebFromPercentageMixing(TString fileName);
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
+TH1D* LoadMBAsymmetry(TString fileName);
+TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlinding);
 
 // plotting functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command);
@@ -101,7 +101,6 @@ int main(int argc, char* argv[])
   double xMin = 165;
   double xMax = 645;
 
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/%s_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", "2011-2012", octNb, "type0"));
   TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
@@ -111,12 +110,9 @@ int main(int argc, char* argv[])
 
   double bMixing = CalculatebFromPercentageMixing("ExtractedHistograms/randomMixingSeeds.txt");
 
-  cout << "For octet " << octNb << ", using random seed s0, we get a b value of " << bMixing << endl;
+  TH1D *asymm = LoadMBAsymmetry(Form("AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt"));
 
-
-  // make a file and write the output of the calculations to it
-//  TH1D* asymm_Erecon = CalculateAofE(superRatio_Erecon);
-
+  TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
 
 
@@ -132,7 +128,7 @@ int main(int argc, char* argv[])
 */
 
 
-//  PlotHist(C, 1, 1, asymm_Erecon, "", "Primary Energy (keV)", "Asymmetry", "");
+  PlotHist(C, 1, 1, blindedAsymm, "", "Reconstructed Energy (keV)", "Blinded Uncorrected A(E)", "");
 
   TLine *yLow = new TLine(xMin, 0.02, xMin, 0.08);
   TLine *yHigh = new TLine(xMax, 0.02, xMax, 0.08);
@@ -152,42 +148,12 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-TH1D* CalculateAofE(TH1D* R)
+TH1D* LoadMBAsymmetry(TString fileName)
 {
-  TH1D* hAofE = new TH1D("AofE", "AofE", 120, 0, 1200);
-
-  double asymm = 0;
-  double asymmErr = 0;
-
-  for(int i = 0; i <= R->GetNbinsX(); i++)
-  {
-    if(R->GetBinContent(i) == 0)
-    {
-      asymm = 0;
-      asymmErr = 0;
-    }
-    else
-    {
-      asymm = (1 - sqrt(R->GetBinContent(i)) ) / ( 1 + sqrt(R->GetBinContent(i)) );
-      asymmErr = (R->GetBinError(i))
-		 / ( sqrt(R->GetBinContent(i)) * (sqrt(R->GetBinContent(i)) + 1) * (sqrt(R->GetBinContent(i)) + 1) );
-    }
-
-    hAofE->SetBinContent(i, asymm);
-    hAofE->SetBinError(i, asymmErr);
-  }
-
-  return hAofE;
-}
-
-TH1D* DivideByMBAsymm(TH1D* AofE)
-{
-  TH1D* hCorrAofE = new TH1D("Corrected AofE", "Corrected AofE", 120, 0, 1200);
+  TH1D* AofE = new TH1D("AofE", "AofE", 120, 0, 1200);
 
   double energy, asymm, asymmErr;
-  double bin, binCounts, binError;
 
-  TString fileName = Form("UnCorr_OctetAsymmetries_AnaChA_180-780_Octets_0-59_BinByBin_withEnergyDependence.txt");
   // opens the file named above
   string buf1;
   ifstream infile1;
@@ -207,20 +173,8 @@ TH1D* DivideByMBAsymm(TH1D* AofE)
     {
       bufstream1 >> energy >> asymm >> asymmErr;
 
-      bin = AofE->FindBin(energy);
-      binCounts = AofE->GetBinContent(bin);
-      binError = AofE->GetBinError(bin);
-
-      if(asymm == 0)
-      {
-        hCorrAofE->SetBinContent(bin, 0);
-        hCorrAofE->SetBinError(bin, binError);
-      }
-      else
-      {
-        hCorrAofE->SetBinContent(bin, binCounts / abs(asymm));
-        hCorrAofE->SetBinError(bin, sqrt(binError*binError + asymmErr*asymmErr));
-      }
+      AofE->SetBinContent(AofE->FindBin(energy), (-1)*asymm);
+      AofE->SetBinError(AofE->FindBin(energy), asymmErr);
     }
 
     if(infile1.eof() == true)
@@ -229,8 +183,7 @@ TH1D* DivideByMBAsymm(TH1D* AofE)
     }
   }
 
-
-  return hCorrAofE;
+  return AofE;
 }
 
 
@@ -247,18 +200,21 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 
   if(styleIndex == 1)
   {
+    hPlot->SetLineColor(46);
     hPlot -> SetFillColor(46);
     hPlot -> SetFillStyle(3004);
 //    hPlot -> SetFillStyle(3001);
   }
   if(styleIndex == 2)
   {
+    hPlot->SetLineColor(38);
     hPlot -> SetFillColor(38);
     hPlot -> SetFillStyle(3005);
 //    hPlot -> SetFillStyle(3001);
   }
   if(styleIndex == 3)
   {
+    hPlot->SetLineColor(29);
     hPlot -> SetFillColor(29);
 //    hPlot -> SetFillStyle(3005);
     hPlot -> SetFillStyle(3001);
@@ -301,12 +257,8 @@ double CalculatebFromPercentageMixing(TString fileName)
     }
   }
 
-  // load all the histograms of east and west, turn them into rates.
-  // ALWAYS USE S3 FOR MIXING.
-//  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s3);
-//  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s3);
 
-  b = s4 / ( (1 - s4) * (avg_mE) );
+  b = s8 / ( (1 - s8) * (avg_mE) );
 
   return b;
 }
@@ -325,4 +277,20 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
   return num/denom;
 }
 
+
+TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlinding)
+{
+  TH1D *blindA = new TH1D("blinded AofE", "blinded AofE", 120, 0, 1200);
+
+  double blindingFactor = 0;
+
+  for(int i = 0; i <= unblindA->GetNbinsX(); i++)
+  {
+    blindingFactor = (1.0 + b_forBlinding*avg_mE_forBlinding) / (1.0 + b_forBlinding*m_e/unblindA->GetBinCenter(i));
+    blindA->SetBinContent(i, (unblindA->GetBinContent(i))*blindingFactor);
+    blindA->SetBinError(i, (unblindA->GetBinError(i))*blindingFactor);
+  }
+
+  return blindA;
+}
 
