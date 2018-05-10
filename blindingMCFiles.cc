@@ -473,42 +473,6 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
 
   }
 
-/*
-  double errorValueEachBin = 0;
-  // add the histograms together to create a super sum
-  for(int i = 0; i <= hist->GetNbinsX(); i++)
-  {
-    if( (eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i) < 0)
-	|| (eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i) < 0))
-    {
-      hist->SetBinContent(i, 0);
-      mySetErrors.push_back(0);
-    }
-    else
-    {
-      hist->SetBinContent(i, sqrt(eastPlusRates->GetBinContent(i)*westMinusRates->GetBinContent(i))
-			+ sqrt(eastMinusRates->GetBinContent(i)*westPlusRates->GetBinContent(i)));
-
-      if(eastPlusRates->GetBinContent(i) == 0 || westMinusRates->GetBinContent(i) == 0
-	|| eastMinusRates->GetBinContent(i) == 0 || westPlusRates->GetBinContent(i) == 0)
-      {
-        errorValueEachBin = 0;
-      }
-      else
-      {
-	errorValueEachBin = sqrt( 0.25*westMinusRates->GetBinContent(i)*eastPlusRates->GetBinError(i)
-				*eastPlusRates->GetBinError(i)/eastPlusRates->GetBinContent(i)
-			  + 0.25*eastPlusRates->GetBinContent(i)*westMinusRates->GetBinError(i)
-                                *westMinusRates->GetBinError(i)/westMinusRates->GetBinContent(i)
-                          + 0.25*westPlusRates->GetBinContent(i)*eastMinusRates->GetBinError(i)
-                                *eastMinusRates->GetBinError(i)/eastMinusRates->GetBinContent(i)
-                          + 0.25*eastMinusRates->GetBinContent(i)*westPlusRates->GetBinError(i)
-                                *westPlusRates->GetBinError(i)/westPlusRates->GetBinContent(i) );
-      }
-      mySetErrors.push_back(errorValueEachBin);
-    }
-  }
-*/
   hist->SetError(&(mySetErrors[0]));
 
   return hist;

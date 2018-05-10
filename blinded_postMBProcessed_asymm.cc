@@ -98,8 +98,8 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   int octNb = 43;
-  double xMin = 165;
-  double xMax = 645;
+  double xMin = 170;
+  double xMax = 660;
 
   TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
@@ -116,20 +116,22 @@ int main(int argc, char* argv[])
 
 
 
-/*
-  TF1 *fit = new TF1("beta fit", "[0]*sqrt(x*x +2*511*x) / (511 + x)", xMin, xMax);
 
-  fit->SetParName(0, "normalization");
-  asymm_Erecon->Fit("beta fit");
-  TF1 *fitResults = asymm_Erecon->GetFunction("beta fit");
+  TF1 *fit = new TF1("beta fit", "[0] + [1]*x", xMin, xMax);
+
+  fit->SetParName(0, "intercept");
+  fit->SetParName(1, "slope");
+  blindedAsymm->Fit("beta fit", "R");
+  TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
 	<< " with ndf of " << fitResults->GetNDF()
 	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
-*/
 
 
-  PlotHist(C, 1, 1, blindedAsymm, "", "Reconstructed Energy (keV)", "Blinded Uncorrected A(E)", "");
 
+  PlotHist(C, 1, 1, blindedAsymm, "", "Reconstructed Energy (keV)", "Blinded Fully Corrected A(E)", "");
+
+/*
   TLine *yLow = new TLine(xMin, 0.02, xMin, 0.08);
   TLine *yHigh = new TLine(xMax, 0.02, xMax, 0.08);
   yLow->SetLineWidth(2);
@@ -138,7 +140,7 @@ int main(int argc, char* argv[])
   yHigh->SetLineColor(1);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
-
+*/
 
   // Save our plot and print it out as a pdf.
 //  C -> Print("100xStats_statsWeighted_SR_asymm.pdf");
@@ -195,7 +197,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetRangeUser(0.02, 0.08);
+//  hPlot -> GetYaxis() -> SetRangeUser(0.02, 0.08);
 
 
   if(styleIndex == 1)

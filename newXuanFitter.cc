@@ -84,7 +84,8 @@ int main(int argc, char* argv[])
 
   int octNb = atoi(argv[1]);
 
-  TFile fData(TString::Format("ObsoleteCode/Testing_percentage_calculation/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s_s0.root", octNb, TYPE));
+  TFile fData(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s_05.root", octNb, TYPE));
+//  TFile fData(TString::Format("ObsoleteCode/Testing_percentage_calculation/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s_s0.root", octNb, TYPE));
 //  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/%s_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", GEOM, octNb, TYPE));
   TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
