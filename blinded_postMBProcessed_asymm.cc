@@ -110,6 +110,8 @@ int main(int argc, char* argv[])
 
   double bMixing = CalculatebFromPercentageMixing("ExtractedHistograms/randomMixingSeeds.txt");
 
+  cout << "Extracted b value is " << bMixing << endl;
+
   TH1D *asymm = LoadMBAsymmetry(Form("AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt"));
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
@@ -117,10 +119,11 @@ int main(int argc, char* argv[])
 
 
 
-  TF1 *fit = new TF1("beta fit", "[0] + [1]*x", xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/x)", avg_mE, m_e), xMin, xMax);
 
-  fit->SetParName(0, "intercept");
-  fit->SetParName(1, "slope");
+  fit->SetParName(0, "asymm");
+  fit->SetParName(1, "bm");
+//  fit->SetParName(2, "bm");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -260,7 +263,7 @@ double CalculatebFromPercentageMixing(TString fileName)
   }
 
 
-  b = s8 / ( (1 - s8) * (avg_mE) );
+  b = 0.05 / ( (1 - 0.05) * (avg_mE) );
 
   return b;
 }
