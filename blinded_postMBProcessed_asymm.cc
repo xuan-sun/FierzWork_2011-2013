@@ -148,19 +148,19 @@ int main(int argc, char* argv[])
   TLatex t1;
   t1.SetTextSize(0.03);
   t1.SetTextAlign(13);
-  t1.DrawLatex(1000, 0.11, Form("b_{input} = %f", bMixing));
+  t1.DrawLatex(1000, 0.14, Form("b_{input} = %f", bMixing));
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(1000, 0.10, Form("b_{fit} = %f", fitResults->GetParameter(1)));
+  t2.DrawLatex(1000, 0.13, Form("b_{fit} = %f", fitResults->GetParameter(1)));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(1000, 0.09, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+  t3.DrawLatex(1000, 0.12, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(900, 0.08, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
+  t4.DrawLatex(900, 0.11, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
 				fitResults->GetChisquare(), fitResults->GetNDF(), fitResults->GetChisquare() / fitResults->GetNDF()));
 
 
@@ -221,7 +221,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetRangeUser(0.05, 0.15);
+  hPlot -> GetYaxis() -> SetRangeUser(0.08, 0.16);
 
 
   if(styleIndex == 1)
