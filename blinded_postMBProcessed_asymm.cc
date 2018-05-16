@@ -112,17 +112,19 @@ int main(int argc, char* argv[])
 
   cout << "Extracted b value is " << bMixing << endl;
 
-  TH1D *asymm = LoadMBAsymmetry(Form("AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt"));
+  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+
+  TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
 
-
-
-  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/x)", avg_mE, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
 
   fit->SetParName(0, "asymm");
   fit->SetParName(1, "bm");
+  fit->SetParameter(0, 0.12);
+  fit->SetParameter(1, bMixing);
 //  fit->SetParName(2, "bm");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
@@ -131,22 +133,41 @@ int main(int argc, char* argv[])
 	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 
 
+  PlotHist(C, 1, 1, blindedAsymm, asymmFile, "Reconstructed Energy (keV)", "Unblinded Fully Corrected A(E)", "");
 
-  PlotHist(C, 1, 1, blindedAsymm, "", "Reconstructed Energy (keV)", "Blinded Fully Corrected A(E)", "");
 
-/*
-  TLine *yLow = new TLine(xMin, 0.02, xMin, 0.08);
-  TLine *yHigh = new TLine(xMax, 0.02, xMax, 0.08);
+  TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
+  TLine *yHigh = new TLine(xMax, gPad->GetUymin(), xMax, gPad->GetUymax());
   yLow->SetLineWidth(2);
   yHigh->SetLineWidth(2);
   yLow->SetLineColor(1);
   yHigh->SetLineColor(1);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
-*/
+
+  TLatex t1;
+  t1.SetTextSize(0.03);
+  t1.SetTextAlign(13);
+  t1.DrawLatex(1000, 0.11, Form("b_{input} = %f", bMixing));
+  TLatex t2;
+  t2.SetTextSize(0.03);
+  t2.SetTextAlign(13);
+  t2.DrawLatex(1000, 0.10, Form("b_{fit} = %f", fitResults->GetParameter(1)));
+  TLatex t3;
+  t3.SetTextSize(0.03);
+  t3.SetTextAlign(13);
+  t3.DrawLatex(1000, 0.09, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+  TLatex t4;
+  t4.SetTextSize(0.03);
+  t4.SetTextAlign(13);
+  t4.DrawLatex(900, 0.08, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
+				fitResults->GetChisquare(), fitResults->GetNDF(), fitResults->GetChisquare() / fitResults->GetNDF()));
+
+
+
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("100xStats_statsWeighted_SR_asymm.pdf");
+  C -> Print("blind_asymm_fromData.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -200,7 +221,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot -> GetYaxis() -> SetRangeUser(0.02, 0.08);
+  hPlot -> GetYaxis() -> SetRangeUser(0.05, 0.15);
 
 
   if(styleIndex == 1)
@@ -291,7 +312,7 @@ TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlin
 
   for(int i = 0; i <= unblindA->GetNbinsX(); i++)
   {
-    blindingFactor = (1.0 + b_forBlinding*avg_mE_forBlinding) / (1.0 + b_forBlinding*m_e/unblindA->GetBinCenter(i));
+    blindingFactor = (1.0 + b_forBlinding*avg_mE_forBlinding) / (1.0 + b_forBlinding*m_e/(unblindA->GetBinCenter(i) + m_e));
     blindA->SetBinContent(i, (unblindA->GetBinContent(i))*blindingFactor);
     blindA->SetBinError(i, (unblindA->GetBinError(i))*blindingFactor);
   }
