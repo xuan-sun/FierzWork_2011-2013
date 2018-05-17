@@ -110,22 +110,16 @@ int main(int argc, char* argv[])
 
   double bMixing = CalculatebFromPercentageMixing("ExtractedHistograms/randomMixingSeeds.txt");
 
-  cout << "Extracted b value is " << bMixing << endl;
-
   TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-
   TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
 
   fit->SetParName(0, "asymm");
   fit->SetParName(1, "bm");
-  fit->SetParameter(0, 0.12);
-  fit->SetParameter(1, bMixing);
-//  fit->SetParName(2, "bm");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -145,10 +139,6 @@ int main(int argc, char* argv[])
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
 
-  TLatex t1;
-  t1.SetTextSize(0.03);
-  t1.SetTextAlign(13);
-  t1.DrawLatex(1000, 0.14, Form("b_{input} = %f", bMixing));
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -167,7 +157,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print("blind_asymm_fromData.pdf");
+  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

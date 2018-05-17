@@ -84,11 +84,9 @@ int main(int argc, char* argv[])
 
   int octNb = atoi(argv[1]);
 
-  TFile fData(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s_05.root", octNb, TYPE));
-//  TFile fData(TString::Format("ObsoleteCode/Testing_percentage_calculation/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s_s0.root", octNb, TYPE));
-//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/%s_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", GEOM, octNb, TYPE));
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
   TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
@@ -181,7 +179,7 @@ int main(int argc, char* argv[])
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("BLIND_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("ReBLINDed_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"

@@ -133,10 +133,14 @@ int main(int argc, char* argv[])
     }
   }
 
+  cout << "Loaded mixing seeds" << endl;
+
   // load all the histograms of east and west, turn them into rates.
-  // ALWAYS USE S3 FOR MIXING.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - 0.05);
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0.05);
+  // ALWAYS USE S0 FOR MIXING.
+  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s0);
+  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s0);
+
+  cout << "Created vectors of rate histograms" << endl;
 
   // Sum the two files together.
   for(unsigned int i = 0; i < rates_base.size(); i++)
@@ -148,9 +152,9 @@ int main(int argc, char* argv[])
 
   }
 
-//  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2012-2013_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
-//  TFile f(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ObsoleteCode/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0_20.root", octNb), "RECREATE");
-  TFile f(TString::Format("BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0_05.root", octNb), "RECREATE");
+  cout << "Finished mixing rate histograms." << endl;
+
+  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();

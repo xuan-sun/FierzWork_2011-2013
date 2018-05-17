@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o randomSeedGenerator.o
-SOURCE = randomSeedGenerator
+OBJECTS = BetaSpectrum.o blinded_postMBProcessed_asymm.o
+SOURCE = blinded_postMBProcessed_asymm
 
 .PHONY: all
 all: $(SOURCE)
