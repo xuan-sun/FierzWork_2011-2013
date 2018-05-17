@@ -38,7 +38,7 @@
 #include	 <TLatex.h>
 using            namespace std;
 
-#define		TYPE	"allTypes"		// allTypes, type0, type1 are acceptable
+#define		TYPE	"type0"		// allTypes, type0, type1 are acceptable
 #define		GEOM	"2011-2012"	// 2011-2012, 2012-2013
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
 
   TFile fData(Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/%s_geom/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", GEOM, octNb, TYPE));
+  TFile fMCSM(Form("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
   TH1D *hData = new TH1D("Data", "Data", 100, 0, 1000);
   TH1D *hMCSM = new TH1D("MC", "MC", 100, 0, 1000);
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
   entry evt;
   entry correctOctetEntry;
 
-  TString fileName = Form("BLIND_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+  TString fileName = Form("ReBLINDed_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
 
   // opens the file named above
   string buf1;
@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
 	  << bFitErr << "\n";
   outfile.close();
 
-  C->Print(Form("BLIND_ShapeFactor_%03i_%s_%i-%iKeV.pdf", octNb, TYPE, energyMin, energyMax));
+  C->Print(Form("ReBLINDed_ShapeFactor_%03i_%s_%i-%iKeV.pdf", octNb, TYPE, energyMin, energyMax));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();

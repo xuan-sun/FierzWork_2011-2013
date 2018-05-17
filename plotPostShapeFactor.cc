@@ -42,8 +42,8 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		TYPE	"allTypes"
-#define		GEOM	"2012-2013"
+#define		TYPE	"type0"
+#define		GEOM	"2011-2012"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
