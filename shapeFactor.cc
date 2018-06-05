@@ -55,6 +55,8 @@ struct entry
   double chisquaredperdf_readin;
   double b;
   double bErr;
+  double A;
+  double AErr;
   int fitStatus;
 };
 
@@ -139,7 +141,9 @@ int main(int argc, char* argv[])
   entry evt;
   entry correctOctetEntry;
 
-  TString fileName = Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+//  TString fileName = Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+  TString fileName = Form("BLINDED_CombinedAbFitter_OneOctetAndA_type0_2011-2012_Bins_17-65.txt");
+
 
   // opens the file named above
   string buf1;
@@ -165,6 +169,8 @@ int main(int argc, char* argv[])
 		>> evt.chisquaredperdf_readin
 		>> evt.b
                 >> evt.bErr
+	        >> evt.A
+		>> evt.AErr
                 >> evt.fitStatus;
       if(evt.octetNum == octNb)
       {
@@ -177,6 +183,8 @@ int main(int argc, char* argv[])
 	correctOctetEntry.chisquaredperdf_readin = evt.chisquaredperdf_readin;
 	correctOctetEntry.b = evt.b;
 	correctOctetEntry.bErr = evt.bErr;
+	correctOctetEntry.A = evt.A;
+	correctOctetEntry.AErr = evt.AErr;
 	correctOctetEntry.fitStatus = evt.fitStatus;
       }
     }
