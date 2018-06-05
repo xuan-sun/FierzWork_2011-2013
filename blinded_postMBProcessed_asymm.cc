@@ -142,22 +142,30 @@ int main(int argc, char* argv[])
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(1000, 0.13, Form("A_{fit} = %f", fitResults->GetParameter(0)));
+  t2.DrawLatex(1000, 0.14, Form("A_{fit} = %f", fitResults->GetParameter(0)));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(1000, 0.12, Form("AErr_{fit} = %f", fitResults->GetParError(0)));
+  t3.DrawLatex(1000, 0.13, Form("AErr_{fit} = %f", fitResults->GetParError(0)));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(900, 0.11, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
+  t4.DrawLatex(1000, 0.12, Form("b_{fit} = %f", fitResults->GetParameter(1)));
+  TLatex t5;
+  t5.SetTextSize(0.03);
+  t5.SetTextAlign(13);
+  t5.DrawLatex(1000, 0.11, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+  TLatex t6;
+  t6.SetTextSize(0.03);
+  t6.SetTextAlign(13);
+  t6.DrawLatex(900, 0.10, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
 				fitResults->GetChisquare(), fitResults->GetNDF(), fitResults->GetChisquare() / fitResults->GetNDF()));
 
 
 
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
+  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

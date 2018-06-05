@@ -164,6 +164,9 @@ int main(int argc, char* argv[])
     theoryChiHist->Scale(hTot / theoryHTot);
     PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME");
 
+    g3->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
+    g4->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
+    g5->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
     PlotGraph(C, 1, 2, g3, Form("chi squared values by octet, %s, %s", TYPE, GEOM), "Octet Number", "#frac{#Chi^{2}}{n}", "AP");
     PlotGraph(C, 2, 2, g4, "", "", "", "PSAME");
     PlotGraph(C, 3, 2, g5, "", "", "", "PSAME");
@@ -239,7 +242,6 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     gPlot->SetMarkerStyle(21);
     gPlot->SetMarkerSize(0.5);
     gPlot->SetMarkerColor(2);
-    gPlot->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
   }
   if(styleIndex == 2)
   {
@@ -324,7 +326,6 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
     gPlot->SetMarkerStyle(21);
     gPlot->SetMarkerSize(0.5);
     gPlot->SetMarkerColor(2);
-    gPlot->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
   }
   if(styleIndex == 2)
   {
