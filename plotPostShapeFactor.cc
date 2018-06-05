@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     TH1D *h2 = new TH1D("fierz hf", "fierz", 40, -1, 1);
     TH1D *h6 = new TH1D("filler", "filler", 1, 0, 10);
 
-    FillArrays(Form("FitsUsing_newXuanFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, h2, h6, option);
+    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, h2, h6, option);
 
     TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
     TGraphErrors *g2 = new TGraphErrors(octets.size(), &(octets[0]), &(bHFValues[0]), &(octetsErr[0]), &(bErrHFValues[0]));
@@ -141,15 +141,15 @@ int main(int argc, char* argv[])
     TH1D *h4 = new TH1D("chi2 Minuit Shape", "Chi2 Minuit Shape", 80, 0, 4);
     TH1D *h5 = new TH1D("chi2 HF Shape", "Chi2 HF Shape", 80, 0, 4);
 
-    FillArrays(Form("FitsUsing_newXuanFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h4, h5, option);
+    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h4, h5, option);
 
     TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minFit[0]));
-    TGraph *g4 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minShape[0]));
+//    TGraph *g4 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minShape[0]));
     TGraph *g5 = new TGraph(octets.size(), &(octets[0]), &(chisquared_hfShape[0]));
 
     PlotHist(C, 1, 1, h3, Form("#Chi^{2}_{DF} results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "");
-    PlotHist(C, 2, 1, h4, "", "", "", "SAME");
-    PlotHist(C, 3, 1, h5, "", "", "", "SAME");
+//    PlotHist(C, 2, 1, h4, "", "", "", "SAME");
+    PlotHist(C, 2, 1, h5, "", "", "", "SAME");
 
     TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
     TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
@@ -165,21 +165,17 @@ int main(int argc, char* argv[])
     PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME");
 
     g3->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
-    g4->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
     g5->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
     PlotGraph(C, 1, 2, g3, Form("chi squared values by octet, %s, %s", TYPE, GEOM), "Octet Number", "#frac{#Chi^{2}}{n}", "AP");
-    PlotGraph(C, 2, 2, g4, "", "", "", "PSAME");
-    PlotGraph(C, 3, 2, g5, "", "", "", "PSAME");
+    PlotGraph(C, 2, 2, g5, "", "", "", "PSAME");
 
 
     C->cd(1);
     TLegend* leg2 = new TLegend(0.6,0.5,0.9,0.8);
     leg2->AddEntry(h3,"#Chi^{2} xuanFitter","f");
-    leg2->AddEntry(h4,"#Chi^{2} b_{xuanFitter} to Shape","f");
     leg2->AddEntry(h5,"#Chi^{2} Shape Function fit","f");
     leg2->AddEntry(theoryChiHist,"Theory #Chi^{2} dist","f");
     leg2->AddEntry(g3,"xuanFitter chi","p");
-    leg2->AddEntry(g4,"xuanFitterb to Shape","p");
     leg2->AddEntry(g5,"Shape Function fit","p");
     leg2->Draw();
 

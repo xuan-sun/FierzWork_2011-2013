@@ -187,6 +187,8 @@ int main(int argc, char* argv[])
 	  << functionMin/ndf << "\t"
           << fitVal << "\t"
           << fitErr << "\t"
+	  << -1 << "\t"
+	  << -1 << "\t"
 	  << covMatrixStatus << "\n";
   outfile.close();
 
