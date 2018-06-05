@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
   TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
 
   fit->SetParName(0, "asymm");
-  fit->SetParName(1, "bm");
+  fit->SetParName(1, "b");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 
 
-  PlotHist(C, 1, 1, blindedAsymm, asymmFile, "Reconstructed Energy (keV)", "Unblinded Fully Corrected A(E)", "");
+  PlotHist(C, 1, 1, blindedAsymm, asymmFile, "Reconstructed Energy (keV)", "Blinded Fully Corrected A(E)", "");
 
 
   TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
@@ -142,11 +142,11 @@ int main(int argc, char* argv[])
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(1000, 0.13, Form("b_{fit} = %f", fitResults->GetParameter(1)));
+  t2.DrawLatex(1000, 0.13, Form("A_{fit} = %f", fitResults->GetParameter(0)));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(1000, 0.12, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+  t3.DrawLatex(1000, 0.12, Form("AErr_{fit} = %f", fitResults->GetParError(0)));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
+//  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

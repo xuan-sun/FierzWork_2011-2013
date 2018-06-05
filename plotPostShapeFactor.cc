@@ -114,23 +114,26 @@ int main(int argc, char* argv[])
     TH1D *h2 = new TH1D("fierz hf", "fierz", 40, -1, 1);
     TH1D *h6 = new TH1D("filler", "filler", 1, 0, 10);
 
-    FillArrays(Form("Minuit_HF_chisquared_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, h2, h6, option);
+    FillArrays(Form("FitsUsing_newXuanFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, h2, h6, option);
 
     TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
     TGraphErrors *g2 = new TGraphErrors(octets.size(), &(octets[0]), &(bHFValues[0]), &(octetsErr[0]), &(bErrHFValues[0]));
 
-    PlotHist(C, 2, 1, h2, Form("b results for TMinuit fit and TH1::Fit(), %s, %s", TYPE, GEOM), "b", "N", "");
-    PlotHist(C, 1, 1, h1, "", "", "", "SAME");
+    PlotHist(C, 1, 1, h2, Form("b results for TMinuit fit and TH1::Fit(), %s, %s", TYPE, GEOM), "b", "N", "");
+    PlotHist(C, 2, 1, h1, "", "", "", "SAME");
+
     PlotGraph(C, 1, 2, g1, Form("b results by octet, %s, %s", TYPE, GEOM), "Octet Number", "b", "AP");
     PlotGraph(C, 2, 2, g2, "", "", "", "PSAME");
 
     C->cd(1);
     TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
-    leg1->AddEntry(h1,"Fierz Minuit fit","f");
-    leg1->AddEntry(h2,"Fierz TH1::Fit()","f");
-    leg1->AddEntry(g1,"TMinuit fit","p");
-    leg1->AddEntry(g2,"TH1::Fit() using shape factors","p");
+    leg1->AddEntry(h1,"b xuanFitter","f");
+    leg1->AddEntry(h2,"b Shape Factor fit","f");
+    leg1->AddEntry(g1,"b xuanFitter","p");
+    leg1->AddEntry(g2,"b Shape Factor fit","p");
     leg1->Draw();
+
+    C -> Print(Form("ReBLINDed_bValues_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
   else if(option == 2)
   {
@@ -138,7 +141,7 @@ int main(int argc, char* argv[])
     TH1D *h4 = new TH1D("chi2 Minuit Shape", "Chi2 Minuit Shape", 80, 0, 4);
     TH1D *h5 = new TH1D("chi2 HF Shape", "Chi2 HF Shape", 80, 0, 4);
 
-    FillArrays(Form("Minuit_HF_chisquared_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h4, h5, option);
+    FillArrays(Form("FitsUsing_newXuanFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h4, h5, option);
 
     TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minFit[0]));
     TGraph *g4 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minShape[0]));
@@ -161,7 +164,6 @@ int main(int argc, char* argv[])
     theoryChiHist->Scale(hTot / theoryHTot);
     PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME");
 
-
     PlotGraph(C, 1, 2, g3, Form("chi squared values by octet, %s, %s", TYPE, GEOM), "Octet Number", "#frac{#Chi^{2}}{n}", "AP");
     PlotGraph(C, 2, 2, g4, "", "", "", "PSAME");
     PlotGraph(C, 3, 2, g5, "", "", "", "PSAME");
@@ -169,19 +171,19 @@ int main(int argc, char* argv[])
 
     C->cd(1);
     TLegend* leg2 = new TLegend(0.6,0.5,0.9,0.8);
-    leg2->AddEntry(h3,"#Chi^{2} Minuit fit","f");
-    leg2->AddEntry(h4,"#Chi^{2} Minuit shape","f");
-    leg2->AddEntry(h5,"#Chi^{2} HF shape","f");
+    leg2->AddEntry(h3,"#Chi^{2} xuanFitter","f");
+    leg2->AddEntry(h4,"#Chi^{2} b_{xuanFitter} to Shape","f");
+    leg2->AddEntry(h5,"#Chi^{2} Shape Function fit","f");
     leg2->AddEntry(theoryChiHist,"Theory #Chi^{2} dist","f");
-    leg2->AddEntry(g3,"TMinuit fit","p");
-    leg2->AddEntry(g4,"TMinuit shape","p");
-    leg2->AddEntry(g5,"TH1::Fit() shape","p");
+    leg2->AddEntry(g3,"xuanFitter chi","p");
+    leg2->AddEntry(g4,"xuanFitterb to Shape","p");
+    leg2->AddEntry(g5,"Shape Function fit","p");
     leg2->Draw();
 
+    C -> Print(Form("ReBLINDed_chisquareds_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C -> Print(Form("resultPlotsOfShapeFactorCode_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -195,12 +197,12 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yAxis);
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot->GetYaxis()->SetRangeUser(0, hPlot->GetMaximum()*1.5);
 
   if(styleIndex == 1)
   {
     hPlot -> SetFillColor(46);
     hPlot -> SetFillStyle(3004);
+    hPlot->GetYaxis()->SetRangeUser(gPad->GetUymin(), hPlot->GetMaximum()*1.2);
   }
   if(styleIndex == 2)
   {
@@ -219,6 +221,8 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   }
 
   hPlot -> Draw(command);
+
+  C->Update();
 }
 
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command)
@@ -235,6 +239,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     gPlot->SetMarkerStyle(21);
     gPlot->SetMarkerSize(0.5);
     gPlot->SetMarkerColor(2);
+    gPlot->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
   }
   if(styleIndex == 2)
   {
@@ -319,6 +324,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
     gPlot->SetMarkerStyle(21);
     gPlot->SetMarkerSize(0.5);
     gPlot->SetMarkerColor(2);
+    gPlot->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
   }
   if(styleIndex == 2)
   {

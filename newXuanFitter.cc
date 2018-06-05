@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("ReBLINDed_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"

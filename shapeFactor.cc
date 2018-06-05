@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
   entry evt;
   entry correctOctetEntry;
 
-  TString fileName = Form("ReBLINDed_TMinuitbValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+  TString fileName = Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
 
   // opens the file named above
   string buf1;
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
   TLatex t;
   t.SetTextSize(0.03);
   t.SetTextAlign(13);
-  t.DrawLatex(900, 0.09, Form("b_{Minuit} = %f", fierzVal));
+  t.DrawLatex(900, 0.09, Form("b_{xuanFitter} = %f", fierzVal));
 
   // calculate the chi-squared by hand from the theory with TMinuit fit b values to shape factor
   double chisquared_minuitShape = 0;
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{MinuitShape}}{n} = %f", chisquared_minuitShape/ndf_minuitShape));
+  t2.DrawLatex(900, 0.08, Form("#frac{#chi^{2}_{shapebxuanFitter}}{n} = %f", chisquared_minuitShape/ndf_minuitShape));
 
   // Now we want to create a "shape factor" function where b is a variable
   // and fit our existing shape factor points.
@@ -251,12 +251,12 @@ int main(int argc, char* argv[])
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(850, 0.06, Form("b_{HF} = %f", bFit));
+  t3.DrawLatex(850, 0.06, Form("b_{ShapeFit} = %f", bFit));
 
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(850, 0.05, Form("bErr_{HF} = %f", bFitErr));
+  t4.DrawLatex(850, 0.05, Form("bErr_{ShapeFit} = %f", bFitErr));
 
   // get a second measure of chi-squared using the TF1 hist fit.
   // note: we use the restrictedEnergy vector above because that corresponds to actual x values.
@@ -274,12 +274,12 @@ int main(int argc, char* argv[])
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(900, 0.04, Form("#frac{#chi^{2}_{HF}}{n} = %f", chisquared_hf/ndf_hf));
+  t5.DrawLatex(900, 0.04, Form("#frac{#chi^{2}_{ShapeFit}}{n} = %f", chisquared_hf/ndf_hf));
 
   // print both chi-squareds (TFF and HF) to file so we can plot it in other code.
   // and the new fit values using TH1::Fit()
   ofstream outfile;
-  TString chisquaredFileName = Form("Minuit_HF_chisquared_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+  TString chisquaredFileName = Form("FitsUsing_newXuanFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i_shapeFactor.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
   outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
 	  << correctOctetEntry.fitStatus << "\t"

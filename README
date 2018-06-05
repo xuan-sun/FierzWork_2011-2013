@@ -58,3 +58,20 @@ In order to "re-run" for new results, here's the order:
 This will also spit out chisquared values for the two shape factors plus the chisquared of the TMinuit fit.
 
 3. Run plotPostShapeFactor.cc to plot the Fierz values or chisquared values.
+
+-----------------------------------------------------------------------------------------
+
+June 5, 0218
+
+In order to extract a full new set of blinded b values for energy spectra and asymmetry, we run
+
+1. blinded_postMBProcessed_asymm.cc - this gets you the blinded asymmetry value.
+
+2. newXuanFitter.cc - this gets you a set of fit values to the blinded MC spectra.
+
+3. shapeFactor.cc - extracts a shape factor from the data and runs additional fits. 
+It fits the shape factor to a formula for another b value. It also plots a shape factor
+using the fit value from newXuanFitter for comparison. Lastly, it calculates a chi-squared
+for both the newXuanFitter shape factor and the fitted shape factor.
+
+4. plotPostShapeFactor.cc - creates plots with legends that are helpful of the b values and chi squares.
