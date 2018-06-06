@@ -1,7 +1,0 @@
-June 6, 2018
-
-We have b=0 (base) and b=inf (fierz) simulation files here.
-Note that all these sims also have an input asymmetry.
-This input asymmetry is "const double A0_PDG = -0.12054;"
-
-This directory was made to test whether an energy twiddle creates a significant asymmetry.
