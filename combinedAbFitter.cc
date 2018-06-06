@@ -274,7 +274,7 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 
     fitA = (A*(1.0 + b*avg_mE)) / (1.0 + (b*m_e/(energies[i] + m_e)));
 
-    totChi2 = totChi2 + 0.5 * ( pow((binContentsData[i] - fitb) / binErrorsData[i], 2.0) + pow((asymmetriesData[i] - fitA) / asymmErrorsData[i], 2.0) );
+    totChi2 = totChi2 + ( 0.1*pow((binContentsData[i] - fitb) / binErrorsData[i], 2.0) + 0.9*pow((asymmetriesData[i] - fitA) / asymmErrorsData[i], 2.0) );
   }
 
   f = totChi2;

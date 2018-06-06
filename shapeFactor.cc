@@ -143,8 +143,8 @@ int main(int argc, char* argv[])
   entry evt;
   entry correctOctetEntry;
 
-  TString fileName = Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
-//  TString fileName = Form("BLINDED_CombinedAbFitter_OneOctetAndA_type0_2011-2012_Bins_17-65.txt");
+//  TString fileName = Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+  TString fileName = Form("50-50_BLINDED_CombinedAbFitter_OneOctetAndA_type0_2011-2012_Bins_17-65.txt");
 
 
   // opens the file named above
@@ -246,12 +246,6 @@ int main(int argc, char* argv[])
   t6.SetTextAlign(13);
   t6.DrawLatex(800, 0.07, Form("#frac{#chi^{2}_{xuanFitter}}{n} = %f", xuanFitterChi2));
 
-
-  // calculate the chi-squared by hand from the theory with TMinuit fit b values to shape factor
-  double chisquared_minuitShape = 0;
-  double ndf_minuitShape = 0;
-
-
   // Now we want to create a "shape factor" function where b is a variable
   // and fit our existing shape factor points.
   TF1 *fShapeFit = new TF1("Shape factor b fit", Form("([0]*( (511.0 / (511.0 + x)) - %f )) / (1 + [0]*%f)", mOverE, mOverE)
@@ -293,13 +287,10 @@ int main(int argc, char* argv[])
   // print both chi-squareds (TFF and HF) to file so we can plot it in other code.
   // and the new fit values using TH1::Fit()
   ofstream outfile;
-  TString chisquaredFileName = Form("FitsUsing_NewXuanFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
+  TString chisquaredFileName = Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN);
   outfile.open(chisquaredFileName.Data(), ios::app);
   outfile << octNb << "\t"
 	  << correctOctetEntry.fitStatus << "\t"
-          << chisquared_minuitShape << "\t"
-          << ndf_minuitShape << "\t"
-          << chisquared_minuitShape/ndf_minuitShape << "\t"
 	  << chisquared_hf << "\t"
 	  << ndf_hf << "\t"
 	  << chisquared_hf/ndf_hf << "\t"
