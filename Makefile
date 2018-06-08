@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o genCoeff.o
-SOURCE = genCoeff
+OBJECTS = BetaSpectrum.o errorEnvelope.o
+SOURCE = errorEnvelope
 
 .PHONY: all
 all: $(SOURCE)

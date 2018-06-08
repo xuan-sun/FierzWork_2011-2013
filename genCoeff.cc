@@ -539,8 +539,8 @@ vector < vector < vector <double> > > GetEQ2EtrueParams(string geometry)
 {
   ifstream infile;
   if (geometry=="2010") infile.open(INPUT_EQ2ETRUE_PARAMS);
-//  else if (geometry=="2011/2012") infile.open("../simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat");
-//  else if (geometry=="2012/2013") infile.open("../simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat");
+//  else if (geometry=="2011-2012") infile.open("../simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat");
+//  else if (geometry=="2012-2013") infile.open("../simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat");
   else {
     cout << "Bad geometry passed to getEQ2EtrueParams\n";
     exit(0);
