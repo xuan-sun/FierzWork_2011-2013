@@ -49,7 +49,7 @@ const double m_e = 511.00;                                              ///< ele
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
 #define		PARAM_FILE_NAME		"params_2010_EastWest_2nd_order.txt"
-#define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
+#define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 
 // Plotting functions.
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
@@ -64,6 +64,12 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 
 // Michael Mendenhall's 2010 error envelope.
 TF1* ErrorEnvelope_2010(double factor);
+
+TF1* ErrorEnvelope_2011(double factor);
+double converter(double *x, double *par);
+TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
+void LoadEnvelopeHistogram();
+
 
 // Perform a single twiddle so we can loop over it in main(), check against a save condition.
 // Return whether or not the thrown polynomial passed the save condition.
@@ -130,6 +136,10 @@ int main(int argc, char *argv[])
 //  C -> Divide(5, 2);
   C -> cd(1);
   gROOT->SetStyle("Plain");
+
+  LoadEnvelopeHistogram();
+  TF1* test = ErrorEnvelope_2011(1);
+
   TF1* errEnv_top_1sigma = ErrorEnvelope_2010(1);
   TF1* errEnv_top_2sigma = ErrorEnvelope_2010(2);
   TF1* errEnv_bot_1sigma = ErrorEnvelope_2010(-1);
@@ -163,9 +173,12 @@ int main(int argc, char *argv[])
   for(int j = 0; j <= 1; j++)
   {
     for(double a = -3.0; a <= 3.0; a = a + 2.0)
+//    for(double a = 0; a <= 0; a = a + 2.0)
     {
       for(double b = -0.20; b <= 0.20; b = b + 0.05)
+//      for(double b = 0; b <= 0; b = b + 0.05)
       {
+//        for(double c = 0; c <= 0; c = c + 5e-6)
         for(double c = -1e-5; c <= 1e-5; c = c + 5e-6)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
@@ -251,6 +264,8 @@ int main(int argc, char *argv[])
   errEnv_bot_2sigma -> Draw("SAME");
   TLine *line = new TLine(0, 0, 1000, 0);
   line->Draw("SAME");
+
+  test->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
 /*  for(unsigned int i = 0; i < histErecon.size(); i++)
@@ -575,3 +590,67 @@ TF1* ErrorEnvelope_2010(double factor)
 
   return fEnv;
 }
+
+TF1* ErrorEnvelope_2011(double factor)
+{
+  TF1 *fEnv2011 = new TF1("2011-2012_error_envelope", converter, 0, 1100, 0);
+
+  return fEnv2011;
+}
+
+
+double converter(double *x, double *par)
+{
+  double energy = x[0];
+
+  double returnValue = hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+
+  return returnValue;
+}
+
+void LoadEnvelopeHistogram()
+{
+  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012.txt";
+
+  int binNum = 0;
+  double energy = 0;
+  double error = 0;
+  double errorHigh = 0;
+  double errorLow = 0;
+
+  // opens the file named above
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName << endl;
+  infile1.open(fileName);
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> binNum
+                 >> energy
+                 >> error
+                 >> errorHigh
+                 >> errorLow;
+
+      hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), errorHigh);
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  cout << "Done filling in data from " << fileName.Data() << endl;
+
+}
+
