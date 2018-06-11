@@ -65,11 +65,7 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 // Michael Mendenhall's 2010 error envelope.
 TF1* ErrorEnvelope_2010(double factor);
 
-TF1* errEnv2011_top_1sigma;
-TF1* errEnv2011_top_2sigma;
-TF1* errEnv2011_bot_1sigma;
-TF1* errEnv2011_bot_2sigma;
-
+// implementing the 2011-2012 error envelope
 void ErrorEnvelope_2011();
 double converter1top(double *x, double *par);
 double converter2top(double *x, double *par);
@@ -79,6 +75,10 @@ void LoadEnvelopeHistogram();
 
 // variables related to running the 2011-2012 error envelopes.
 TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
+TF1* errEnv2011_top_1sigma;
+TF1* errEnv2011_top_2sigma;
+TF1* errEnv2011_bot_1sigma;
+TF1* errEnv2011_bot_2sigma;
 
 // Perform a single twiddle so we can loop over it in main(), check against a save condition.
 // Return whether or not the thrown polynomial passed the save condition.
@@ -148,24 +148,13 @@ int main(int argc, char *argv[])
 
   LoadEnvelopeHistogram();
   ErrorEnvelope_2011();
-/*
-  TF1 errEnv2011_top_1sigma = ErrorEnvelope_2011(1);
-  TF1 errEnv2011_top_2sigma = ErrorEnvelope_2011(2);
-  TF1 errEnv2011_bot_1sigma = ErrorEnvelope_2011(-1);
-  TF1 errEnv2011_bot_2sigma = ErrorEnvelope_2011(-2);
-*/
 
-
-  TF1* errEnv_top_1sigma = ErrorEnvelope_2010(1);
-  TF1* errEnv_top_2sigma = ErrorEnvelope_2010(2);
-  TF1* errEnv_bot_1sigma = ErrorEnvelope_2010(-1);
-  TF1* errEnv_bot_2sigma = ErrorEnvelope_2010(-2);
-  errEnv_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
-  errEnv_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
-  errEnv_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
-  errEnv_top_2sigma -> SetTitle("Non-linearity Polynomial Variations");
-  errEnv_top_2sigma -> SetLineStyle(2);
-  errEnv_top_2sigma -> Draw();
+  errEnv2011_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
+  errEnv2011_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
+  errEnv2011_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
+  errEnv2011_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2011-2012");
+  errEnv2011_top_2sigma -> SetLineStyle(2);
+  errEnv2011_top_2sigma -> Draw();
 
   // Create histograms at fixed Erecon values to look at distribution of polynomials.
   histErecon.push_back(new TH1D("test1", "Erecon = 100", 100, -15, 15));
@@ -179,8 +168,8 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("test9", "Erecon = 900", 100, -15, 15));
 
   // Load the converter to get Erecon from a single EQ value.
-  cout << "Using following calibration for 2010 geometry to convert Evis to Erecon..." << endl;
-  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2010");
+  cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
+  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
 
   int counter, numberSaved;
   counter = 0;
@@ -189,12 +178,9 @@ int main(int argc, char *argv[])
   for(int j = 0; j <= 1; j++)
   {
     for(double a = -3.0; a <= 3.0; a = a + 2.0)
-//    for(double a = 0; a <= 0; a = a + 2.0)
     {
       for(double b = -0.20; b <= 0.20; b = b + 0.05)
-//      for(double b = 0; b <= 0; b = b + 0.05)
       {
-//        for(double c = 0; c <= 0; c = c + 5e-6)
         for(double c = -1e-5; c <= 1e-5; c = c + 5e-6)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
@@ -272,24 +258,14 @@ int main(int argc, char *argv[])
   cout << "Number of polynomials in second band: " << num2sigma << endl;
 
   // Placed here so 1 sigma error envelope goes on top.
-  errEnv_top_1sigma -> SetLineStyle(2);
-  errEnv_top_1sigma -> Draw("SAME");
-  errEnv_bot_1sigma -> SetLineStyle(2);
-  errEnv_bot_1sigma -> Draw("SAME");
-  errEnv_bot_2sigma -> SetLineStyle(2);
-  errEnv_bot_2sigma -> Draw("SAME");
+  errEnv2011_top_1sigma -> SetLineStyle(2);
+  errEnv2011_top_1sigma -> Draw("SAME");
+  errEnv2011_bot_1sigma -> SetLineStyle(2);
+  errEnv2011_bot_1sigma -> Draw("SAME");
+  errEnv2011_bot_2sigma -> SetLineStyle(2);
+  errEnv2011_bot_2sigma -> Draw("SAME");
   TLine *line = new TLine(0, 0, 1000, 0);
   line->Draw("SAME");
-
-
-  errEnv2011_top_1sigma->SetLineStyle(6);
-  errEnv2011_top_1sigma->Draw("SAME");
-  errEnv2011_top_2sigma->SetLineStyle(6);
-  errEnv2011_top_2sigma->Draw("SAME");
-  errEnv2011_bot_1sigma->SetLineStyle(6);
-  errEnv2011_bot_1sigma->Draw("SAME");
-  errEnv2011_bot_2sigma->SetLineStyle(6);
-  errEnv2011_bot_2sigma->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
 /*  for(unsigned int i = 0; i < histErecon.size(); i++)
@@ -356,8 +332,10 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   TGraph* graph = new TGraph(nbPoints, &(Erecon0_values[0]), &(delta_Erecon_values[0]));
 
   // Get our error envelopes so we can check polynomial values against them.
-  TF1* errEnv1 = ErrorEnvelope_2010(1);
-  TF1* errEnv2 = ErrorEnvelope_2010(2);
+//  TF1* errEnv1 = ErrorEnvelope_2010(1);
+//  TF1* errEnv2 = ErrorEnvelope_2010(2);
+  TF1* errEnv1 = errEnv2011_top_1sigma;
+  TF1* errEnv2 = errEnv2011_top_2sigma;
 
   // Check our polynomial (the scatter plot) against a save condition.
   double x, y;
@@ -514,8 +492,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   delete Erecon0_East;
   delete Erecon_Twiddle_East;
   delete delta_Erecon_East;
-  delete errEnv2;
-  delete errEnv1;
+//  delete errEnv2;
+//  delete errEnv1;
 
   return saveCondition;
 }
@@ -574,12 +552,16 @@ vector < vector < vector <double> > > GetEQ2EtrueParams(string geometry)
 {
   ifstream infile;
   if (geometry=="2010") infile.open(INPUT_EQ2ETRUE_PARAMS);
-//  else if (geometry=="2011-2012") infile.open("../simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat");
+  else if (geometry=="2011-2012") infile.open(INPUT_EQ2ETRUE_PARAMS);
 //  else if (geometry=="2012-2013") infile.open("../simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat");
   else {
     cout << "Bad geometry passed to getEQ2EtrueParams\n";
     exit(0);
   }
+  //a check to make sure the file is open
+  if(!infile.is_open())
+    cout << "Problem opening " << INPUT_EQ2ETRUE_PARAMS << endl;
+
   vector < vector < vector < double > > > params;
   params.resize(2,vector < vector < double > > (3, vector < double > (6,0.)));
 
@@ -606,7 +588,7 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 
 TF1* ErrorEnvelope_2010(double factor)
 {
-  TF1* fEnv = new TF1("2010_error_envelope", Form("%f*((x <= 200)*2.5 + (x > 200 && x <= 500)*(2.5 + 0.0125*(x-200)) + (x>500)*6.25)", factor), 0, 1000);
+  TF1* fEnv = new TF1("2010_error_envelope", Form("%f*((x <= 200)*2.5 + (x > 200 && x <= 500)*(2.5 + 0.0125*(x-200)) + (x>500)*6.25)", factor), 0, 1050);
 
   return fEnv;
 }
@@ -614,13 +596,13 @@ TF1* ErrorEnvelope_2010(double factor)
 void ErrorEnvelope_2011()
 {
 //  TF1 fEnv2011("2011-2012_error_envelope", converter, 0, 1100, 0);
-  errEnv2011_top_1sigma = new TF1("2011-2012_error_envelope_top1sigma", converter1top, 0, 1100, 0);
+  errEnv2011_top_1sigma = new TF1("2011-2012_error_envelope_top1sigma", converter1top, 0, 1050, 0);
 
-  errEnv2011_top_2sigma = new TF1("2011-2012_error_envelope_top2sigma", converter2top, 0, 1100, 0);
+  errEnv2011_top_2sigma = new TF1("2011-2012_error_envelope_top2sigma", converter2top, 0, 1050, 0);
 
-  errEnv2011_bot_1sigma = new TF1("2011-2012_error_envelope_bot1sigma", converter1bot, 0, 1100, 0);
+  errEnv2011_bot_1sigma = new TF1("2011-2012_error_envelope_bot1sigma", converter1bot, 0, 1050, 0);
 
-  errEnv2011_bot_2sigma = new TF1("2011-2012_error_envelope_bot2sigma", converter2bot, 0, 1100, 0);
+  errEnv2011_bot_2sigma = new TF1("2011-2012_error_envelope_bot2sigma", converter2bot, 0, 1050, 0);
 }
 
 
