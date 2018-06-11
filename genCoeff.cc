@@ -177,9 +177,9 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = -3.0; a <= 3.0; a = a + 2.0)
+    for(double a = -3.0; a <= 3.0; a = a + 1.0)
     {
-      for(double b = -0.20; b <= 0.20; b = b + 0.05)
+      for(double b = -0.30; b <= 0.30; b = b + 0.03)
       {
         for(double c = -1e-5; c <= 1e-5; c = c + 5e-6)
         {
@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
   }
 */
   // Save our plot and print it out as a pdf.
-//  C -> Print("output_genCoeff.pdf");
+  C -> Print("output_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
