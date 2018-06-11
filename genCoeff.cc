@@ -48,7 +48,7 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"params_2010_EastWest_2nd_order.txt"
+#define		PARAM_FILE_NAME		"params_2011-2012_EastWest_2nd_order.txt"
 #define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 
 // Plotting functions.
@@ -65,11 +65,20 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 // Michael Mendenhall's 2010 error envelope.
 TF1* ErrorEnvelope_2010(double factor);
 
-TF1* ErrorEnvelope_2011(double factor);
-double converter(double *x, double *par);
-TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
+TF1* errEnv2011_top_1sigma;
+TF1* errEnv2011_top_2sigma;
+TF1* errEnv2011_bot_1sigma;
+TF1* errEnv2011_bot_2sigma;
+
+void ErrorEnvelope_2011();
+double converter1top(double *x, double *par);
+double converter2top(double *x, double *par);
+double converter1bot(double *x, double *par);
+double converter2bot(double *x, double *par);
 void LoadEnvelopeHistogram();
 
+// variables related to running the 2011-2012 error envelopes.
+TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
 
 // Perform a single twiddle so we can loop over it in main(), check against a save condition.
 // Return whether or not the thrown polynomial passed the save condition.
@@ -138,7 +147,14 @@ int main(int argc, char *argv[])
   gROOT->SetStyle("Plain");
 
   LoadEnvelopeHistogram();
-  TF1* test = ErrorEnvelope_2011(1);
+  ErrorEnvelope_2011();
+/*
+  TF1 errEnv2011_top_1sigma = ErrorEnvelope_2011(1);
+  TF1 errEnv2011_top_2sigma = ErrorEnvelope_2011(2);
+  TF1 errEnv2011_bot_1sigma = ErrorEnvelope_2011(-1);
+  TF1 errEnv2011_bot_2sigma = ErrorEnvelope_2011(-2);
+*/
+
 
   TF1* errEnv_top_1sigma = ErrorEnvelope_2010(1);
   TF1* errEnv_top_2sigma = ErrorEnvelope_2010(2);
@@ -265,7 +281,15 @@ int main(int argc, char *argv[])
   TLine *line = new TLine(0, 0, 1000, 0);
   line->Draw("SAME");
 
-  test->Draw("SAME");
+
+  errEnv2011_top_1sigma->SetLineStyle(6);
+  errEnv2011_top_1sigma->Draw("SAME");
+  errEnv2011_top_2sigma->SetLineStyle(6);
+  errEnv2011_top_2sigma->Draw("SAME");
+  errEnv2011_bot_1sigma->SetLineStyle(6);
+  errEnv2011_bot_1sigma->Draw("SAME");
+  errEnv2011_bot_2sigma->SetLineStyle(6);
+  errEnv2011_bot_2sigma->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
 /*  for(unsigned int i = 0; i < histErecon.size(); i++)
@@ -275,7 +299,7 @@ int main(int argc, char *argv[])
   }
 */
   // Save our plot and print it out as a pdf.
-  C -> Print("output_genCoeff.pdf");
+//  C -> Print("output_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -524,24 +548,20 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle("Counts (N)");
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot -> GetYaxis() -> SetRangeUser(0, 0.000004);
 
   if(styleIndex == 1)
   {
     hPlot -> SetFillColor(46);
     hPlot -> SetFillStyle(3004);
-//    hPlot -> SetFillStyle(3001);
   }
   if(styleIndex == 2)
   {
     hPlot -> SetFillColor(38);
     hPlot -> SetFillStyle(3005);
-//    hPlot -> SetFillStyle(3001);
   }
   if(styleIndex == 3)
   {
     hPlot -> SetFillColor(29);
-//    hPlot -> SetFillStyle(3005);
     hPlot -> SetFillStyle(3001);
   }
 
@@ -591,21 +611,38 @@ TF1* ErrorEnvelope_2010(double factor)
   return fEnv;
 }
 
-TF1* ErrorEnvelope_2011(double factor)
+void ErrorEnvelope_2011()
 {
-  TF1 *fEnv2011 = new TF1("2011-2012_error_envelope", converter, 0, 1100, 0);
+//  TF1 fEnv2011("2011-2012_error_envelope", converter, 0, 1100, 0);
+  errEnv2011_top_1sigma = new TF1("2011-2012_error_envelope_top1sigma", converter1top, 0, 1100, 0);
 
-  return fEnv2011;
+  errEnv2011_top_2sigma = new TF1("2011-2012_error_envelope_top2sigma", converter2top, 0, 1100, 0);
+
+  errEnv2011_bot_1sigma = new TF1("2011-2012_error_envelope_bot1sigma", converter1bot, 0, 1100, 0);
+
+  errEnv2011_bot_2sigma = new TF1("2011-2012_error_envelope_bot2sigma", converter2bot, 0, 1100, 0);
 }
 
 
-double converter(double *x, double *par)
+double converter1top(double *x, double *par)
 {
   double energy = x[0];
-
-  double returnValue = hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
-
-  return returnValue;
+  return 1*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+}
+double converter2top(double *x, double *par)
+{
+  double energy = x[0];
+  return 2*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+}
+double converter1bot(double *x, double *par)
+{
+  double energy = x[0];
+  return (-1)*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+}
+double converter2bot(double *x, double *par)
+{
+  double energy = x[0];
+  return (-2)*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
 }
 
 void LoadEnvelopeHistogram()
