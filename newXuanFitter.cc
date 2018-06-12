@@ -78,21 +78,50 @@ int main(int argc, char* argv[])
   if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (octet #)" << endl;
+    cout << "(executable) (index #)" << endl;
     return 0;
   }
 
   int octNb = atoi(argv[1]);
 
-  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  // this little bit loads the octets once they have already been separated into super sum histograms
+//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
-  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+//  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+//  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
-  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
-  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
-  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+
+  // this much longer code loads trees and extracts the histograms that we're interested in for fitting
+  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
+  TChain* dataChain = new TChain("SimAnalyzed");
+  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/TwiddledSimFiles_A_-1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
+  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+
+  cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
+
+  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+  TChain* betaChain = new TChain("SimAnalyzed");
+  for(int i = 0; i < 100; i++)
+  {
+    betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
+  }
+  betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+
+  cout << "Loaded betaChain with nEvents = " << betaChain->GetEntries() << endl;
+
+  TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
+  TChain* fierzChain = new TChain("SimAnalyzed");
+  for(int i = 0; i < 100; i++)
+  {
+    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_inf/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
+  }
+  fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+
+  cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
 
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
   {
@@ -179,7 +208,7 @@ int main(int argc, char* argv[])
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("ReBLINDed_newXuanFitter_bValues_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("TwiddledbValues_NoAsymm100MillBaseline_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
