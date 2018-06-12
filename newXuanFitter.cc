@@ -50,7 +50,7 @@ using            namespace std;
 #define		FITMAXBIN	65
 
 //required later for plot_program
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -103,6 +103,7 @@ int main(int argc, char* argv[])
 
   cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
 
+/*
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   TChain* betaChain = new TChain("SimAnalyzed");
   for(int i = 0; i < 100; i++)
@@ -110,8 +111,23 @@ int main(int argc, char* argv[])
     betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
   }
   betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+*/
+  TCanvas *C = new TCanvas("canvas", "canvas");
+  C->cd();
+  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+  TFile f("/mnt/Data/xuansun/analyzed_files/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_42_type0.root");
+  TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
 
-  cout << "Loaded betaChain with nEvents = " << betaChain->GetEntries() << endl;
+
+  hTemp->Draw();
+
+
+  plot_program.Run();
+
+  return 0;
+
+
+//  cout << "Loaded betaChain with nEvents = " << betaChain->GetEntries() << endl;
 
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
   TChain* fierzChain = new TChain("SimAnalyzed");
@@ -254,7 +270,7 @@ int main(int argc, char* argv[])
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print(Form("%s.pdf", HIST_IMAGE_PRINTOUT_NAME));
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }

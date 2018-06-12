@@ -45,14 +45,15 @@ int main(int argc, char* argv[])
   TRandom3 *engine = new TRandom3(0);
 
   ofstream outfile;
-  TString fileName = Form("randomMixingSeeds.txt");
+  TString fileName = Form("randomMixingSeeds_newFormatThatWorks.txt");
   outfile.open(fileName.Data(), ios::app);
 
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < 9; i++)
   {
     // ensures we have a maximum of 5% mixing.
     outfile << 0.05*engine->Rndm() << "\t";
   }
+  outfile << 0.05*engine->Rndm() << "\n";
 
 
   outfile.close();
