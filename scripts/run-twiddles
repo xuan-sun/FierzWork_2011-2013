@@ -16,7 +16,7 @@ do
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./newXuanFitter $x
+./blindingMCSingleRunFiles $x
 make clean
 
 done
