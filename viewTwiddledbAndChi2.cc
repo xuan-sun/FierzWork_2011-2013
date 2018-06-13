@@ -56,7 +56,7 @@ double NDF = -1;
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, int codeOption);
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
 void FillArrays(TString fileName, TH1D *h, int codeOption);
 
 struct entry
@@ -98,12 +98,20 @@ int main(int argc, char* argv[])
     FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_-1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hADownbFit, option);
     FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hAUpbFit, option);
 
-    PlotHist(C, 1, 1, hADownbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "", option);
-    hAUpbFit->GetYaxis()->SetRangeUser(0, 12);
-    PlotHist(C, 2, 1, hAUpbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "SAME", option);
+    double max = 0;
+    if(hADownbFit->GetMaximum() > hAUpbFit->GetMaximum())
+    {
+      max = hADownbFit->GetMaximum();
+    }
+    else
+    {
+      max = hAUpbFit->GetMaximum();
+    }
 
+    PlotHist(C, 1, 1, hADownbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "", max);
+    PlotHist(C, 2, 1, hAUpbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "SAME", max);
 
-    TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
+    TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
     leg1->AddEntry(hADownbFit,"A=-1, b twiddles","f");
     leg1->AddEntry(hAUpbFit,"A=1, b twiddles","f");
     leg1->Draw();
@@ -118,10 +126,6 @@ int main(int argc, char* argv[])
     FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_-1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hADownchi2_ndf, option);
     FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hAUpchi2_ndf, option);
 
-    PlotHist(C, 1, 1, hADownchi2_ndf, Form("chi2 per ndf results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "", option);
-    PlotHist(C, 2, 1, hAUpchi2_ndf, Form("chi2 per ndf results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "SAME", option);
-
-
     TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
     TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
     double hTot = 0;
@@ -132,14 +136,28 @@ int main(int argc, char* argv[])
       theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
 
     }
-    cout << "hTot = " << hTot << endl;
-    cout << "theoryHTot = " << theoryHTot << endl;
 
     theoryChiHist->Scale(hTot / theoryHTot);
-    PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME", option);
-    theoryChiHist->GetYaxis()->SetRangeUser(0, 9);
 
-    TLegend* leg2 = new TLegend(0.6,0.5,0.9,0.8);
+    double max = 0;
+    if(hADownchi2_ndf->GetMaximum() > max)
+    {
+      max = hADownchi2_ndf->GetMaximum();
+    }
+    if(hAUpchi2_ndf->GetMaximum() > max)
+    {
+      max = hAUpchi2_ndf->GetMaximum();
+    }
+    if(theoryChiHist->GetMaximum() > max);
+    {
+      max = theoryChiHist->GetMaximum();
+    }
+
+    PlotHist(C, 1, 1, hADownchi2_ndf, Form("chi2 per ndf results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "", max);
+    PlotHist(C, 2, 1, hAUpchi2_ndf, Form("chi2 per ndf results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "SAME", max);
+    PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME", max);
+
+    TLegend* leg2 = new TLegend(0.1,0.5,0.35,0.8);
     leg2->AddEntry(hADownchi2_ndf,"#Chi^{2} for A=-1","f");
     leg2->AddEntry(hAUpchi2_ndf,"#Chi^{2} for A=1","f");
     leg2->AddEntry(theoryChiHist,"Theory #Chi^{2} dist","f");
@@ -211,7 +229,7 @@ void FillArrays(TString fileName, TH1D* h, int codeOption)
 
 
 
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, int codeOption)
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents)
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
@@ -219,7 +237,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yAxis);
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot->GetYaxis()->SetRangeUser(0, 12);
+  hPlot->GetYaxis()->SetRangeUser(0, 1.2*maxBinContents);
 
   if(styleIndex == 1)
   {
