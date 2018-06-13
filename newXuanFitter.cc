@@ -50,7 +50,7 @@ using            namespace std;
 #define		FITMAXBIN	65
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/TwiddledSimFiles_A_-1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
+  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
@@ -112,22 +112,22 @@ int main(int argc, char* argv[])
   }
   betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 */
-  TCanvas *C = new TCanvas("canvas", "canvas");
-  C->cd();
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
-  TFile f("/mnt/Data/xuansun/analyzed_files/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_42_type0.root");
-  TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
+  int totalEntries = 0;
+  for(int j = 0; j < 100; j++)
+  {
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
+    TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
+    for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
+    {
+      mcTheoryHistBeta->SetBinContent(i, mcTheoryHistBeta->GetBinContent(i) + hTemp->GetBinContent(i));
+    }
+    totalEntries = totalEntries + hTemp->GetEntries();
+    f.Close();
+  }
+  mcTheoryHistBeta->SetEntries(totalEntries);
 
-
-  hTemp->Draw();
-
-
-  plot_program.Run();
-
-  return 0;
-
-
-//  cout << "Loaded betaChain with nEvents = " << betaChain->GetEntries() << endl;
+  cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
 
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
   TChain* fierzChain = new TChain("SimAnalyzed");
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("TwiddledbValues_NoAsymm100MillBaseline_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -270,7 +270,7 @@ int main(int argc, char* argv[])
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print(Form("%s.pdf", HIST_IMAGE_PRINTOUT_NAME));
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
