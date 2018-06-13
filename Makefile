@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o newXuanFitter.o
-SOURCE = newXuanFitter
+OBJECTS = BetaSpectrum.o viewTwiddledbAndChi2.o
+SOURCE = viewTwiddledbAndChi2
 
 .PHONY: all
 all: $(SOURCE)
