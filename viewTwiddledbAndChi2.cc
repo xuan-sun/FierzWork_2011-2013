@@ -56,7 +56,7 @@ double NDF = -1;
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, int codeOption);
 void FillArrays(TString fileName, TH1D *h, int codeOption);
 
 struct entry
@@ -98,61 +98,54 @@ int main(int argc, char* argv[])
     FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_-1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hADownbFit, option);
     FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hAUpbFit, option);
 
-    PlotHist(C, 1, 1, hADownbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "");
-    PlotHist(C, 2, 1, hAUpbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "SAME");
+    PlotHist(C, 1, 1, hADownbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "", option);
+    hAUpbFit->GetYaxis()->SetRangeUser(0, 12);
+    PlotHist(C, 2, 1, hAUpbFit, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "SAME", option);
+
 
     TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
     leg1->AddEntry(hADownbFit,"A=-1, b twiddles","f");
     leg1->AddEntry(hAUpbFit,"A=1, b twiddles","f");
     leg1->Draw();
 
-    C -> Print(Form("Twiddledb_viewTwiddledbAndChi2_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
+//    C -> Print(Form("Twiddledb_viewTwiddledbAndChi2_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
   else if(option == 2)
   {
-/*
-    TH1D *h3 = new TH1D("chi2 Minuit Fit", "Chi2 Minuit Fit", 80, 0, 4);
-    TH1D *h5 = new TH1D("chi2 HF Shape", "Chi2 HF Shape", 80, 0, 4);
-    h5->SetStats(0);
+    TH1D *hADownchi2_ndf = new TH1D("A_-1_chi2_ndf", "A=-1, chi2 per ndf values, 2011-2012", 100, 0, 2);
+    TH1D *hAUpchi2_ndf = new TH1D("A_1_chi2_ndf", "A=1, chi2 per ndf values, 2011-2012", 100, 0, 2);
 
-    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h5, option);
+    FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_-1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hADownchi2_ndf, option);
+    FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hAUpchi2_ndf, option);
 
-    TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minFit[0]));
-    TGraph *g5 = new TGraph(octets.size(), &(octets[0]), &(chisquared_hfShape[0]));
+    PlotHist(C, 1, 1, hADownchi2_ndf, Form("chi2 per ndf results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "", option);
+    PlotHist(C, 2, 1, hAUpchi2_ndf, Form("chi2 per ndf results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "SAME", option);
 
-    PlotHist(C, 1, 1, h3, Form("#Chi^{2}_{DF} results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "");
-    PlotHist(C, 2, 1, h5, "", "", "", "SAME");
 
     TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
     TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
     double hTot = 0;
     double theoryHTot = 0;
-    for(int i = 0; i <= h5->GetNbinsX(); i++)
+    for(int i = 0; i <= hADownchi2_ndf->GetNbinsX(); i++)
     {
-      hTot = hTot + h5->GetBinContent(i);
+      hTot = hTot + hADownchi2_ndf->GetBinContent(i);
       theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
 
     }
+    cout << "hTot = " << hTot << endl;
+    cout << "theoryHTot = " << theoryHTot << endl;
+
     theoryChiHist->Scale(hTot / theoryHTot);
-    PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME");
+    PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME", option);
+    theoryChiHist->GetYaxis()->SetRangeUser(0, 9);
 
-    g3->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
-    g5->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
-    PlotGraph(C, 1, 2, g3, Form("chi squared values by octet, %s, %s", TYPE, GEOM), "Octet Number", "#frac{#Chi^{2}}{n}", "AP");
-    PlotGraph(C, 2, 2, g5, "", "", "", "PSAME");
-
-
-    C->cd(1);
     TLegend* leg2 = new TLegend(0.6,0.5,0.9,0.8);
-    leg2->AddEntry(h3,"#Chi^{2} xuanFitter","f");
-    leg2->AddEntry(h5,"#Chi^{2} Shape Function fit","f");
+    leg2->AddEntry(hADownchi2_ndf,"#Chi^{2} for A=-1","f");
+    leg2->AddEntry(hAUpchi2_ndf,"#Chi^{2} for A=1","f");
     leg2->AddEntry(theoryChiHist,"Theory #Chi^{2} dist","f");
-    leg2->AddEntry(g3,"xuanFitter chi","p");
-    leg2->AddEntry(g5,"Shape Function fit","p");
     leg2->Draw();
 
-    C -> Print(Form("ReBLINDed_chisquareds_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
-*/
+//    C -> Print(Form("ReBLINDed_chisquareds_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
 
   //prints the canvas with a dynamic TString name of the name of the file
@@ -218,7 +211,7 @@ void FillArrays(TString fileName, TH1D* h, int codeOption)
 
 
 
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command)
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, int codeOption)
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
@@ -226,7 +219,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yAxis);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot->GetYaxis()->SetRangeUser(0, 1.2*hPlot->GetMaximum());
+//  hPlot->GetYaxis()->SetRangeUser(0, 12);
 
   if(styleIndex == 1)
   {
