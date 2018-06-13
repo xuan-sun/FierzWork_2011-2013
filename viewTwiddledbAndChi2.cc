@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     leg1->AddEntry(hAUpbFit,"A=1, b twiddles","f");
     leg1->Draw();
 
-//    C -> Print(Form("Twiddledb_viewTwiddledbAndChi2_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
+    C -> Print(Form("Twiddledb_bValues_viewTwiddledbAndChi2_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
   else if(option == 2)
   {
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
     leg2->AddEntry(theoryChiHist,"Theory #Chi^{2} dist","f");
     leg2->Draw();
 
-//    C -> Print(Form("ReBLINDed_chisquareds_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
+    C -> Print(Form("Twiddledb_chi2Values_viewTwiddledbAndChi2_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
 
   //prints the canvas with a dynamic TString name of the name of the file

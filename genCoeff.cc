@@ -177,11 +177,11 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = -3.0; a <= 3.0; a = a + 1.0)
+    for(double a = -3.0; a <= 3.0; a = a + 0.5)
     {
-      for(double b = -0.30; b <= 0.30; b = b + 0.03)
+      for(double b = -0.30; b <= 0.30; b = b + 0.02)
       {
-        for(double c = -1e-5; c <= 1e-5; c = c + 5e-6)
+        for(double c = -1e-5; c <= 1e-5; c = c + 2e-6)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
