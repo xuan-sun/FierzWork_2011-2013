@@ -132,8 +132,8 @@ int main(int argc, char* argv[])
     double theoryHTot = 0;
     for(int i = 0; i <= hADownchi2_ndf->GetNbinsX(); i++)
     {
-      hTot = hTot + hADownchi2_ndf->GetBinContent(i);
-      theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
+      hTot = hTot + (hADownchi2_ndf->GetBinContent(i))*(hADownchi2_ndf->GetBinWidth(i));
+      theoryHTot = theoryHTot + (theoryChiHist->GetBinContent(i))*(theoryChiHist->GetBinWidth(i));
 
     }
 
