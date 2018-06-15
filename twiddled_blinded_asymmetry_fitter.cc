@@ -103,25 +103,37 @@ int main(int argc, char* argv[])
 
   TH1D *twiddledAsymm = LoadTwiddledPairAsymm("/mnt/Data/xuansun/analyzed_files", twiddleIndex);
 
+  TH1D* blindedDivision = new TH1D("blindedDivision", "blindedDivision", 120, 0, 1200);
+
+  for(int i = 0; i <= blindedDataAsymm->GetNbinsX(); i++)
+  {
+    if(twiddledAsymm->GetBinContent(i) == 0 || blindedDataAsymm->GetBinContent(i) == 0)
+    {
+      blindedDivision->SetBinContent(i, 1);
+      blindedDivision->SetBinError(i, 1);
+    }
+    else
+    {
+      blindedDivision->SetBinContent(i, twiddledAsymm->GetBinContent(i) / blindedDataAsymm->GetBinContent(i));
+      blindedDivision->SetBinError(i, sqrt(pow(twiddledAsymm->GetBinContent(i), 2.0) + pow(blindedDataAsymm->GetBinContent(i), 2.0)));
+    }
+  }
 
 
-//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( (1.0 + [0]*(%f))/(x + %f) ) / (1.0 + [0]*(%f))", m_e, m_e, avg_mE), xMin, xMax);
 
-//  fit->SetParName(0, "asymm");
-//  fit->SetParName(1, "b");
-//  blindedAsymm->Fit("beta fit", "R");
-//  TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
-//  cout << "Chi squared value is " << fitResults->GetChisquare()
-//	<< " with ndf of " << fitResults->GetNDF()
-//	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
+  fit->SetParName(0, "b");
+  blindedDivision->Fit("beta fit", "R");
+  TF1 *fitResults = blindedDivision->GetFunction("beta fit");
+  cout << "Chi squared value is " << fitResults->GetChisquare()
+	<< " with ndf of " << fitResults->GetNDF()
+	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 
-  cout << "About to plot the super ratio... " << endl;
 
-  PlotHist(C, 1, 1, twiddledAsymm, "Testing the pair wise asymmetry", "Reconstructed Energy (keV)", "Super Ratio", "");
+  PlotHist(C, 1, 1, blindedDivision, "", "Reconstructed Energy (keV)", "#frac{A_{twiddled}}{A_{data}}", "");
 
-  cout << "succesfully plotted.." << endl;
 
-/*
+
   TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
   TLine *yHigh = new TLine(xMax, gPad->GetUymin(), xMax, gPad->GetUymax());
   yLow->SetLineWidth(2);
@@ -131,6 +143,7 @@ int main(int argc, char* argv[])
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
 
+/*
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -139,25 +152,36 @@ int main(int argc, char* argv[])
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
   t3.DrawLatex(1000, 0.13, Form("AErr_{fit} = %f", fitResults->GetParError(0)));
+*/
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(1000, 0.12, Form("b_{fit} = %f", fitResults->GetParameter(1)));
+  t4.DrawLatex(1000, 1.5, Form("b_{fit} = %f", fitResults->GetParameter(0)));
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(1000, 0.11, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+  t5.DrawLatex(1000, 1.0, Form("bErr_{fit} = %f", fitResults->GetParError(0)));
   TLatex t6;
   t6.SetTextSize(0.03);
   t6.SetTextAlign(13);
-  t6.DrawLatex(900, 0.10, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
+  t6.DrawLatex(900, 0.5, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
 				fitResults->GetChisquare(), fitResults->GetNDF(), fitResults->GetChisquare() / fitResults->GetNDF()));
-*/
 
+
+  ofstream outfile;
+  outfile.open(Form("Xuan_asymmetries/Twiddled_Asymmetries/TwiddledbValues_asymmetryFitter_twiddleIndex_%i.txt", twiddleIndex), ios::app);
+  outfile << twiddleIndex << "\t"
+          << avg_mE << "\t"
+          << fitResults->GetChisquare() << "\t"
+          << fitResults->GetNDF() << "\t"
+          << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
+          << fitResults->GetParameter(0) << "\t"
+          << fitResults->GetParError(0) << "\n";
+  outfile.close();
 
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
+  C -> Print(Form("Xuan_asymmetries/Twiddled_Asymmetries/b_fit_toTwiddledAsymm_twiddleIndex_%i.pdf", twiddleIndex));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -427,7 +451,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-//  hPlot -> GetYaxis() -> SetRangeUser(0.08, 0.16);
+  hPlot -> GetYaxis() -> SetRangeUser(0, 2);
 
 
   if(styleIndex == 1)
