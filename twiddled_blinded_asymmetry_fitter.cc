@@ -101,9 +101,8 @@ int main(int argc, char* argv[])
 
   TH1D *blindedDataAsymm = BlindAsymmetry(dataAsymm, bMixing, avg_mE);
 
-  TH1D *htest = LoadTwiddledPairAsymm("/mnt/Data/xuansun/analyzed_files", twiddleIndex);
+  TH1D *twiddledAsymm = LoadTwiddledPairAsymm("/mnt/Data/xuansun/analyzed_files", twiddleIndex);
 
-  C->cd();
 
 
 //  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
@@ -118,7 +117,7 @@ int main(int argc, char* argv[])
 
   cout << "About to plot the super ratio... " << endl;
 
-  PlotHist(C, 1, 1, htest, "Testing the pair wise asymmetry", "Reconstructed Energy (keV)", "Super Ratio", "");
+  PlotHist(C, 1, 1, twiddledAsymm, "Testing the pair wise asymmetry", "Reconstructed Energy (keV)", "Super Ratio", "");
 
   cout << "succesfully plotted.." << endl;
 
@@ -291,6 +290,8 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
   TChain* chainUp = new TChain("SimAnalyzed");
   chainUp->Add(Form("%s/TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", pathBase.Data(), twiddle));
 
+  cout << "Finished making chains of our events... " << endl;
+
   Event* evtDown = new Event;
   Event* evtUp = new Event;
 
@@ -308,8 +309,7 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
   TH1D* hEastUp = new TH1D("hEastUp", "hEastUp", 120, 0, 1200);
   TH1D* hWestUp = new TH1D("hWestUp", "hWestUp", 120, 0, 1200);
 
-  cout << "chainDown->GetEntries() = " << chainDown->GetEntries() << endl;
-
+  // put everything into east/west, spin up/down histograms.
   for(int i = 0; i < chainDown->GetEntries(); i++)
   {
     chainDown->GetEntry(i);
@@ -341,23 +341,7 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
     }
   }
 
-
-  // put everything into east/west, spin up/down histograms.
-/*  tDown->Draw("Erecon >> hEastDown", "PID == 1 && type == 0 && Erecon > 0 && side == 0");
-  tDown->Draw("Erecon >> hWestDown", "PID == 1 && type == 0 && Erecon > 0 && side == 1");
-  tUp->Draw("Erecon >> hEastUp", "PID == 1 && type == 0 && Erecon > 0 && side == 0");
-  tUp->Draw("Erecon >> hWestUp", "PID == 1 && type == 0 && Erecon > 0 && side == 1");
-*/
-  for(int i = 0; i < hEastDown->GetNbinsX(); i++)
-  {
-    cout << "At i = " << i << ", " << hEastDown->GetBinContent(i)
-	<< ", " << hWestDown->GetBinContent(i)
-	<< ", " << hEastUp->GetBinContent(i)
-	<< ", " << hWestUp->GetBinContent(i) << endl;
-  }
-
-
-  cout << "Histograms loaded... " << endl;
+  cout << "Constructing a super ratio... " << endl;
 
   // construct a super ratio
   TH1D* hSR = new TH1D("hSuperRatio", "hSuperRatio", 120, 0, 1200);
@@ -396,22 +380,34 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
 
   hSR->SetError(&(mySetErrors[0]));
 
+  cout << "Created a super ratio.." << endl;
 
-  TH1D *hReturn = new TH1D("hReturn", "hReturn", 120, 0, 1200);
+  // make the asymmetry histogram.
+  cout << "Making asymmetry now... " << endl;
+  TH1D* hTwiddledAsymm = new TH1D("hTwiddledAsymm", "hTwiddledAsymm", 120, 0, 1200);
 
-/*
+  double asymm = 0;
+  double asymmErr = 0;
+
   for(int i = 0; i <= hSR->GetNbinsX(); i++)
   {
-    cout << "At i = " << i << ", SR = " << hSR->GetBinContent(i) << " +/- " << hSR->GetBinError(i) << endl;
-    hReturn->SetBinContent(i, hSR->GetBinContent(i));
-    hReturn->SetBinError(i, hSR->GetBinError(i));
+    if(hSR->GetBinContent(i) == 0)
+    {
+      asymm = 0;
+      asymmErr = 0;
+    }
+    else
+    {
+      asymm = (1 - sqrt(hSR->GetBinContent(i)) ) / ( 1 + sqrt(hSR->GetBinContent(i)) );
+      asymmErr = (hSR->GetBinError(i))
+                 / ( sqrt(hSR->GetBinContent(i)) * (sqrt(hSR->GetBinContent(i)) + 1) * (sqrt(hSR->GetBinContent(i)) + 1) );
+    }
+
+    hTwiddledAsymm->SetBinContent(i, asymm);
+    hTwiddledAsymm->SetBinError(i, asymmErr);
   }
 
-  cout << "Created a super ratio.." << endl;
-*/
-
-
-  return hReturn;
+  return hTwiddledAsymm;
 }
 
 
@@ -431,7 +427,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
   hPlot -> GetYaxis() -> CenterTitle();
-  hPlot -> GetYaxis() -> SetRangeUser(0.08, 0.16);
+//  hPlot -> GetYaxis() -> SetRangeUser(0.08, 0.16);
 
 
   if(styleIndex == 1)
