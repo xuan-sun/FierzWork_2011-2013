@@ -41,29 +41,12 @@
 #include	 <TLatex.h>
 using		 namespace std;
 
-struct Event
-{
-  double primKE;
-  double Erecon;
-  int side;
-  int type;
-  int eventNum;
-  double time[2];
-  double tE;
-  double tW;
-  int pid;
-  double xEastPos;
-  double yEastPos;
-  double xWestPos;
-  double yWestPos;
-};
-
 // forward declarations for useful functions
 double CalculatebFromPercentageMixing(TString fileName);
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 TH1D* LoadMBAsymmetry(TString fileName);
 TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlinding);
-TH1D* LoadTwiddledPairAsymm(int twiddle);
+TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle);
 
 // plotting functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command);
@@ -110,7 +93,7 @@ int main(int argc, char* argv[])
 
   TH1D *blindedDataAsymm = BlindAsymmetry(dataAsymm, bMixing, avg_mE);
 
-  TH1D *twiddledAsymm = LoadTwiddledPairAsymm(twiddledIndex);
+  TH1D *twiddledAsymm = LoadTwiddledPairAsymm("/mnt/Data/xuansun/analyzed_files", twiddleIndex);
 
 //  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
 
@@ -122,8 +105,11 @@ int main(int argc, char* argv[])
 //	<< " with ndf of " << fitResults->GetNDF()
 //	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 
+  cout << "About to plot the super ratio... " << endl;
 
-//  PlotHist(C, 1, 1, blindedAsymm, asymmFile, "Reconstructed Energy (keV)", "Blinded Fully Corrected A(E)", "");
+  PlotHist(C, 1, 1, twiddledAsymm, "Testing the pair wise asymmetry", "Reconstructed Energy (keV)", "Super Ratio", "");
+
+  cout << "succesfully plotted.." << endl;
 
 /*
   TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
@@ -281,15 +267,17 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
 {
   // load files that have already been twiddled
   TFile fDown(Form("%s/TwiddledSimFiles_A_-1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", pathBase.Data(), twiddle));
-  TFile fUp(Form("%s/TwiddledSimFiles_A_1_b_0SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", pathBase.Data(), twiddle));
+  TFile fUp(Form("%s/TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", pathBase.Data(), twiddle));
 
   TTree *tDown = (TTree*)fDown.Get("SimAnalyzed");
   TTree *tUp = (TTree*)fUp.Get("SimAnalyzed");
 
-  TH1D* hEastDown = new TH1D("hEastDown", "hEastDown", 1200, 0, 1200);
-  TH1D* hWestDown = new TH1D("hWestDown", "hWestDown", 1200, 0, 1200);
-  TH1D* hEastUp = new TH1D("hEastUp", "hEastUp", 1200, 0, 1200);
-  TH1D* hWestUp = new TH1D("hWestUp", "hWestUp", 1200, 0, 1200);
+  cout << "Trees loaded..." << endl;
+
+  TH1D* hEastDown = new TH1D("hEastDown", "hEastDown", 120, 0, 1200);
+  TH1D* hWestDown = new TH1D("hWestDown", "hWestDown", 120, 0, 1200);
+  TH1D* hEastUp = new TH1D("hEastUp", "hEastUp", 120, 0, 1200);
+  TH1D* hWestUp = new TH1D("hWestUp", "hWestUp", 120, 0, 1200);
 
   // put everything into east/west, spin up/down histograms.
   tDown->Draw("Erecon >> hEastDown", "PID == 1 && type == 0 && Erecon > 0 && side == 0");
@@ -297,10 +285,67 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
   tUp->Draw("Erecon >> hEastUp", "PID == 1 && type == 0 && Erecon > 0 && side == 0");
   tUp->Draw("Erecon >> hWestUp", "PID == 1 && type == 0 && Erecon > 0 && side == 1");
 
+  for(int i = 0; i < hEastDown->GetNbinsX(); i++)
+  {
+    cout << "At i = " << i << ", " << hEastDown->GetBinContent(i)
+	<< ", " << hWestDown->GetBinContent(i)
+	<< ", " << hEastUp->GetBinContent(i)
+	<< ", " << hWestUp->GetBinContent(i) << endl;
+  }
+
+
+  cout << "Histograms loaded... " << endl;
+
   // construct a super ratio
+  TH1D* hSR = new TH1D("hSuperRatio", "hSuperRatio", 120, 0, 1200);
+  vector <double> mySetErrors;
+
+  double r1up, r1down, r2up, r2down;
+  double er1up, er1down, er2up, er2down;
+  for(int i = 0; i <= hSR->GetNbinsX(); i++)
+  {
+    r1up = hEastUp->GetBinContent(i);
+    r1down = hEastDown->GetBinContent(i);
+    r2up = hWestUp->GetBinContent(i);
+    r2down = hWestDown->GetBinContent(i);
+    er1up = hEastUp->GetBinError(i);
+    er1down = hEastDown->GetBinError(i);
+    er2up = hWestUp->GetBinError(i);
+    er2down = hWestDown->GetBinError(i);
 
 
+    if(r1up <= 0 || r1down <= 0 || r2up <= 0 || r2down <= 0 )
+    {
+      hSR->SetBinContent(i, 0);
+      mySetErrors.push_back(0);
+    }
+    else
+    {
+      hSR->SetBinContent(i, (r1down*r2up) / (r1up*r2down));
 
+      mySetErrors.push_back( ( (r1down*r2up) / (r1up*r2down) )
+                           * sqrt( (er1down/r1down)*(er1down/r1down)
+                                 + (er2up/r2up)*(er2up/r2up)
+                                 + (er1up/r1up)*(er1up/r1up)
+                                 + (er2down/r2down)*(er2down/r2down) ) );
+    }
+  }
+
+  hSR->SetError(&(mySetErrors[0]));
+
+
+  TH1D *hReturn = new TH1D("hReturn", "hReturn", 120, 0, 1200);
+
+  for(int i = 0; i <= hSR->GetNbinsX(); i++)
+  {
+    cout << "At i = " << i << ", SR = " << hSR->GetBinContent(i) << " +/- " << hSR->GetBinError(i) << endl;
+    hReturn->SetBinContent(i, hSR->GetBinContent(i));
+    hReturn->SetBinError(i, hSR->GetBinError(i));
+  }
+
+  cout << "Created a super ratio.." << endl;
+
+  return hReturn;
 }
 
 
@@ -310,8 +355,11 @@ TH1D* LoadTwiddledPairAsymm(TString pathBase, int twiddle)
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command)
 {
+  cout << "1" << endl;
   C -> cd(canvasIndex);
+  cout << "2" << endl;
   hPlot -> SetTitle(title);
+  cout << "3" << endl;
   hPlot -> GetXaxis() -> SetTitle(xTitle);
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle(yTitle);
@@ -343,5 +391,5 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 
   hPlot -> Draw(command);
 
-  C -> Update();
+//  C -> Update();
 }
