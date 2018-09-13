@@ -135,6 +135,8 @@ int main(int argc, char* argv[])
 
   cout << "Loaded mixing seeds" << endl;
 
+  s0 = 0.01;
+
   // load all the histograms of east and west, turn them into rates.
   // ALWAYS USE S0 FOR MIXING.
   vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s0);
@@ -154,7 +156,8 @@ int main(int argc, char* argv[])
 
   cout << "Finished mixing rate histograms." << endl;
 
-  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
+//  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
+  TFile f(Form("BLIND_MC_A_0_b_0_Octet_43_type0_test.root"), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();

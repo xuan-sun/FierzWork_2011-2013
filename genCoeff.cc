@@ -48,7 +48,7 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"params_2011-2012_EastWest_2nd_order.txt"
+#define		PARAM_FILE_NAME		"test_genCoeff.txt"
 #define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 
 // Plotting functions.
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-//  C -> Divide(5, 2);
+  C -> Divide(5, 2);
   C -> cd(1);
   gROOT->SetStyle("Plain");
 
@@ -171,17 +171,32 @@ int main(int argc, char *argv[])
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
   vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
 
+/*
+  // this stuff until the 'return 0' is here to plot interesting twiddles.
+  vector < vector < double > > testCoeff;
+  vector <double> singleTestCoeff;
+  singleTestCoeff.push_back(-1);
+  singleTestCoeff.push_back(0);
+  singleTestCoeff.push_back(0);
+  singleTestCoeff.push_back(0);
+  testCoeff.push_back(singleTestCoeff);
+
+  bool save = PerformVariation(testCoeff[0][0], testCoeff[0][1], testCoeff[0][2], testCoeff[0][3], 1, converter, engine, 2, 1);
+
+  plot_program.Run();
+  return 0;
+*/
   int counter, numberSaved;
   counter = 0;
   numberSaved = 0;
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = -3.0; a <= 3.0; a = a + 0.5)
+    for(double a = 4.0; a <= 4.0; a = a + 0.5)
     {
-      for(double b = -0.30; b <= 0.30; b = b + 0.02)
+      for(double b = -0.05; b <= 0.05; b = b + 0.0001)
       {
-        for(double c = -1e-5; c <= 1e-5; c = c + 2e-6)
+        for(double c = -1e-4; c <= 1e-4; c = c + 1e-6)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
@@ -268,14 +283,14 @@ int main(int argc, char *argv[])
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-/*  for(unsigned int i = 0; i < histErecon.size(); i++)
+  for(unsigned int i = 0; i < histErecon.size(); i++)
   {
     C->cd(i+2);
     histErecon[i]->Draw();
   }
-*/
+
   // Save our plot and print it out as a pdf.
-  C -> Print("output_genCoeff.pdf");
+//  C -> Print("output_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

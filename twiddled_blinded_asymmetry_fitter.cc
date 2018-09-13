@@ -62,7 +62,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 double avg_mE = 0;
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -95,10 +95,10 @@ int main(int argc, char* argv[])
 
   double bMixing = CalculatebFromPercentageMixing("ExtractedHistograms/randomMixingSeeds.txt");
 
-  TString dataAsymmFile = Form("MB_asymmetries/AsymmFilesFromMB/UnCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+  TString dataAsymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin_withEnergyDependence.txt");
 
   TH1D *dataAsymm = LoadMBAsymmetry(dataAsymmFile);
-
+/*
   TH1D *blindedDataAsymm = BlindAsymmetry(dataAsymm, bMixing, avg_mE);
 
   TH1D *twiddledAsymm = LoadTwiddledPairAsymm("/mnt/Data/xuansun/analyzed_files", twiddleIndex);
@@ -128,14 +128,54 @@ int main(int argc, char* argv[])
   cout << "Chi squared value is " << fitResults->GetChisquare()
 	<< " with ndf of " << fitResults->GetNDF()
 	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
+*/
+//  TH1D *blindedDataAsymm = BlindAsymmetry(dataAsymm, bMixing, avg_mE);
+
+  TH1D *twiddledAsymm = LoadTwiddledPairAsymm("/mnt/Data/xuansun/analyzed_files", twiddleIndex);
+
+  TH1D* division = new TH1D("division", "division", 120, 0, 1200);
+
+  for(int i = 0; i <= dataAsymm->GetNbinsX(); i++)
+  {
+    if(twiddledAsymm->GetBinContent(i) == 0 || dataAsymm->GetBinContent(i) == 0)
+    {
+      division->SetBinContent(i, 1);
+      division->SetBinError(i, 1);
+    }
+    else
+    {
+      division->SetBinContent(i, twiddledAsymm->GetBinContent(i) / dataAsymm->GetBinContent(i));
+      division->SetBinError(i, sqrt(pow(twiddledAsymm->GetBinContent(i), 2.0) + pow(dataAsymm->GetBinContent(i), 2.0)));
+    }
+  }
+
+  TH1D* blindedDivision = BlindAsymmetry(division, bMixing, avg_mE);
+/*
+  TF1 *fit = new TF1("beta fit", Form("( (1.0 + [0]*(%f))/(x + %f) ) / (1.0 + [0]*(%f))", m_e, m_e, avg_mE), xMin, xMax);
+  fit->SetParName(0, "b");
+  blindedDivision->Fit("beta fit", "R");
+  TF1 *fitResults = blindedDivision->GetFunction("beta fit");
+  cout << "Chi squared value is " << fitResults->GetChisquare()
+	<< " with ndf of " << fitResults->GetNDF()
+	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
+*/
+//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( (1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+//  TF1* fit = new TF1("flat asymm fit", "[0]", xMin, xMax);
+  fit->SetParName(0, "b");
+  blindedDivision->Fit("beta fit", "R");
+  TF1 *fitResults = blindedDivision->GetFunction("beta fit");
+  cout << "Chi squared value is " << fitResults->GetChisquare()
+        << " with ndf of " << fitResults->GetNDF()
+        << ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 
 
   PlotHist(C, 1, 1, blindedDivision, "", "Reconstructed Energy (keV)", "#frac{A_{twiddled}}{A_{data}}", "");
 
 
 
-  TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
-  TLine *yHigh = new TLine(xMax, gPad->GetUymin(), xMax, gPad->GetUymax());
+  TLine *yLow = new TLine(xMin, 0, xMin, 2);
+  TLine *yHigh = new TLine(xMax, 0, xMax, 2);
   yLow->SetLineWidth(2);
   yHigh->SetLineWidth(2);
   yLow->SetLineColor(1);
@@ -143,24 +183,25 @@ int main(int argc, char* argv[])
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
 
-/*
+
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(1000, 0.14, Form("A_{fit} = %f", fitResults->GetParameter(0)));
+  t2.DrawLatex(1000, 1.5, Form("b_{fit} = %f", fitResults->GetParameter(0)));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(1000, 0.13, Form("AErr_{fit} = %f", fitResults->GetParError(0)));
-*/
+  t3.DrawLatex(1000, 1.25, Form("bErr_{fit} = %f", fitResults->GetParError(0)));
+/*
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(1000, 1.5, Form("b_{fit} = %f", fitResults->GetParameter(0)));
+  t4.DrawLatex(1000, 1.0, Form("b_{fit} = %f", fitResults->GetParameter(1)));
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(1000, 1.0, Form("bErr_{fit} = %f", fitResults->GetParError(0)));
+  t5.DrawLatex(1000, 0.75, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+*/
   TLatex t6;
   t6.SetTextSize(0.03);
   t6.SetTextAlign(13);
@@ -169,7 +210,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("Xuan_asymmetries/Twiddled_Asymmetries/TwiddledbValues_asymmetryFitter_twiddleIndex_%i.txt", twiddleIndex), ios::app);
+  outfile.open(Form("Xuan_asymmetries/Twiddled_Asymmetries_run3/TwiddledbValues_asymmetryFitter_twiddleIndex.txt"), ios::app);
   outfile << twiddleIndex << "\t"
           << avg_mE << "\t"
           << fitResults->GetChisquare() << "\t"
@@ -177,13 +218,16 @@ int main(int argc, char* argv[])
           << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
           << fitResults->GetParameter(0) << "\t"
           << fitResults->GetParError(0) << "\n";
+//          << fitResults->GetParameter(1) << "\t"
+//          << fitResults->GetParError(1) << "\n";
   outfile.close();
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print(Form("Xuan_asymmetries/Twiddled_Asymmetries/b_fit_toTwiddledAsymm_twiddleIndex_%i.pdf", twiddleIndex));
+  C -> Print(Form("Xuan_asymmetries/Twiddled_Asymmetries_run3/b_fit_toTwiddledAsymm_twiddleIndex_%03i.pdf", twiddleIndex));
+
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
@@ -261,7 +305,7 @@ double CalculatebFromPercentageMixing(TString fileName)
   }
 
 
-  b = 0.05 / ( (1 - 0.05) * (avg_mE) );
+  b = s0 / ( (1 - s0) * (avg_mE) );
 
   return b;
 }

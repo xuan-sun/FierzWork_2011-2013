@@ -116,7 +116,8 @@ int main(int argc, char* argv[])
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form(" [0] / (1.0 + [1]*(%f)/(x + %f))", m_e, m_e), xMin, xMax);
 
   fit->SetParName(0, "asymm");
   fit->SetParName(1, "b");
@@ -165,7 +166,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print("ReBLINDed_b_fit_fromAsymmData.pdf");
+  C -> Print("ReReReBLINDed_b_fit_fromAsymmData.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -282,7 +283,7 @@ double CalculatebFromPercentageMixing(TString fileName)
   }
 
 
-  b = 0.05 / ( (1 - 0.05) * (avg_mE) );
+  b = s0 / ( (1 - s0) * (avg_mE) );
 
   return b;
 }

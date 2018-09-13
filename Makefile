@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o twiddled_blinded_asymmetry_fitter.o
-SOURCE = twiddled_blinded_asymmetry_fitter
+OBJECTS = BetaSpectrum.o genCoeff.o
+SOURCE = genCoeff
 
 .PHONY: all
 all: $(SOURCE)

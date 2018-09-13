@@ -50,7 +50,7 @@ using            namespace std;
 #define		FITMAXBIN	65
 
 //required later for plot_program
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -85,24 +85,25 @@ int main(int argc, char* argv[])
   int octNb = atoi(argv[1]);
 
   // this little bit loads the octets once they have already been separated into super sum histograms
+  TFile fData("BLIND_MC_A_0_b_0_Octet_43_type0_test_10percent.root");
 //  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
-//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
 //  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
 //  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
 
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting
-  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
+/*  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
   dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
-
+*/
 /*
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   TChain* betaChain = new TChain("SimAnalyzed");
@@ -149,11 +150,13 @@ int main(int argc, char* argv[])
 
   double totalMC0 = 0;
   double totalMCinf = 0;
+  double totalData = 0;
   double counter_ndf = 0;
   for(int i = FITMINBIN; i < FITMAXBIN; i++)
   {
     totalMC0 = totalMC0 + binContentsMC0[i];
     totalMCinf = totalMCinf + binContentsMCinf[i];
+    totalData = totalData + binContentsData[i];
     counter_ndf = counter_ndf + 1;
   }
   ndf = counter_ndf - 1;	// -1 is the single parameter in the fit.
@@ -223,6 +226,7 @@ int main(int argc, char* argv[])
   cout << "Highest number of parameters defined by user: " << nUserParams << endl;
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
+/*
   ofstream outfile;
   outfile.open(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
@@ -236,41 +240,45 @@ int main(int argc, char* argv[])
 	  << -1 << "\t"
 	  << covMatrixStatus << "\n";
   outfile.close();
-
+*/
 
 
   // plot everything and visualize
-/*  TCanvas *C = new TCanvas("canvas", "canvas");
+  TCanvas *C = new TCanvas("canvas", "canvas");
+  C->cd();
   gROOT->SetStyle("Plain");	//on my computer this sets background to white, finally!
-  gStyle->SetOptFit(1111);
-  gStyle->SetOptStat("en");
-  gStyle->SetStatH(0.45);
-  gStyle->SetStatW(0.45);
-  PlotHist(C, 1, 1, dataHist, "Data histogram", "");
-//  PlotHist(C, 2, 1, resultHist, "Fit Result histogram", "SAME");
+  dataHist->Scale(1.0 / totalData);
+  mcTheoryHistBeta->Scale(1.0 / totalMC0);
+  mcTheoryHistFierz->Scale(1.0 / totalMCinf);
+  PlotHist(C, 2, 1, mcTheoryHistFierz, "", "");
+  PlotHist(C, 3, 1, dataHist, "", "HISTSAME");
+  PlotHist(C, 1, 1, mcTheoryHistBeta, "", "SAME");
 
+
+  TLegend *l = new TLegend(0.7, 0.6, 0.9, 0.8);
+  l->AddEntry(dataHist, "Data", "f");
+  l->AddEntry(mcTheoryHistBeta, "SM", "f");
+  l->AddEntry(mcTheoryHistFierz, "Fierz", "f");
+  l->Draw();
 
   // update the legend to include valuable variables.
-  TPaveStats *ps = (TPaveStats*)C->GetPrimitive("stats");
-  ps->SetName("mystats");
-  TList *listOfLines = ps->GetListOfLines();
-  TLatex *myText1 = new TLatex(0,0,Form("#Chi^{2} = %f", chisquared));
-  listOfLines->Add(myText1);
-  TLatex *myText2 = new TLatex(0,0,Form("NDF = %d", ndf));
-  listOfLines->Add(myText2);
-  TLatex *myText3 = new TLatex(0,0,Form("#frac{#Chi^{2}}{NDF} = %f", chisquared/ndf));
-  listOfLines->Add(myText3);
-  TLatex *myText4 = new TLatex(0,0,Form("frac0 = %f #pm %f", frac0Val, frac0Err));
-  listOfLines->Add(myText4);
-  TLatex *myText5 = new TLatex(0,0,Form("frac1 = %f #pm %f", frac1Val, frac1Err));
-  listOfLines->Add(myText5);
-  // the following line is needed to avoid that the automatic redrawing of stats
-  dataHist->SetStats(0);
-*/
+/*  TLatex t2;
+  t2.SetTextSize(0.03);
+  t2.SetTextAlign(13);
+  t2.DrawLatex(600, 0.017, Form("#frac{#Chi^{2}}{NDF} = %f / %f = %f", functionMin, ndf, functionMin/ndf));
+*/  TLatex t3;
+  t3.SetTextSize(0.03);
+  t3.SetTextAlign(13);
+  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", 0.1 / ((1 - 0.1)*(avg_mE))));
+  TLatex t4;
+  t4.SetTextSize(0.03);
+  t4.SetTextAlign(13);
+  t4.DrawLatex(700, 0.014, Form("b_{fit} = %f #pm %f", fitVal, fitErr));
+
   // prints the canvas with a dynamic TString name of the name of the file
-//  C -> Print(Form("%s.pdf", HIST_IMAGE_PRINTOUT_NAME));
+  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
