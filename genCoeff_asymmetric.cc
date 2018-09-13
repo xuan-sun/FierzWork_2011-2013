@@ -48,7 +48,7 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"test_genCoeff.txt"
+#define		PARAM_FILE_NAME		"test_genCoeff_asymmetric.txt"
 #define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 
 // Plotting functions.
@@ -175,11 +175,11 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = 4.0; a <= 4.0; a = a + 0.5)
+    for(double a = -5.0; a <= 2.0; a = a + 0.25)
     {
-      for(double b = -0.05; b <= 0.05; b = b + 0.005)
+      for(double b = -0.05; b <= 0.05; b = b + 0.0002)
       {
-        for(double c = -1e-4; c <= 1e-4; c = c + 5e-6)
+        for(double c = -1e-4; c <= 1e-4; c = c + 2e-6)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
   }
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("output_genCoeff.pdf");
+  C -> Print("output_genCoeff_asymmetric.png");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -330,8 +330,10 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   TGraph* graph = new TGraph(nbPoints, &(Erecon0_values[0]), &(delta_Erecon_values[0]));
 
   // Get our error envelopes so we can check polynomial values against them.
-  TF1* errEnv1 = errEnv2011_top_1sigma;
-  TF1* errEnv2 = errEnv2011_top_2sigma;
+  TF1* errEnvTop1 = errEnv2011_top_1sigma;
+  TF1* errEnvTop2 = errEnv2011_top_2sigma;
+  TF1* errEnvBot1 = errEnv2011_bot_1sigma;
+  TF1* errEnvBot2 = errEnv2011_bot_2sigma;
 
   // Check our polynomial (the scatter plot) against a save condition.
   double x, y;
@@ -388,7 +390,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     }
 
     // if, at any point, we are over 2 sigma away, exit and don't save and don't throw a number.
-    if(abs(y) > errEnv2->Eval(x))
+    if(y > errEnvTop2->Eval(x) || y < errEnvBot2->Eval(x))
     {
       if(passNumber == 1)
       {
@@ -403,8 +405,9 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
         break;
       }
     }
-    // if we are ever between 1 and 2 sigma and never outside 2 sigma, set flag to throw number to true
-    else if(abs(y) > errEnv1->Eval(x) && abs(y) < errEnv2->Eval(x))
+    // if we are ever between 1 and 2 sigma (top OR bottom) and never outside 2 sigma, set flag to throw number to true
+    else if( (y > errEnvTop1->Eval(x) && y < errEnvTop2->Eval(x))
+	  || (y < errEnvBot1->Eval(x) && y > errEnvBot2->Eval(x)) )
     {
       if(passNumber == 1)
       {
