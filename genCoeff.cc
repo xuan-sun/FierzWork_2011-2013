@@ -468,6 +468,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     if(throwCondition == true)
     {
       double percentageToSave = (double)num1sigma/num2sigma;
+      percentageToSave = percentageToSave*(0.2718/0.6827);      // this factor accounts for the % difference between 1sigma and 2sigma
       if(factor->Rndm() < (1 - percentageToSave))
       {
         saveCondition = false;
