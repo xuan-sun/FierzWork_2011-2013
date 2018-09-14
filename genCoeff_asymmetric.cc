@@ -48,7 +48,7 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"test_genCoeff_asymmetric.txt"
+#define		PARAM_FILE_NAME		"correctWeighted_genCoeff_asymmetric.txt"
 #define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 
 // Plotting functions.
@@ -173,11 +173,11 @@ int main(int argc, char *argv[])
   counter = 0;
   numberSaved = 0;
   // outer loop, j, is the side index.
-  for(int j = 0; j <= 0; j++)
+  for(int j = 0; j <= 1; j++)
   {
     for(double a = -5.0; a <= 2.0; a = a + 0.5)
     {
-      for(double b = -0.03; b <= 0.05; b = b + 0.002)
+      for(double b = -0.03; b <= 0.05; b = b + 0.001)
       {
         for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
         {
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
   outfile.open(PARAM_FILE_NAME, ios::app);
   numberSaved = 0;
   cout << "Number of good twiddles is " << goodTwiddles.size() << endl;
-  for(int j = 0; j <= 0; j++)
+  for(int j = 0; j <= 1; j++)
   {
     for(unsigned int i = 0; i < goodTwiddles.size(); i++)
     {
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
   }
 
   // Save our plot and print it out as a pdf.
-//  C -> Print("output_genCoeff_asymmetric.png");
+  C -> Print("output_genCoeff_asymmetric.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

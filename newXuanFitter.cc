@@ -50,7 +50,7 @@ using            namespace std;
 #define		FITMAXBIN	65
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -85,21 +85,21 @@ int main(int argc, char* argv[])
   int octNb = atoi(argv[1]);
 
   // this little bit loads the octets once they have already been separated into super sum histograms
-  TFile fData("BLIND_MC_A_0_b_0_Octet_43_type0_test_10percent.root");
+//  TFile fData("BLIND_MC_A_0_b_0_Octet_43_type0_test_10percent.root");
 //  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
-  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
 //  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
 //  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
 
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting
-/*  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
+  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
+  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/Asymmetric_TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
@@ -226,9 +226,9 @@ int main(int argc, char* argv[])
   cout << "Highest number of parameters defined by user: " << nUserParams << endl;
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
-/*
+
   ofstream outfile;
-  outfile.open(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("AsymmetricTwiddledbValues_secondPass_noAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -236,11 +236,11 @@ int main(int argc, char* argv[])
 	  << functionMin/ndf << "\t"
           << fitVal << "\t"
           << fitErr << "\t"
-	  << -1 << "\t"
+	  << -1 << "\t"		// these -1's are placeholders so the format is same as combinedAbFitter.cc
 	  << -1 << "\t"
 	  << covMatrixStatus << "\n";
   outfile.close();
-*/
+
 
 
   // plot everything and visualize
@@ -276,9 +276,9 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.014, Form("b_{fit} = %f #pm %f", fitVal, fitErr));
 
   // prints the canvas with a dynamic TString name of the name of the file
-  C -> Print("output_newXuanFitter.png");
+//  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
