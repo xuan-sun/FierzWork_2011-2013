@@ -86,16 +86,17 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("asymms", "asymms", 100, -1, 2);
+  TH1D* h = new TH1D("asymms", "asymms", 100, 0.9, 1.1);
 
 
-  FillArrays("Xuan_asymmetries/Twiddled_Asymmetries_run3/TwiddledbValues_asymmetryFitter_twiddleIndex.txt", h, option);
+  FillArrays("Xuan_asymmetries/Twiddled_Asymmetries_run4/AsymmetryRatioValues_twiddlesApplied_asymmetryFitter_twiddleIndex.txt", h, option);
 
 
   PlotHist(C, 1, 1, h, "b with Twiddled Calibrations, from Asymm fit", "b", "N", "");
 
 
   //prints the canvas with a dynamic TString name of the name of the file
+  C->Print("asymmetryRatios_checkingTwiddles.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -130,18 +131,18 @@ void FillArrays(TString fileName, TH1D* h, int codeOption)
 		>> evt.chi2
 		>> evt.ndf
 		>> evt.chi2_ndf
-//		>> evt.ARatioFitValue
-//		>> evt.ARatioFitError
-		>> evt.bFitValue
-		>> evt.bFitError;
+		>> evt.ARatioFitValue
+		>> evt.ARatioFitError;
+//		>> evt.bFitValue
+//		>> evt.bFitError;
 
       if(codeOption == 1)
       {
-//	h->Fill(evt.ARatioFitValue);
+	h->Fill(evt.ARatioFitValue);
       }
       else if(codeOption == 2)
       {
-	h->Fill(evt.bFitValue);
+//	h->Fill(evt.bFitValue);
       }
     }
 

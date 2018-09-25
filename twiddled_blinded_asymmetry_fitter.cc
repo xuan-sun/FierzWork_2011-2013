@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  TH1D* blindedDivision = BlindAsymmetry(division, bMixing, avg_mE);
+//  TH1D* blindedDivision = BlindAsymmetry(division, bMixing, avg_mE);
 /*
   TF1 *fit = new TF1("beta fit", Form("( (1.0 + [0]*(%f))/(x + %f) ) / (1.0 + [0]*(%f))", m_e, m_e, avg_mE), xMin, xMax);
   fit->SetParName(0, "b");
@@ -160,17 +160,17 @@ int main(int argc, char* argv[])
 	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 */
 //  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
-  TF1 *fit = new TF1("beta fit", Form("( (1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
-//  TF1* fit = new TF1("flat asymm fit", "[0]", xMin, xMax);
-  fit->SetParName(0, "b");
-  blindedDivision->Fit("beta fit", "R");
-  TF1 *fitResults = blindedDivision->GetFunction("beta fit");
+//  TF1 *fit = new TF1("beta fit", Form("( (1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+  TF1* fit = new TF1("flat asymm fit", "[0]", xMin, xMax);
+  fit->SetParName(0, "A");
+  division->Fit("flat asymm fit", "R");
+  TF1 *fitResults = division->GetFunction("flat asymm fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
         << " with ndf of " << fitResults->GetNDF()
         << ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
 
 
-  PlotHist(C, 1, 1, blindedDivision, "", "Reconstructed Energy (keV)", "#frac{A_{twiddled}}{A_{data}}", "");
+  PlotHist(C, 1, 1, division, "", "Reconstructed Energy (keV)", "#frac{A_{twiddled}}{A_{data}}", "");
 
 
 
@@ -187,11 +187,11 @@ int main(int argc, char* argv[])
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(1000, 1.5, Form("b_{fit} = %f", fitResults->GetParameter(0)));
+  t2.DrawLatex(1000, 1.5, Form("ARatio_{fit} = %f", fitResults->GetParameter(0)));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(1000, 1.25, Form("bErr_{fit} = %f", fitResults->GetParError(0)));
+  t3.DrawLatex(1000, 1.25, Form("ARatioErr_{fit} = %f", fitResults->GetParError(0)));
 /*
   TLatex t4;
   t4.SetTextSize(0.03);
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("Xuan_asymmetries/Twiddled_Asymmetries_run3/TwiddledbValues_asymmetryFitter_twiddleIndex.txt"), ios::app);
+  outfile.open(Form("Xuan_asymmetries/Twiddled_Asymmetries_run4/AsymmetryRatioValues_twiddlesApplied_asymmetryFitter_twiddleIndex.txt"), ios::app);
   outfile << twiddleIndex << "\t"
           << avg_mE << "\t"
           << fitResults->GetChisquare() << "\t"
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 
 
   // Save our plot and print it out as a pdf.
-  C -> Print(Form("Xuan_asymmetries/Twiddled_Asymmetries_run3/b_fit_toTwiddledAsymm_twiddleIndex_%03i.pdf", twiddleIndex));
+  C -> Print(Form("Xuan_asymmetries/Twiddled_Asymmetries_run4/b_fit_toTwiddledAsymm_twiddleIndex_%03i.pdf", twiddleIndex));
 
   cout << "-------------- End of Program ---------------" << endl;
 //  plot_program.Run();

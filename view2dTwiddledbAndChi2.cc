@@ -88,13 +88,14 @@ int main(int argc, char* argv[])
 
   TH2D *hbAndChi2 = new TH2D("bAndChi2", "b vs chi2", 100, -0.5, 0.5, 100, 0, 2);
 
-  FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
+//  FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
+  FillArrays(Form("AsymmetricTwiddledbValues_secondPass_noAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
 
   hbAndChi2->Draw("COLZ");
 
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C->Print("2D_bAndChi2_SymmetricTwiddles_newXuanFitter.pdf");
+//  C->Print("2D_bAndChi2_SymmetricTwiddles_newXuanFitter.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -134,6 +135,11 @@ void FillArrays(TString fileName, TH2D* h)
 		>> evt.holder1
 		>> evt.holder2
 		>> evt.covMatrixStatus;
+
+      if(evt.bFitValue > 0)
+      {
+        cout << "With a b = " << evt.bFitValue << ", index number is " << evt.indexNb << endl;
+      }
 
       h->Fill(evt.bFitValue, evt.chi2_ndf);
     }
