@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     for(double a = -5.0; a <= 5.0; a = a + 1.0)
     {
 //      for(double b = 0; b <= 0; b = b + 0.0001)
-      for(double b = -0.01; b <= 0.01; b = b + 1e-3)
+      for(double b = -0.03; b <= 0.03; b = b + 5e-4)
       {
 //        for(double c = 0; c <= 0; c = c + 1e-6)
         for(double c = -1e-4; c <= 1e-4; c = c + 5e-5)

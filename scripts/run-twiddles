@@ -7,7 +7,7 @@
 
 cd ..
 
-for ((x = 0; x < 287; x = x + 1))
+for ((x = 0; x < 566; x = x + 1))
 
 do
 
@@ -16,7 +16,7 @@ do
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./twiddled_blinded_asymmetry_fitter $x
+./newXuanFitter $x
 make clean
 
 done
