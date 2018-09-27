@@ -57,7 +57,7 @@ double NDF = -1;
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
-void FillArrays(TString fileName, TH1D *h, int hFillOption);
+void FillArrays(TString fileName, TH2D *h);
 
 struct entry
 {
@@ -68,8 +68,8 @@ struct entry
   double chi2_ndf;
   double bFitValue;
   double bFitError;
-  double AFitValue;
-  double AFitError;
+  double holder1;
+  double holder2;
   int covMatrixStatus;
 };
 
@@ -82,39 +82,29 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-//  int option = atoi(argv[1]);
-
-//  NDF = FITMAXBIN - FITMINBIN - 1;
-
   TCanvas *C = new TCanvas("canvas", "canvas");
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -0.5, 0.5);
+  TH2D *hbAndChi2 = new TH2D("bAndChi2", "b vs chi2", 100, -0.5, 0.5, 100, 0, 2);
 
-  FillArrays(Form("SymmetricTwiddles_finerGrid_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneTwiddledbAndA_Octet20Base_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("testingTwiddleCoeff_p2_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+//  FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
+  FillArrays(Form("AsymmetricTwiddledbValues_secondPass_noAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
 
-  int max = hbFitValues->GetMaximum();
-
-  PlotHist(C, 1, 1, hbFitValues, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "", max);
-
-  TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
-  leg1->AddEntry(hbFitValues,"b fit","f");
-  leg1->Draw();
+  hbAndChi2->Draw("COLZ");
 
 
   //prints the canvas with a dynamic TString name of the name of the file
-  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
+//  C->Print("2D_bAndChi2_SymmetricTwiddles_newXuanFitter.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
   return 0;
 }
 
-void FillArrays(TString fileName, TH1D* h, int hFillOption)
+void FillArrays(TString fileName, TH2D* h)
 {
+
   entry evt;
 
   //opens the file that I name in DATA_FILE_IN
@@ -142,12 +132,16 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.chi2_ndf
 		>> evt.bFitValue
 		>> evt.bFitError
-		>> evt.AFitValue
-		>> evt.AFitError
+		>> evt.holder1
+		>> evt.holder2
 		>> evt.covMatrixStatus;
 
-      h->Fill(evt.bFitValue);
+      if(evt.bFitValue > 0)
+      {
+        cout << "With a b = " << evt.bFitValue << ", index number is " << evt.indexNb << endl;
+      }
 
+      h->Fill(evt.bFitValue, evt.chi2_ndf);
     }
 
     if(infile1.eof() == true)

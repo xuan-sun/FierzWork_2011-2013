@@ -192,14 +192,18 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-//    for(double a = 0; a <= 0; a = a + 0.1)
-    for(double a = -5.0; a <= 5.0; a = a + 1.0)
+
+    for(int t = 0; t < 100; t++)
     {
-//      for(double b = 0; b <= 0; b = b + 0.0001)
-      for(double b = -0.03; b <= 0.03; b = b + 5e-4)
+
+    for(double a = 0; a <= 0; a = a + 0.1)
+//    for(double a = -5.0; a <= 5.0; a = a + 1.0)
+    {
+      for(double b = 0; b <= 0; b = b + 0.0001)
+//      for(double b = -0.03; b <= 0.03; b = b + 5e-4)
       {
-//        for(double c = 0; c <= 0; c = c + 1e-6)
-        for(double c = -1e-4; c <= 1e-4; c = c + 5e-5)
+        for(double c = 0; c <= 0; c = c + 1e-6)
+//        for(double c = -1e-4; c <= 1e-4; c = c + 5e-5)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
@@ -219,6 +223,7 @@ int main(int argc, char *argv[])
           }
         }
       }
+    }
     }
   }
 
