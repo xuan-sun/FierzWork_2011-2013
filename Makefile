@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o viewCombinedAbFitterResults.o
-SOURCE = viewCombinedAbFitterResults
+OBJECTS = BetaSpectrum.o viewSmearedEnergy.o
+SOURCE = viewSmearedEnergy
 
 .PHONY: all
 all: $(SOURCE)
