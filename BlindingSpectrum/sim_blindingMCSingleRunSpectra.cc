@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
   string buf1;
   ifstream infile1;
   cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
-  infile1.open("ExtractedHistograms/randomMixingSeeds.txt");
+  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
   //a check to make sure the file is open
   if(!infile1.is_open())
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 
   cout << "Loaded mixing seeds" << endl;
 
-  s0 = 0.1;
+  s0 = 0.2;
 
   // load all the histograms of east and west, turn them into rates.
   // ALWAYS USE S0 FOR MIXING.
