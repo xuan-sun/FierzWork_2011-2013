@@ -86,23 +86,24 @@ int main(int argc, char* argv[])
 
   // this little bit loads the octets once they have already been separated into super sum histograms
 //  TFile fData("BLIND_MC_A_0_b_0_Octet_43_type0_test_10percent.root");
-//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 23, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
-//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
 //  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
 //  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
 
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting
+/*
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
   dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-
-  cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
+*/
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << octNb << endl;
 
 /*  // using unblinded base beta spectrum
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
@@ -229,7 +230,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("SymmetricTwiddles_finerGrid_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("ReReReBLINDED_newXuanFitter_bFit_A_1_b_0_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"

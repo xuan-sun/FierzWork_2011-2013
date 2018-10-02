@@ -19,16 +19,14 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o viewCombinedAbFitterResults.o
-SOURCE = viewCombinedAbFitterResults
+OBJECTS = blindingMCSingleRunSpectra.o
+SOURCE = blindingMCSingleRunSpectra
 
 .PHONY: all
 all: $(SOURCE)
 
 $(SOURCE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(SOURCE) $(OBJECTS) $(LIBS)
-
-BetaSpectrum.o: BetaSpectrum.hh
 
 # -------------------------------------------------------------------------------
 #  Generic compilation and linking step to make an executable from

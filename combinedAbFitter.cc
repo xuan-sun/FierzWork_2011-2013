@@ -92,17 +92,19 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
 
   // Loading in energy spectra for fit
-//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/Asymmetric_TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+//  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/Asymmetric_TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
   TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 20, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
   TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 20, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
-//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+/*
   TH1D* dataHist = new TH1D("dataHist", "dataHist", 120, 0, 1200);
   TTree *t = (TTree*)fData.Get("SimAnalyzed");
   t->Draw("Erecon >> dataHist", "PID == 1 && type == 0 && side < 2 && Erecon >= 0");
+*/
 
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
@@ -124,7 +126,7 @@ int main(int argc, char* argv[])
     totalMCinf = totalMCinf + binContentsMCinf[i];
     counter_ndf = counter_ndf + 1;
   }
-  ndf = counter_ndf - 1;	// -1 is the single parameter in the fit.
+  ndf = counter_ndf - 2;	// -2 is the 2 parameters in the fit.
   for(int i = FITMINBIN; i < FITMAXBIN; i++)
   {
     binContentsMC0[i] = binContentsMC0[i] / totalMC0;
@@ -239,7 +241,7 @@ int main(int argc, char* argv[])
   cout << "covMatrixStatus = " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("ReReReBLINDED_CombinedAbFitter_OneTwiddledbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_ScaledErrorsBy2_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
           << functionMin << "\t"
@@ -282,7 +284,7 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 
     fitA = (A*(1.0 + b*avg_mE)) / (1.0 + (b*m_e/(energies[i] + m_e)));
 
-    totChi2 = totChi2 + ( 0.5*pow((binContentsData[i] - fitb) / binErrorsData[i], 2.0) + 0.5*pow((asymmetriesData[i] - fitA) / asymmErrorsData[i], 2.0) );
+    totChi2 = totChi2 + ( pow((binContentsData[i] - fitb) / (2*binErrorsData[i]), 2.0) + pow((asymmetriesData[i] - fitA) / asymmErrorsData[i], 2.0) );
   }
 
   f = totChi2;
