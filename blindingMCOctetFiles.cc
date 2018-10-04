@@ -135,8 +135,6 @@ int main(int argc, char* argv[])
 
   cout << "Loaded mixing seeds" << endl;
 
-  s0 = 0.01;
-
   // load all the histograms of east and west, turn them into rates.
   // ALWAYS USE S0 FOR MIXING.
   vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s0);

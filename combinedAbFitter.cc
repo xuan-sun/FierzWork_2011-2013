@@ -213,8 +213,35 @@ int main(int argc, char* argv[])
 
   cout << "Done loading in the asymmetry values..." << endl;
 
+  // blind the asymmetry values
   double blindingFactor = 0;
-  double b_fromBlinding = -0.2/avg_mE;	// this formula I calculated
+  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
+  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << "randomMixingSeeds.txt" << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+    if(!infile1.eof())
+    {
+      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+    }
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  double b_fromBlinding = -s0/avg_mE;	// this formula I calculated. Also, always use s0 for blinding
+
   for(int i = 0; i <= asymmetriesData.size(); i++)
   {
     blindingFactor = (1.0 + b_fromBlinding*avg_mE) / (1.0 + b_fromBlinding*m_e/(energies[i] + m_e));
