@@ -7,10 +7,24 @@
 
 cd ..
 
+cd BlindingSpectrum/
+
 for ((x = 80; x < 122; x = x + 1))
 
 do
 
+if ((x == 60))
+then
+continue
+fi
+if ((x == 67))
+then
+continue
+fi
+if ((x == 69))
+then
+continue
+fi
 if ((x == 91))
 then
 continue
@@ -38,7 +52,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./shapeFactor $x
+./data_blindingMCOctetSpectra $x
 make clean
 
 done

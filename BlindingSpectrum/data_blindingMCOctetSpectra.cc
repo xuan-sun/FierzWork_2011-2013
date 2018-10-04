@@ -100,8 +100,8 @@ int main(int argc, char* argv[])
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/%s/octet_list_%i.dat", "OctetLists", octNb));
 
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2011-2012_geom/A_0_b_0");
-  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2011-2012_geom/A_0_b_inf");
+  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2012-2013_geom/A_0_b_0");
+  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2012-2013_geom/A_0_b_inf");
 
   // read in our random mixing seed so I stay pretty blind.
   double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;

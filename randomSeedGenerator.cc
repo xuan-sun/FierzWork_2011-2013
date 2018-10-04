@@ -51,9 +51,15 @@ int main(int argc, char* argv[])
   for(int i = 0; i < 9; i++)
   {
     // ensures we have a maximum of 5% mixing.
-    outfile << 0.05*engine->Rndm() << "\t";
+    outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\t";
   }
-  outfile << 0.05*engine->Rndm() << "\n";
+  outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\n";
+
+  for(int j = 0; j < 10; j++)
+  {
+    cout << "For verification, our random seed generator is giving " << j << ": "
+	 << 0.1 + (0.06*engine->Rndm() - 0.03) << endl;
+  }
 
 
   outfile.close();
