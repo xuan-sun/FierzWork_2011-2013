@@ -85,10 +85,7 @@ int main(int argc, char* argv[])
 
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  for(int t = 0; t < 100; t++)
-  {
-    dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", t));
-  }
+  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", 23));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
@@ -250,7 +247,7 @@ int main(int argc, char* argv[])
 */  TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", (-0.1/avg_mE)       ));
+  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", (-0.2/avg_mE)       ));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);

@@ -75,6 +75,8 @@ double avg_mE;
 
 vector <double> asymmetriesData;
 vector <double> asymmErrorsData;
+vector <double> blind_asymmetriesData;
+vector <double> blind_asymmErrorsData;
 vector <double> energies;
 
 int main(int argc, char* argv[])
@@ -92,29 +94,63 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas");
 
   // Loading in energy spectra for fit
-  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-//  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/Asymmetric_TwiddledSimFiles_A_1_b_0/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 20, TYPE));
+  // These energy spectra are revCalSim'd data supersums. Aka they are "data-like" and revCal'd according to octet.
+//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
+//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
-  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 20, TYPE));
-//  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
-  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
-/*
+//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+
+  // Load in a data histogram to get the super sum errors correct
+  TFile fErrors(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", 43, TYPE));
+  TH1D* dataErrorsHist = (TH1D*)fErrors.Get("Super sum");
+
   TH1D* dataHist = new TH1D("dataHist", "dataHist", 120, 0, 1200);
   TTree *t = (TTree*)fData.Get("SimAnalyzed");
   t->Draw("Erecon >> dataHist", "PID == 1 && type == 0 && side < 2 && Erecon >= 0");
-*/
 
-  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
-  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+
+//  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+//  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+
+  // These 2 versions of mcTheoryHist load SimAnalyzed aka twiddle simulations.
+  // I have made several million baseline twiddle simulations for the combined fitting.
+  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+  int totalEntries = 0;
+  for(int j = 0; j < 100; j++)
+  {
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
+    TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
+    for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
+    {
+      mcTheoryHistBeta->SetBinContent(i, mcTheoryHistBeta->GetBinContent(i) + hTemp->GetBinContent(i));
+    }
+    totalEntries = totalEntries + hTemp->GetEntries();
+    f.Close();
+  }
+  mcTheoryHistBeta->SetEntries(totalEntries);
+  cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
+
+  TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
+  TChain* fierzChain = new TChain("SimAnalyzed");
+  for(int i = 0; i < 100; i++)
+  {
+    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_inf/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
+  }
+  fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+  cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
+
+
 
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
   {
     binContentsMC0.push_back(mcTheoryHistBeta->GetBinContent(i));
     binContentsMCinf.push_back(mcTheoryHistFierz->GetBinContent(i));
     binContentsData.push_back(dataHist->GetBinContent(i));
-    binErrorsData.push_back(dataHist->GetBinError(i));
+    binErrorsData.push_back(dataErrorsHist->GetBinError(i));
+//    binErrorsData.push_back(dataHist->GetBinError(i));
   }
 
   double totalMC0 = 0;
@@ -176,6 +212,16 @@ int main(int argc, char* argv[])
   }
 
   cout << "Done loading in the asymmetry values..." << endl;
+
+  double blindingFactor = 0;
+  double b_fromBlinding = -0.2/avg_mE;	// this formula I calculated
+  for(int i = 0; i <= asymmetriesData.size(); i++)
+  {
+    blindingFactor = (1.0 + b_fromBlinding*avg_mE) / (1.0 + b_fromBlinding*m_e/(energies[i] + m_e));
+    blind_asymmetriesData.push_back(asymmetriesData[i]*blindingFactor);
+    blind_asymmErrorsData.push_back(abs(asymmErrorsData[i]*blindingFactor));
+  }
+
 
   cout << "About to perform TMinuit fit..." << endl;
 
@@ -241,7 +287,7 @@ int main(int argc, char* argv[])
   cout << "covMatrixStatus = " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_ScaledErrorsBy2_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("TestingBlinding_UsingSimAnalyzed_CombinedAbFitter_OneOctetModelErrors_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
           << functionMin << "\t"
@@ -284,7 +330,7 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 
     fitA = (A*(1.0 + b*avg_mE)) / (1.0 + (b*m_e/(energies[i] + m_e)));
 
-    totChi2 = totChi2 + ( pow((binContentsData[i] - fitb) / (2*binErrorsData[i]), 2.0) + pow((asymmetriesData[i] - fitA) / asymmErrorsData[i], 2.0) );
+    totChi2 = totChi2 + ( pow((binContentsData[i] - fitb) / (binErrorsData[i]), 2.0) + pow((blind_asymmetriesData[i] - fitA) / blind_asymmErrorsData[i], 2.0) );
   }
 
   f = totChi2;

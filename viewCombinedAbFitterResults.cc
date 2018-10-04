@@ -84,16 +84,15 @@ int main(int argc, char* argv[])
 
 //  int option = atoi(argv[1]);
 
-//  NDF = FITMAXBIN - FITMINBIN - 1;
-
   TCanvas *C = new TCanvas("canvas", "canvas");
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, 0, 0.1);
+  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -0.5, 0);
 //  FillArrays(Form("ReReReBLINDED_newXuanFitter_bFit_A_1_b_0_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_ScaledErrorsBy2_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+//  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_ScaledErrorsBy2_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  FillArrays(Form("TestingBlinding_UsingSimAnalyzed_CombinedAbFitter_OneOctetModelErrors_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 
   int max = hbFitValues->GetMaximum();
 
@@ -145,7 +144,7 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.AFitError
 		>> evt.covMatrixStatus;
 
-      h->Fill(evt.bFitError);
+      h->Fill(evt.bFitValue);
 
     }
 
