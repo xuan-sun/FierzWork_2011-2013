@@ -284,7 +284,7 @@ double CalculatebFromPercentageMixing(TString fileName)
   }
 
 
-  b = s0 / ( (1 - s0) * (avg_mE) );
+  b = -s0 / avg_mE ;
 
   return b;
 }
