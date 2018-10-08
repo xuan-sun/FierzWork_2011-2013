@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = data_blindingMCOctetSpectra.o
-SOURCE = data_blindingMCOctetSpectra
+OBJECTS = sim_blindingMCSingleRunSpectra.o
+SOURCE = sim_blindingMCSingleRunSpectra
 
 .PHONY: all
 all: $(SOURCE)

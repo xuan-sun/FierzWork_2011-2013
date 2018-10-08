@@ -54,15 +54,16 @@ using            namespace std;
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-double ndf = -1;		// value set in code by fitMax - fitMin - 1 (for the 1 parameter, b).
+double ndf = -1;		// value set in code by fitMax - fitMin - 2 (for the 2 parameters, b, A).
 
 // Plot things for visualisation
 void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString title, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot, TString title, TString command);
 
-
 // Perform a few useful, simple calculations
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
+void CreateBlindedAsymmDataAndError();
+void LoadMBAsymmetryFile();
 
 // functions needed for TMinuit fitter
 void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
@@ -95,29 +96,30 @@ int main(int argc, char* argv[])
 
   // Loading in energy spectra for fit
   // These energy spectra are revCalSim'd data supersums. Aka they are "data-like" and revCal'd according to octet.
-//  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
+  TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+//  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
-//  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
-//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
 
   // Load in a data histogram to get the super sum errors correct
-  TFile fErrors(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", 43, TYPE));
-  TH1D* dataErrorsHist = (TH1D*)fErrors.Get("Super sum");
-
+  // this is only needed if you are doing SimAnalyzed since the count numbers are wrong there
+//  TFile fErrors(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", 43, TYPE));
+//  TH1D* dataErrorsHist = (TH1D*)fErrors.Get("Super sum");
+/*
   TH1D* dataHist = new TH1D("dataHist", "dataHist", 120, 0, 1200);
   TTree *t = (TTree*)fData.Get("SimAnalyzed");
   t->Draw("Erecon >> dataHist", "PID == 1 && type == 0 && side < 2 && Erecon >= 0");
+*/
 
-
-//  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
-//  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
   // These 2 versions of mcTheoryHist load SimAnalyzed aka twiddle simulations.
   // I have made several million baseline twiddle simulations for the combined fitting.
-  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+/*  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
   for(int j = 0; j < 100; j++)
   {
@@ -141,7 +143,7 @@ int main(int argc, char* argv[])
   }
   fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
   cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
-
+*/
 
 
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
@@ -149,8 +151,8 @@ int main(int argc, char* argv[])
     binContentsMC0.push_back(mcTheoryHistBeta->GetBinContent(i));
     binContentsMCinf.push_back(mcTheoryHistFierz->GetBinContent(i));
     binContentsData.push_back(dataHist->GetBinContent(i));
-    binErrorsData.push_back(dataErrorsHist->GetBinError(i));
-//    binErrorsData.push_back(dataHist->GetBinError(i));
+//    binErrorsData.push_back(dataErrorsHist->GetBinError(i));
+    binErrorsData.push_back(dataHist->GetBinError(i));
   }
 
   double totalMC0 = 0;
@@ -177,78 +179,11 @@ int main(int argc, char* argv[])
 	<< " and " << dataHist->GetBinCenter(FITMAXBIN)
 	<< " at: " << avg_mE << endl;
 
-  // Loading asymmetry for fit
-  TString fileName = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
-
-  double energy, asymm, asymmErr;
-
-  // opens the file named above
-  string buf1;
-  ifstream infile1;
-  cout << "The file being opened is: " << fileName << endl;
-  infile1.open(fileName);
-
-  //a check to make sure the file is open
-  if(!infile1.is_open())
-    cout << "Problem opening " << fileName << endl;
-
-  while(true)
-  {
-    getline(infile1, buf1);
-    istringstream bufstream1(buf1);
-
-    if(!infile1.eof())
-    {
-      bufstream1 >> energy >> asymm >> asymmErr;
-      asymmetriesData.push_back(asymm);
-      asymmErrorsData.push_back(asymmErr);
-      energies.push_back(energy);
-    }
-
-    if(infile1.eof() == true)
-    {
-      break;
-    }
-  }
+  LoadMBAsymmetryFile();
 
   cout << "Done loading in the asymmetry values..." << endl;
 
-  // blind the asymmetry values
-  double blindingFactor = 0;
-  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
-
-  string buf1;
-  ifstream infile1;
-  cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
-  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
-
-  //a check to make sure the file is open
-  if(!infile1.is_open())
-    cout << "Problem opening " << "randomMixingSeeds.txt" << endl;
-
-  while(true)
-  {
-    getline(infile1, buf1);
-    istringstream bufstream1(buf1);
-    if(!infile1.eof())
-    {
-      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
-    }
-    if(infile1.eof() == true)
-    {
-      break;
-    }
-  }
-
-  double b_fromBlinding = -s0/avg_mE;	// this formula I calculated. Also, always use s0 for blinding
-
-  for(int i = 0; i <= asymmetriesData.size(); i++)
-  {
-    blindingFactor = (1.0 + b_fromBlinding*avg_mE) / (1.0 + b_fromBlinding*m_e/(energies[i] + m_e));
-    blind_asymmetriesData.push_back(asymmetriesData[i]*blindingFactor);
-    blind_asymmErrorsData.push_back(abs(asymmErrorsData[i]*blindingFactor));
-  }
-
+  CreateBlindedAsymmDataAndError();
 
   cout << "About to perform TMinuit fit..." << endl;
 
@@ -314,7 +249,7 @@ int main(int argc, char* argv[])
   cout << "covMatrixStatus = " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("TestingBlinding_UsingSimAnalyzed_CombinedAbFitter_OneOctetModelErrors_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
           << functionMin << "\t"
@@ -357,7 +292,7 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 
     fitA = (A*(1.0 + b*avg_mE)) / (1.0 + (b*m_e/(energies[i] + m_e)));
 
-    totChi2 = totChi2 + ( pow((binContentsData[i] - fitb) / (binErrorsData[i]), 2.0) + pow((blind_asymmetriesData[i] - fitA) / blind_asymmErrorsData[i], 2.0) );
+    totChi2 = totChi2 + ( pow((binContentsData[i] - fitb) / (binErrorsData[i]), 2.0) /*+ pow((blind_asymmetriesData[i] - fitA) / blind_asymmErrorsData[i], 2.0) */);
   }
 
   f = totChi2;
@@ -444,3 +379,83 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
   return num/denom;
 }
 
+
+void CreateBlindedAsymmDataAndError()
+{
+  // blind the asymmetry values
+  double blindingFactor = 0;
+  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
+  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << "randomMixingSeeds.txt" << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+    if(!infile1.eof())
+    {
+      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+    }
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  double b_fromBlinding = -s0/avg_mE;   // this formula I calculated. Also, always use s0 for blinding
+
+  for(int i = 0; i <= asymmetriesData.size(); i++)
+  {
+    blindingFactor = (1.0 + b_fromBlinding*avg_mE) / (1.0 + b_fromBlinding*m_e/(energies[i] + m_e));
+    blind_asymmetriesData.push_back(asymmetriesData[i]*blindingFactor);
+    blind_asymmErrorsData.push_back(abs(asymmErrorsData[i]*blindingFactor));
+  }
+
+  cout << "Finished creating blind_asymmetriesData and blind_asymmErrorsData vectors... " << endl;
+}
+
+
+void LoadMBAsymmetryFile()
+{
+  // Loading asymmetry for fit
+  TString fileName = Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Asymmetry_Data_Fitting/MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+
+  double energy, asymm, asymmErr;
+
+  // opens the file named above
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName << endl;
+  infile1.open(fileName);
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> energy >> asymm >> asymmErr;
+      asymmetriesData.push_back(asymm);
+      asymmErrorsData.push_back(asymmErr);
+      energies.push_back(energy);
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+}

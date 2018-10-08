@@ -7,8 +7,6 @@
 
 cd ..
 
-cd BlindingSpectrum/
-
 for ((x = 0; x < 60; x = x + 1))
 
 do
@@ -27,7 +25,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./data_blindingMCOctetSpectra $x
+./combinedAbFitter $x
 make clean
 
 done

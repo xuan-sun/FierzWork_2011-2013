@@ -88,20 +88,19 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -0.5, 0);
+  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -1, 0.5);
 //  FillArrays(Form("ReReReBLINDED_newXuanFitter_bFit_A_1_b_0_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_ScaledErrorsBy2_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-  FillArrays(Form("TestingBlinding_UsingSimAnalyzed_CombinedAbFitter_OneOctetModelErrors_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  FillArrays(Form("../TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 
   int max = hbFitValues->GetMaximum();
 
-  PlotHist(C, 1, 1, hbFitValues, Form("b fit results, %s, %s", TYPE, GEOM), "b", "N", "", max);
-
+  PlotHist(C, 2, 1, hbFitValues, Form("b fit values, %s, %s", TYPE, GEOM), "b", "N", "", max);
+/*
   TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
   leg1->AddEntry(hbFitValues,"b fit","f");
   leg1->Draw();
-
+*/
 
   //prints the canvas with a dynamic TString name of the name of the file
 //  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
