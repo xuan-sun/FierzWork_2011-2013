@@ -67,11 +67,17 @@ TF1* ErrorEnvelope_2010(double factor);
 
 // implementing the 2011-2012 error envelope
 void ErrorEnvelope_2011();
-double converter1top(double *x, double *par);
-double converter2top(double *x, double *par);
-double converter1bot(double *x, double *par);
-double converter2bot(double *x, double *par);
-void LoadEnvelopeHistogram();
+void ErrorEnvelope_2012();
+double converter1top2011(double *x, double *par);
+double converter2top2011(double *x, double *par);
+double converter1bot2011(double *x, double *par);
+double converter2bot2011(double *x, double *par);
+double converter1top2012(double *x, double *par);
+double converter2top2012(double *x, double *par);
+double converter1bot2012(double *x, double *par);
+double converter2bot2012(double *x, double *par);
+void LoadEnvelopeHistogram_2011();
+void LoadEnvelopeHistogram_2012();
 
 // variables related to running the 2011-2012 error envelopes.
 TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
@@ -79,6 +85,13 @@ TF1* errEnv2011_top_1sigma;
 TF1* errEnv2011_top_2sigma;
 TF1* errEnv2011_bot_1sigma;
 TF1* errEnv2011_bot_2sigma;
+
+// same but for 2012-2013 error envelopes
+TH1D *hEnvelope2012 = new TH1D("2012-2013", "2012-2013", 110, 0, 1100);
+TF1* errEnv2012_top_1sigma;
+TF1* errEnv2012_top_2sigma;
+TF1* errEnv2012_bot_1sigma;
+TF1* errEnv2012_bot_2sigma;
 
 // Perform a single twiddle so we can loop over it in main(), check against a save condition.
 // Return whether or not the thrown polynomial passed the save condition.
@@ -142,19 +155,21 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C -> Divide(5, 2);
+//  C -> Divide(5, 2);
   C -> cd(1);
   gROOT->SetStyle("Plain");
 
-  LoadEnvelopeHistogram();
+  LoadEnvelopeHistogram_2011();
+  LoadEnvelopeHistogram_2012();
   ErrorEnvelope_2011();
+  ErrorEnvelope_2012();
 
-  errEnv2011_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
-  errEnv2011_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
-  errEnv2011_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
-  errEnv2011_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2011-2012");
-  errEnv2011_top_2sigma -> SetLineStyle(2);
-  errEnv2011_top_2sigma -> Draw();
+  errEnv2012_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
+  errEnv2012_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
+  errEnv2012_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
+  errEnv2012_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2011-2012");
+  errEnv2012_top_2sigma -> SetLineStyle(2);
+  errEnv2012_top_2sigma -> Draw();
 
   // Create histograms at fixed Erecon values to look at distribution of polynomials.
   histErecon.push_back(new TH1D("test1", "Erecon = 100", 100, -15, 15));
@@ -171,21 +186,6 @@ int main(int argc, char *argv[])
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
   vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
 
-/*
-  // this stuff until the 'return 0' is here to plot interesting twiddles.
-  vector < vector < double > > testCoeff;
-  vector <double> singleTestCoeff;
-  singleTestCoeff.push_back(-1);
-  singleTestCoeff.push_back(0);
-  singleTestCoeff.push_back(0);
-  singleTestCoeff.push_back(0);
-  testCoeff.push_back(singleTestCoeff);
-
-  bool save = PerformVariation(testCoeff[0][0], testCoeff[0][1], testCoeff[0][2], testCoeff[0][3], 1, converter, engine, 2, 1);
-
-  plot_program.Run();
-  return 0;
-*/
   int counter, numberSaved;
   counter = 0;
   numberSaved = 0;
@@ -276,24 +276,24 @@ int main(int argc, char *argv[])
   cout << "Number of polynomials in second band: " << num2sigma << endl;
 
   // Placed here so 1 sigma error envelope goes on top.
-  errEnv2011_top_1sigma -> SetLineStyle(2);
-  errEnv2011_top_1sigma -> Draw("SAME");
-  errEnv2011_bot_1sigma -> SetLineStyle(2);
-  errEnv2011_bot_1sigma -> Draw("SAME");
-  errEnv2011_bot_2sigma -> SetLineStyle(2);
-  errEnv2011_bot_2sigma -> Draw("SAME");
+  errEnv2012_top_1sigma -> SetLineStyle(2);
+  errEnv2012_top_1sigma -> Draw("SAME");
+  errEnv2012_bot_1sigma -> SetLineStyle(2);
+  errEnv2012_bot_1sigma -> Draw("SAME");
+  errEnv2012_bot_2sigma -> SetLineStyle(2);
+  errEnv2012_bot_2sigma -> Draw("SAME");
   TLine *line = new TLine(0, 0, 1000, 0);
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-  for(unsigned int i = 0; i < histErecon.size(); i++)
+/*  for(unsigned int i = 0; i < histErecon.size(); i++)
   {
     C->cd(i+2);
     histErecon[i]->Draw();
   }
-
+*/
   // Save our plot and print it out as a pdf.
-  C -> Print("output_genCoeff.pdf");
+//  C -> Print("output_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -352,8 +352,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   // Get our error envelopes so we can check polynomial values against them.
 //  TF1* errEnv1 = ErrorEnvelope_2010(1);
 //  TF1* errEnv2 = ErrorEnvelope_2010(2);
-  TF1* errEnv1 = errEnv2011_top_1sigma;
-  TF1* errEnv2 = errEnv2011_top_2sigma;
+  TF1* errEnv1 = errEnv2012_top_1sigma;
+  TF1* errEnv2 = errEnv2012_top_2sigma;
 
   // Check our polynomial (the scatter plot) against a save condition.
   double x, y;
@@ -614,41 +614,71 @@ TF1* ErrorEnvelope_2010(double factor)
 
 void ErrorEnvelope_2011()
 {
-//  TF1 fEnv2011("2011-2012_error_envelope", converter, 0, 1100, 0);
-  errEnv2011_top_1sigma = new TF1("2011-2012_error_envelope_top1sigma", converter1top, 0, 1050, 0);
+  errEnv2011_top_1sigma = new TF1("2011-2012_error_envelope_top1sigma", converter1top2011, 0, 1050, 0);
 
-  errEnv2011_top_2sigma = new TF1("2011-2012_error_envelope_top2sigma", converter2top, 0, 1050, 0);
+  errEnv2011_top_2sigma = new TF1("2011-2012_error_envelope_top2sigma", converter2top2011, 0, 1050, 0);
 
-  errEnv2011_bot_1sigma = new TF1("2011-2012_error_envelope_bot1sigma", converter1bot, 0, 1050, 0);
+  errEnv2011_bot_1sigma = new TF1("2011-2012_error_envelope_bot1sigma", converter1bot2011, 0, 1050, 0);
 
-  errEnv2011_bot_2sigma = new TF1("2011-2012_error_envelope_bot2sigma", converter2bot, 0, 1050, 0);
+  errEnv2011_bot_2sigma = new TF1("2011-2012_error_envelope_bot2sigma", converter2bot2011, 0, 1050, 0);
 }
 
+void ErrorEnvelope_2012()
+{
+  errEnv2012_top_1sigma = new TF1("2012-2013_error_envelope_top1sigma", converter1top2012, 0, 1050, 0);
 
-double converter1top(double *x, double *par)
+  errEnv2012_top_2sigma = new TF1("2012-2013_error_envelope_top2sigma", converter2top2012, 0, 1050, 0);
+
+  errEnv2012_bot_1sigma = new TF1("2012-2013_error_envelope_bot1sigma", converter1bot2012, 0, 1050, 0);
+
+  errEnv2012_bot_2sigma = new TF1("2012-2013_error_envelope_bot2sigma", converter2bot2012, 0, 1050, 0);
+}
+
+double converter1top2011(double *x, double *par)
 {
   double energy = x[0];
   return 1*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
 }
-double converter2top(double *x, double *par)
+double converter2top2011(double *x, double *par)
 {
   double energy = x[0];
   return 2*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
 }
-double converter1bot(double *x, double *par)
+double converter1bot2011(double *x, double *par)
 {
   double energy = x[0];
   return (-1)*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
 }
-double converter2bot(double *x, double *par)
+double converter2bot2011(double *x, double *par)
 {
   double energy = x[0];
   return (-2)*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
 }
 
-void LoadEnvelopeHistogram()
+double converter1top2012(double *x, double *par)
 {
-  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012.txt";
+  double energy = x[0];
+  return 1*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+}
+double converter2top2012(double *x, double *par)
+{
+  double energy = x[0];
+  return 2*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+}
+double converter1bot2012(double *x, double *par)
+{
+  double energy = x[0];
+  return (-1)*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+}
+double converter2bot2012(double *x, double *par)
+{
+  double energy = x[0];
+  return (-2)*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+}
+
+void LoadEnvelopeHistogram_2011()
+{
+  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012.txt";
 
   int binNum = 0;
   double energy = 0;
@@ -680,6 +710,52 @@ void LoadEnvelopeHistogram()
                  >> errorLow;
 
       hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), errorHigh);
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  cout << "Done filling in data from " << fileName.Data() << endl;
+
+}
+
+void LoadEnvelopeHistogram_2012()
+{
+  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2012-2013.txt";
+
+  int binNum = 0;
+  double energy = 0;
+  double error = 0;
+  double errorHigh = 0;
+  double errorLow = 0;
+
+  // opens the file named above
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName << endl;
+  infile1.open(fileName);
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> binNum
+                 >> energy
+                 >> error
+                 >> errorHigh
+                 >> errorLow;
+
+      hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), errorHigh);
     }
 
     if(infile1.eof() == true)
