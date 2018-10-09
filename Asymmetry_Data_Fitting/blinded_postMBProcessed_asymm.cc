@@ -1,5 +1,3 @@
-#include	 "BetaSpectrum.hh"
-
 #include	 <iostream>
 #include	 <fstream>
 #include	 <TGaxis.h>
@@ -40,6 +38,8 @@
 #include	 <TLine.h>
 #include	 <TLatex.h>
 using		 namespace std;
+
+const double m_e = 511.00;                                              ///< electron mass, keV/c^2
 
 struct Event
 {
@@ -101,14 +101,14 @@ int main(int argc, char* argv[])
   double xMin = 170;
   double xMax = 660;
 
-  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
+  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
   cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE
  	<< " over a fit range of " << xMin << " to " << xMax << endl;
 
-  double bMixing = CalculatebFromPercentageMixing("ExtractedHistograms/randomMixingSeeds.txt");
+  double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
   TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
 //  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
-  TF1 *fit = new TF1("beta fit", Form(" [0] / (1.0 + [1]*(%f)/(x + %f))", m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("beta fit", Form(" [0] / (1.0 + [1]*(%f)/(x + %f))", m_e, m_e), xMin, xMax);
 
   fit->SetParName(0, "asymm");
   fit->SetParName(1, "b");
@@ -162,12 +162,13 @@ int main(int argc, char* argv[])
   t6.SetTextAlign(13);
   t6.DrawLatex(900, -0.10, Form("#frac{#Chi^{2}}{ndf} = #frac{%f}{%i} = %f",
 				fitResults->GetChisquare(), fitResults->GetNDF(), fitResults->GetChisquare() / fitResults->GetNDF()));
-
-
-
+  TLatex t7;
+  t7.SetTextSize(0.03);
+  t7.SetTextAlign(13);
+  t7.DrawLatex(900, -0.15, Form("A #frac{1.0 + b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
 
   // Save our plot and print it out as a pdf.
-  C -> Print("ReReReBLINDed_b_fit_fromAsymmData.pdf");
+  C -> Print("CorrectedBlinding_b_fit_fromAsymmData_2012-2013.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 

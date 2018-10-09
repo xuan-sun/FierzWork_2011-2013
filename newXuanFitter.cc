@@ -44,7 +44,7 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
@@ -87,13 +87,13 @@ int main(int argc, char* argv[])
   // this little bit loads the octets once they have already been separated into super sum histograms
 //  TFile fData("BLIND_MC_A_0_b_0_Octet_43_type0_test_10percent.root");
   TFile fData(TString::Format("ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Reblinded_May2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_%s.root", 23, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
-//  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", 23, TYPE));
+  TFile fMCinf(TString::Format("ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/2011-2012_geom/BLIND_MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
-//  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
-//  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
 
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
   betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 */
   // using properly blinded beta spectrum
-  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+/*  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
   for(int j = 0; j < 100; j++)
   {
@@ -141,7 +141,9 @@ int main(int argc, char* argv[])
   fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
+*/
 
+  // the work beyond here is unrelated to which data structure you chose
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
   {
     binContentsMC0.push_back(mcTheoryHistBeta->GetBinContent(i));
@@ -230,7 +232,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("ReReReBLINDED_newXuanFitter_bFit_A_1_b_0_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -268,11 +270,11 @@ int main(int argc, char* argv[])
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
   t2.DrawLatex(600, 0.017, Form("#frac{#Chi^{2}}{NDF} = %f / %f = %f", functionMin, ndf, functionMin/ndf));
-*/  TLatex t3;
+  TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", 0.1 / ((1 - 0.1)*(avg_mE))));
-  TLatex t4;
+  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", 0.1));
+*/  TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
   t4.DrawLatex(700, 0.014, Form("b_{fit} = %f #pm %f", fitVal, fitErr));

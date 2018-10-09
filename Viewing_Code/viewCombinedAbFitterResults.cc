@@ -88,14 +88,15 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -1, 0.5);
-//  FillArrays(Form("ReReReBLINDED_newXuanFitter_bFit_A_1_b_0_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("ReReReBLINDED_CombinedAbFitter_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-  FillArrays(Form("../TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, 0, 4);
+  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
+//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+//  FillArrays(Form("../TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 
   int max = hbFitValues->GetMaximum();
 
-  PlotHist(C, 2, 1, hbFitValues, Form("b fit values, %s, %s", TYPE, GEOM), "b", "N", "", max);
+  PlotHist(C, 2, 1, hbFitValues, Form("chi2 values, %s, %s", TYPE, "both years"), "Chi2/ndf", "N", "", max);
 /*
   TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
   leg1->AddEntry(hbFitValues,"b fit","f");
@@ -143,7 +144,7 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.AFitError
 		>> evt.covMatrixStatus;
 
-      h->Fill(evt.bFitValue);
+      h->Fill(evt.chi2_ndf);
 
     }
 
