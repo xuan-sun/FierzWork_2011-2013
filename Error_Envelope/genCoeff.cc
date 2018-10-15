@@ -49,7 +49,9 @@ const double m_e = 511.00;                                              ///< ele
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
 #define		PARAM_FILE_NAME		"test_genCoeff.txt"
-#define		INPUT_EQ2ETRUE_PARAMS	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
+#define		INPUT_EQ2ETRUE_PARAMS_2010	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
+#define		INPUT_EQ2ETRUE_PARAMS_2011	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
+#define		INPUT_EQ2ETRUE_PARAMS_2012	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat"
 
 // Plotting functions.
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
@@ -183,8 +185,8 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("test9", "Erecon = 900", 100, -15, 15));
 
   // Load the converter to get Erecon from a single EQ value.
-  cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
-  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
+  cout << "Using following calibration for 2012-2013 geometry to convert Evis to Erecon..." << endl;
+  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2012-2013");
 
   int counter, numberSaved;
   counter = 0;
@@ -196,10 +198,10 @@ int main(int argc, char *argv[])
     for(double a = -5.0; a <= 5.0; a = a + 1.0)
     {
 //      for(double b = 0; b <= 0; b = b + 0.0001)
-      for(double b = -0.03; b <= 0.03; b = b + 5e-4)
+      for(double b = -0.06; b <= 0.06; b = b + 1e-3)
       {
 //        for(double c = 0; c <= 0; c = c + 1e-6)
-        for(double c = -1e-4; c <= 1e-4; c = c + 5e-5)
+        for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
@@ -570,16 +572,16 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 vector < vector < vector <double> > > GetEQ2EtrueParams(string geometry)
 {
   ifstream infile;
-  if (geometry=="2010") infile.open(INPUT_EQ2ETRUE_PARAMS);
-  else if (geometry=="2011-2012") infile.open(INPUT_EQ2ETRUE_PARAMS);
-//  else if (geometry=="2012-2013") infile.open("../simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat");
+  if (geometry=="2010") infile.open(INPUT_EQ2ETRUE_PARAMS_2010);
+  else if (geometry=="2011-2012") infile.open(INPUT_EQ2ETRUE_PARAMS_2011);
+  else if (geometry=="2012-2013") infile.open(INPUT_EQ2ETRUE_PARAMS_2012);
   else {
     cout << "Bad geometry passed to getEQ2EtrueParams\n";
     exit(0);
   }
   //a check to make sure the file is open
   if(!infile.is_open())
-    cout << "Problem opening " << INPUT_EQ2ETRUE_PARAMS << endl;
+    cout << "Problem opening " << INPUT_EQ2ETRUE_PARAMS_2012 << endl;
 
   vector < vector < vector < double > > > params;
   params.resize(2,vector < vector < double > > (3, vector < double > (6,0.)));

@@ -79,7 +79,7 @@ const int index_B10 = 7;
 double avg_mE = 0;
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -87,10 +87,10 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 
 int main(int argc, char* argv[])
 {
-  if(argc < 1)
+  if(argc < 3)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable)" << endl;
+    cout << "(executable) (energy win low) (energy win high)" << endl;
     return 0;
   }
 
@@ -98,10 +98,11 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   int octNb = 43;
-  double xMin = 170;
-  double xMax = 660;
+  double xMin = atof(argv[1]);
+  double xMax = atof(argv[2]);
 
-  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
+//  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
@@ -110,8 +111,8 @@ int main(int argc, char* argv[])
 
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
-  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
-//  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+//  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
@@ -167,10 +168,26 @@ int main(int argc, char* argv[])
   t7.SetTextAlign(13);
   t7.DrawLatex(900, -0.15, Form("A #frac{1.0 + b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
 
+  ofstream outfile;
+  outfile.open(Form("AsymmetryDataFit_blindedMC0_2011-2012.txt"), ios::app);
+  outfile << octNb << "\t"
+          << avg_mE << "\t"
+	  << xMin << "\t"
+	  << xMax << "\t"
+          << fitResults->GetChisquare() << "\t"
+          << fitResults->GetNDF() << "\t"
+          << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
+          << fitResults->GetParameter(0) << "\t"
+          << fitResults->GetParError(0) << "\t"
+          << fitResults->GetParameter(1) << "\t"
+          << fitResults->GetParError(1) << "\n";
+  outfile.close();
+
+
   // Save our plot and print it out as a pdf.
-  C -> Print("CorrectedBlinding_b_fit_fromAsymmData_2012-2013.pdf");
+//  C -> Print("CorrectedBlinding_b_fit_fromAsymmData_2012-2013.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }

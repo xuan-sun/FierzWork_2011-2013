@@ -1,0 +1,27 @@
+#!/bin/bash
+# Linux/UNIX box with ssh key based login enabled
+# SSH User name
+
+# in this loop, set the number of .mac files you want to generate
+# this loop variable also counts the Evts_#.root trees you read in. Only used for betas
+
+cd ../Asymmetry_Data_Fitting/
+
+for ((wLow = 165; wLow <= 190; wLow = wLow + 5))
+
+do
+
+for ((wHigh = 660; wHigh <= 740; wHigh = wHigh + 10))
+
+do
+
+
+make
+./blinded_postMBProcessed_asymm $wLow $wHigh
+make clean
+
+done
+
+done
+
+echo "Done running bash script"
