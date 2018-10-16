@@ -61,6 +61,7 @@ struct Event
 // forward declarations for useful functions
 double CalculatebFromPercentageMixing(TString fileName);
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
+double CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax);
 TH1D* LoadMBAsymmetry(TString fileName);
 TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlinding);
 
@@ -101,13 +102,15 @@ int main(int argc, char* argv[])
   double xMin = atof(argv[1]);
   double xMax = atof(argv[2]);
 
-//  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
+  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
+//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
   cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE
  	<< " over a fit range of " << xMin << " to " << xMax << endl;
+
+  return 0;	// doing this cause we just want to test out the normalization
 
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
@@ -118,11 +121,12 @@ int main(int argc, char* argv[])
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.12054, avg_mE, m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
 //  TF1 *fit = new TF1("beta fit", Form(" [0] / (1.0 + [1]*(%f)/(x + %f))", m_e, m_e), xMin, xMax);
 
-  fit->SetParName(0, "asymm");
-  fit->SetParName(1, "b");
+//  fit->SetParName(0, "asymm");
+  fit->SetParName(0, "b");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -141,7 +145,7 @@ int main(int argc, char* argv[])
   yHigh->SetLineColor(1);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
-
+/*
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -167,9 +171,9 @@ int main(int argc, char* argv[])
   t7.SetTextSize(0.03);
   t7.SetTextAlign(13);
   t7.DrawLatex(900, -0.15, Form("A #frac{1.0 + b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
-
+*/
   ofstream outfile;
-  outfile.open(Form("AsymmetryDataFit_blindedMC0_2011-2012.txt"), ios::app);
+  outfile.open(Form("AsymmetryDataFit_unblindedMC0_fixedA_2011-2012.txt"), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << xMin << "\t"
@@ -177,10 +181,10 @@ int main(int argc, char* argv[])
           << fitResults->GetChisquare() << "\t"
           << fitResults->GetNDF() << "\t"
           << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
+          << -0.12054 << "\t"
+          <<  0.00081<< "\t"
           << fitResults->GetParameter(0) << "\t"
-          << fitResults->GetParError(0) << "\t"
-          << fitResults->GetParameter(1) << "\t"
-          << fitResults->GetParError(1) << "\n";
+          << fitResults->GetParError(0) << "\n";
   outfile.close();
 
 
@@ -308,6 +312,20 @@ double CalculatebFromPercentageMixing(TString fileName)
 }
 
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
+{
+  double num = 0;
+  double denom = 0;
+
+  for(int i = binMin; i < binMax; i++)
+  {
+    num = num + (m_e*gammaSM->GetBinContent(i)) / (gammaSM->GetBinCenter(i) + m_e);
+    denom = denom + gammaSM->GetBinContent(i);
+  }
+
+  return num/denom;
+}
+
+double CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax)
 {
   double num = 0;
   double denom = 0;

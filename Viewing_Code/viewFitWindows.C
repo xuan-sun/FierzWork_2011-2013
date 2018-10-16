@@ -1,16 +1,19 @@
+
 {
 //  gROOT->SetStyle("Pub");
 
-  TString fileName = "../Asymmetry_Data_Fitting/AsymmetryDataFit_2011-2012.txt";
+  TString fileName = "../Asymmetry_Data_Fitting/AsymmetryDataFit_unblindedMC0_fixedA_2012-2013.txt";
 
   TCanvas *c1 = new TCanvas("c1", "c1");
-  c1->Divide(2,1);
+  c1->Divide(2,2);
   c1->cd(1);
 
   TH1D* hb = new TH1D("b hist", "b hist", 50, -0.2, -0.1);
   hb->GetXaxis()->SetTitle("b");
   hb->GetYaxis()->SetTitle("N");
-//  TH1D* hA = new TH1D("A hist", "A hist", 
+  TH1D* hA = new TH1D("A hist", "A hist", 50, -0.1235, -0.12);
+  hA->GetXaxis()->SetTitle("A");
+  hA->GetYaxis()->SetTitle("N");
 
   // makes a TGraphAsymmErrors to show the effects of fit windows
   vector <double> EWinLow;
@@ -65,35 +68,42 @@
       AFitError2.push_back(AErr);
 
       hb->Fill(b);
-
+      hA->Fill(A);
+      hA->Fill(-0.12054);	// Michael Brown's value.
       nPoints++;
     }
   }
   infile.close();
 
-  for(int i = 0; i < EFitValue.size(); i++)
-  {
-    cout << "EFitValue[" << i << "] = " << EFitValue[i] << endl;
-    cout << "EWinLow[" << i << "] = " << EWinLow[i] << endl;
-    cout << "EWinHigh[" << i << "] = " << EWinHigh[i] << endl;
-    cout << "bFitValue[" << i << "] = " << bFitValue[i] << endl;
-    cout << "bFitError1[" << i << "] = " << bFitError1[i] << endl;
-    cout << "bFitError2[" << i << "] = " << bFitError2[i] << endl;
-  }
-
-  TGraphAsymmErrors *g = new TGraphAsymmErrors(nPoints, &(EFitValue[0]), &(bFitValue[0]), &(EWinLow[0]), &(EWinHigh[0]), &(bFitError1[0]), &(bFitError2[0]));
-  g->SetMarkerStyle(21);
-  g->SetMarkerColor(1);
-  g->SetTitle("Varying fit windows on asymmetry data fits");
-  g->GetXaxis()->SetTitle("E (keV)");
-  g->GetXaxis()->CenterTitle();
-  g->GetYaxis()->SetTitle("b");
-  g->GetYaxis()->CenterTitle();
-  g->Draw("AP");
-
+  TGraphAsymmErrors *gb = new TGraphAsymmErrors(nPoints, &(EFitValue[0]), &(bFitValue[0]), &(EWinLow[0]), &(EWinHigh[0]), &(bFitError1[0]), &(bFitError2[0]));
+  gb->SetMarkerStyle(21);
+  gb->SetMarkerColor(1);
+  gb->SetTitle("Varying fit windows on asymmetry data fits: b");
+  gb->GetXaxis()->SetTitle("E (keV)");
+  gb->GetXaxis()->CenterTitle();
+  gb->GetYaxis()->SetTitle("b");
+  gb->GetYaxis()->CenterTitle();
+  gb->Draw("AP");
 
   c1->cd(2);
   hb->Draw();
+
+  c1->cd(3);
+  TGraphAsymmErrors *gA = new TGraphAsymmErrors(nPoints, &(EFitValue[0]), &(AFitValue[0]), &(EWinLow[0]), &(EWinHigh[0]), &(AFitError1[0]), &(AFitError2[0]));
+  gA->SetMarkerStyle(21);
+  gA->SetMarkerColor(1);
+  gA->SetTitle("Varying fit windows on asymmetry data fits: A");
+  gA->GetXaxis()->SetTitle("E (keV)");
+  gA->GetXaxis()->CenterTitle();
+  gA->GetYaxis()->SetTitle("A");
+  gA->GetYaxis()->CenterTitle();
+  gA->Draw("AP");
+
+  c1->cd(4);
+  hA->Draw();
+
+
+
 
 //  c1->Print("33_Ratio_bgfg_variousTimeWindows_allCuts.pdf");
 }
