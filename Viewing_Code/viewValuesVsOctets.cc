@@ -59,34 +59,26 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
-void FillArrays(TString fileName, TH1D *hist1, TH1D* hist2, int codeOption);
+void FillArrays(TString fileName, TH1D *hist1, int codeOption);
 
 struct entry
 {
   int octNb;
-  int minuitFitStatus;
-  double chisquared_minuitShape;
-  double ndf_minuitShape;
-  double chisquaredperdf_minuitShape;
-  double chisquared_hfShape;
-  double ndf_hfShape;
-  double chisquaredperdf_hfShape;
-  double chisquared_minuitFit;
-  double ndf_minuitFit;
-  double chisquaredperdf_minuitFit;
+  double avg_mE;
+  double chisquared;
+  double ndf;
+  double chisquaredperndf;
   double b_minuitFit;
   double bErr_minuitFit;
-  double b_hfShape;
-  double bErr_hfShape;
+  double A_minuitFit;
+  double AErr_minuitFit;
+  int fitMatrixStatus;
 };
 
 // global vectors for creating TGraphs.
 vector <double> octets;
 vector <double> octetsErr;
-vector <double> chisquared_minFit;
-vector <double> chisquared_hfShape;
-vector <double> bHFValues;
-vector <double> bErrHFValues;
+vector <double> chisquared;
 vector <double> bMinuitValues;
 vector <double> bErrMinuitValues;
 
@@ -110,28 +102,21 @@ int main(int argc, char* argv[])
   if(option == 1)
   {
     TH1D *h1 = new TH1D("fierz minuit", "fierz", 40, -1, 1);
-    TH1D *h2 = new TH1D("fierz hf", "fierz", 40, -1, 1);
     h2->SetStats(0);
 
-    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, h2, option);
+    FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, option);
 
     TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
-    TGraphErrors *g2 = new TGraphErrors(octets.size(), &(octets[0]), &(bHFValues[0]), &(octetsErr[0]), &(bErrHFValues[0]));
 
     PlotHist(C, 1, 1, h1, Form("b results for TMinuit fit and TH1::Fit(), %s, %s", TYPE, GEOM), "b", "N", "");
-    PlotHist(C, 2, 1, h2, "", "", "", "SAME");
 
     g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
     PlotGraph(C, 1, 2, g1, Form("b results by octet, %s, %s", TYPE, GEOM), "Octet Number", "b", "AP");
-    PlotGraph(C, 2, 2, g2, "", "", "", "PSAME");
 
     C->cd(1);
     TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
     leg1->AddEntry(h1,"b xuanFitter","f");
-    leg1->AddEntry(h2,"b Shape Factor fit","f");
-    leg1->AddEntry(g1,"b xuanFitter","p");
-    leg1->AddEntry(g2,"b Shape Factor fit","p");
-    leg1->Draw();
+//    leg1->Draw();
 
 //    C -> Print(Form("ReBLINDed_bValues_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
   }
@@ -141,7 +126,7 @@ int main(int argc, char* argv[])
     TH1D *h5 = new TH1D("chi2 HF Shape", "Chi2 HF Shape", 80, 0, 4);
     h5->SetStats(0);
 
-    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, h5, option);
+    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, option);
 
     TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minFit[0]));
     TGraph *g5 = new TGraph(octets.size(), &(octets[0]), &(chisquared_hfShape[0]));
@@ -364,36 +349,29 @@ void FillArrays(TString fileName, TH1D* hist1, TH1D* hist2, int codeOption)
     if(!infile1.eof())
     {
       bufstream1 >> evt.octNb
-		>> evt.minuitFitStatus
-		>> evt.chisquared_hfShape
-		>> evt.ndf_hfShape
-		>> evt.chisquaredperdf_hfShape
-		>> evt.chisquared_minuitFit
-		>> evt.ndf_minuitFit
-		>> evt.chisquaredperdf_minuitFit
+		>> evt.avg_mE
+		>> evt.chisquared
+		>> evt.ndf
+		>> evt.chisquaredperdf
 		>> evt.b_minuitFit
 		>> evt.bErr_minuitFit
-		>> evt.b_hfShape
-		>> evt.bErr_hfShape;
+		>> evt.A_minuitFit
+		>> evt.AErr_minuitFit
+		>> evt.fitMatrixStatus;
       {
 	counter++;
 
 	if(codeOption == 1)
 	{
           hist1->Fill(evt.b_minuitFit);
-          hist2->Fill(evt.b_hfShape);
 	}
 	else if(codeOption == 2)
 	{
-	  hist1->Fill(evt.chisquaredperdf_minuitFit);
-	  hist2->Fill(evt.chisquaredperdf_hfShape);
+	  hist1->Fill(evt.chisquaredperdf);
 	}
 	octets.push_back(evt.octNb);
 	octetsErr.push_back(0.5);
-	chisquared_minFit.push_back(evt.chisquaredperdf_minuitFit);
-	chisquared_hfShape.push_back(evt.chisquaredperdf_hfShape);
-	bHFValues.push_back(evt.b_hfShape);
-	bErrHFValues.push_back(evt.bErr_hfShape);
+	chisquared.push_back(evt.chisquaredperdf);
 	bMinuitValues.push_back(evt.b_minuitFit);
 	bErrMinuitValues.push_back(evt.bErr_minuitFit);
       }

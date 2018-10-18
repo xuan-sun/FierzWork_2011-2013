@@ -61,7 +61,7 @@ struct Event
 // forward declarations for useful functions
 double CalculatebFromPercentageMixing(TString fileName);
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
-double CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax);
+double Testing_CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax, double b_fromPercentage);
 TH1D* LoadMBAsymmetry(TString fileName);
 TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlinding);
 
@@ -80,7 +80,7 @@ const int index_B10 = 7;
 double avg_mE = 0;
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -102,15 +102,13 @@ int main(int argc, char* argv[])
   double xMin = atof(argv[1]);
   double xMax = atof(argv[2]);
 
-  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
+//  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
   cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE
  	<< " over a fit range of " << xMin << " to " << xMax << endl;
-
-  return 0;	// doing this cause we just want to test out the normalization
 
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
@@ -121,12 +119,12 @@ int main(int argc, char* argv[])
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.12054, avg_mE, m_e, m_e), xMin, xMax);
-//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
-//  TF1 *fit = new TF1("beta fit", Form(" [0] / (1.0 + [1]*(%f)/(x + %f))", m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.12054, avg_mE, m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + (%f)*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", bMixing, avg_mE, m_e, m_e), xMin, xMax);
 
-//  fit->SetParName(0, "asymm");
-  fit->SetParName(0, "b");
+  fit->SetParName(0, "asymm");
+  fit->SetParName(1, "b");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -136,6 +134,13 @@ int main(int argc, char* argv[])
 
   PlotHist(C, 1, 1, blindedAsymm, asymmFile, "Reconstructed Energy (keV)", "Blinded Fully Corrected A(E)", "");
 
+  gStyle->SetOptStat(0);
+
+  TLine *flatA0 = new TLine(xMin, -0.12054, xMax, -0.12054);
+  flatA0->SetLineWidth(2);
+  flatA0->SetLineColor(1);
+  flatA0->SetLineStyle(3);
+  flatA0->Draw("SAME");
 
   TLine *yLow = new TLine(xMin, gPad->GetUymin(), xMin, gPad->GetUymax());
   TLine *yHigh = new TLine(xMax, gPad->GetUymin(), xMax, gPad->GetUymax());
@@ -145,6 +150,13 @@ int main(int argc, char* argv[])
   yHigh->SetLineColor(1);
   yLow->Draw("SAME");
   yHigh->Draw("SAME");
+
+  TLegend *l = new TLegend(0.7, 0.7, 0.9, 0.9);
+  l->AddEntry(flatA0, "A0 with b=0", "l");
+  l->AddEntry(yLow, "Energy fit window", "l");
+  l->AddEntry(fitResults, "Fitted A0", "l");
+  l->Draw();
+
 /*
   TLatex t2;
   t2.SetTextSize(0.03);
@@ -172,6 +184,7 @@ int main(int argc, char* argv[])
   t7.SetTextAlign(13);
   t7.DrawLatex(900, -0.15, Form("A #frac{1.0 + b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
 */
+/*
   ofstream outfile;
   outfile.open(Form("AsymmetryDataFit_unblindedMC0_fixedA_2011-2012.txt"), ios::app);
   outfile << octNb << "\t"
@@ -181,17 +194,17 @@ int main(int argc, char* argv[])
           << fitResults->GetChisquare() << "\t"
           << fitResults->GetNDF() << "\t"
           << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
-          << -0.12054 << "\t"
-          <<  0.00081<< "\t"
           << fitResults->GetParameter(0) << "\t"
-          << fitResults->GetParError(0) << "\n";
+          << fitResults->GetParError(0) << "\t"
+          << fitResults->GetParameter(1) << "\t"
+          << fitResults->GetParError(1) << "\n";
   outfile.close();
-
+*/
 
   // Save our plot and print it out as a pdf.
 //  C -> Print("CorrectedBlinding_b_fit_fromAsymmData_2012-2013.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
@@ -305,7 +318,6 @@ double CalculatebFromPercentageMixing(TString fileName)
     }
   }
 
-
   b = -s0 / avg_mE ;
 
   return b;
@@ -325,14 +337,14 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
   return num/denom;
 }
 
-double CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax)
+double Testing_CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax, double b_fromPercentage)
 {
   double num = 0;
   double denom = 0;
 
   for(int i = binMin; i < binMax; i++)
   {
-    num = num + (m_e*gammaSM->GetBinContent(i)) / (gammaSM->GetBinCenter(i) + m_e);
+    num = num + (1 + b_fromPercentage*(m_e / (gammaSM->GetBinCenter(i) + m_e) ) )*gammaSM->GetBinContent(i);
     denom = denom + gammaSM->GetBinContent(i);
   }
 

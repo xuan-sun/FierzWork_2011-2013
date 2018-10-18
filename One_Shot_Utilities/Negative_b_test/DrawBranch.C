@@ -1,5 +1,8 @@
 DrawBranch()
 {
+  gStyle->SetOptStat(0);
+//  TGaxis::SetMaxDigits(3);
+
   TCanvas *C = new TCanvas("myC", "myC");
   C->cd();
 
@@ -28,6 +31,9 @@ DrawBranch()
 
   hinf->SetFillColorAlpha(38, 0.5);
 //  hinf->SetFillStyle(3006);
+  hinf->SetTitle("Initial Beta Electron Spectrum with Different b");
+  hinf->GetXaxis()->SetTitle("Kinetic Energy (keV)");
+  hinf->GetXaxis()->CenterTitle();
   hinf->Draw();
   hn1->SetFillColorAlpha(30, 0.5);
 //  hn1->SetFillStyle(3007);
@@ -40,14 +46,14 @@ DrawBranch()
   h0->Draw("SAME");
 
   TLegend *l = new TLegend(0.7, 0.6, 0.9, 0.8);
-  l->AddEntry(hinf, "b = inf", "f");
+  l->AddEntry(hinf, "b -> inf", "f");
   l->AddEntry(h0, "b = 0", "f");
   l->AddEntry(h1, "b = 1", "f");
   l->AddEntry(hn1, "b = -1", "f");
   l->Draw();
 
 
-  C2->Print("output.png");
+  C2->Print("output.pdf");
 
 
 
