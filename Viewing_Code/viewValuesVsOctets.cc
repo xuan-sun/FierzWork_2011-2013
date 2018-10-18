@@ -101,17 +101,17 @@ int main(int argc, char* argv[])
 
   if(option == 1)
   {
-    TH1D *h1 = new TH1D("fierz minuit", "fierz", 40, -1, 1);
-    h2->SetStats(0);
+    TH1D *h1 = new TH1D("fierz minuit", "fierz", 50, -0.5, 0.5);
+    h1->SetStats(0);
 
     FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, option);
 
     TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
 
-    PlotHist(C, 1, 1, h1, Form("b results for TMinuit fit and TH1::Fit(), %s, %s", TYPE, GEOM), "b", "N", "");
+    PlotHist(C, 1, 1, h1, "b for 2011-2012 octets", "b", "N", "");
 
-    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
-    PlotGraph(C, 1, 2, g1, Form("b results by octet, %s, %s", TYPE, GEOM), "Octet Number", "b", "AP");
+//    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
+    PlotGraph(C, 1, 2, g1, "b for 2011-2012 octets", "Octet Number", "b", "AP");
 
     C->cd(1);
     TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
 
     FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, option);
 
-    TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared_minFit[0]));
-    TGraph *g5 = new TGraph(octets.size(), &(octets[0]), &(chisquared_hfShape[0]));
+    TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
+    TGraph *g5 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
 
     PlotHist(C, 1, 1, h3, Form("#Chi^{2}_{DF} results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "");
     PlotHist(C, 2, 1, h5, "", "", "", "SAME");
@@ -324,7 +324,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
 }
 
 
-void FillArrays(TString fileName, TH1D* hist1, TH1D* hist2, int codeOption)
+void FillArrays(TString fileName, TH1D* hist1, int codeOption)
 {
 
   entry evt;
@@ -352,7 +352,7 @@ void FillArrays(TString fileName, TH1D* hist1, TH1D* hist2, int codeOption)
 		>> evt.avg_mE
 		>> evt.chisquared
 		>> evt.ndf
-		>> evt.chisquaredperdf
+		>> evt.chisquaredperndf
 		>> evt.b_minuitFit
 		>> evt.bErr_minuitFit
 		>> evt.A_minuitFit
@@ -367,11 +367,11 @@ void FillArrays(TString fileName, TH1D* hist1, TH1D* hist2, int codeOption)
 	}
 	else if(codeOption == 2)
 	{
-	  hist1->Fill(evt.chisquaredperdf);
+	  hist1->Fill(evt.chisquaredperndf);
 	}
 	octets.push_back(evt.octNb);
 	octetsErr.push_back(0.5);
-	chisquared.push_back(evt.chisquaredperdf);
+	chisquared.push_back(evt.chisquaredperndf);
 	bMinuitValues.push_back(evt.b_minuitFit);
 	bErrMinuitValues.push_back(evt.bErr_minuitFit);
       }
