@@ -21,6 +21,7 @@ DrawBranch()
   TH1D *hinf = new TH1D("fierzinf", "b=inf", 100, 0, 1000);
   tinf->Draw("KE >> fierzinf");
 
+
   TFile fn1("Evts_1mill_b_-1.root");
   TTree *tn1 = (TTree*)fn1.Get("Evts");
   TH1D *hn1 = new TH1D("fierzn1", "b=-1", 100, 0, 1000);
@@ -29,27 +30,31 @@ DrawBranch()
   TCanvas *C2 = new TCanvas("myC2", "myC2");
   C2->cd();
 
-  hinf->SetFillColorAlpha(38, 0.5);
+//  hinf->SetFillColorAlpha(38, 0.5);
 //  hinf->SetFillStyle(3006);
   hinf->SetTitle("Initial Beta Electron Spectrum with Different b");
   hinf->GetXaxis()->SetTitle("Kinetic Energy (keV)");
   hinf->GetXaxis()->CenterTitle();
+  hinf->SetLineStyle(3);
+  hinf->SetLineColor(1);
   hinf->Draw();
   hn1->SetFillColorAlpha(30, 0.5);
 //  hn1->SetFillStyle(3007);
-  hn1->Draw("SAME");
+//  hn1->Draw("SAME");
   h1->SetFillColorAlpha(41, 0.5);
 //  h1->SetFillStyle(3004);
   h1->Draw("SAME");
-  h0->SetFillColorAlpha(46, 0.5);
+//  h0->SetFillColorAlpha(46, 0.5);
 //  h0->SetFillStyle(3005);
+  h0->SetLineStyle(2);
+  h0->SetLineColor(1);
   h0->Draw("SAME");
 
   TLegend *l = new TLegend(0.7, 0.6, 0.9, 0.8);
-  l->AddEntry(hinf, "b -> inf", "f");
-  l->AddEntry(h0, "b = 0", "f");
+  l->AddEntry(hinf, "b -> inf", "l");
+  l->AddEntry(h0, "b = 0", "l");
   l->AddEntry(h1, "b = 1", "f");
-  l->AddEntry(hn1, "b = -1", "f");
+//  l->AddEntry(hn1, "b = -1", "f");
   l->Draw();
 
 
