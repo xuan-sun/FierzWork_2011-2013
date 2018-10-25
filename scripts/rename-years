@@ -5,19 +5,16 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ..
+cd /mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_0/
 
-for ((x = 0; x < 606; x = x + 1))
+for ((x = 0; x < 100; x = x + 1))
 
 do
 
-#sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
-# this -i seems to suppress printing out the file to screen. Use it.
-#sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
-make
-./newXuanFitter $x
-make clean
+mv BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_"$x"_type0.root BLIND_SimAnalyzed_2012-2013_Beta_paramSet_100_"$x"_type0.root
+
+
 
 done
 

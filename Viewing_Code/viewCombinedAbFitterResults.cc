@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -88,15 +88,15 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, 0, 4);
-  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
-  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -0.5, 0.5);
+//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
+//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  FillArrays(Form("../Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 
   int max = hbFitValues->GetMaximum();
 
-  PlotHist(C, 2, 1, hbFitValues, Form("chi2 values, %s, %s", TYPE, "both years"), "Chi2/ndf", "N", "", max);
+  PlotHist(C, 2, 1, hbFitValues, Form("twiddled b values, %s, %s", TYPE, GEOM), "b", "N", "", max);
 /*
   TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
   leg1->AddEntry(hbFitValues,"b fit","f");
@@ -144,7 +144,7 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.AFitError
 		>> evt.covMatrixStatus;
 
-      h->Fill(evt.chi2_ndf);
+      h->Fill(evt.bFitValue);
 
     }
 

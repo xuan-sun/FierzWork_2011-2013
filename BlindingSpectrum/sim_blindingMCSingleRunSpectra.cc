@@ -95,10 +95,10 @@ int main(int argc, char* argv[])
 
   // Points TChains at the run files idenified in the octet lists above
   TChain* runFiles_base = new TChain("SimAnalyzed");
-  runFiles_base->Add(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", indexNb));
+  runFiles_base->Add(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_2012-2013_Beta_paramSet_100_%i.root", indexNb));
 
   TChain* runFiles_fierz = new TChain("SimAnalyzed");;
-  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_inf/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", indexNb));
+  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_2012-2013_Beta_paramSet_100_%i.root", indexNb));
 
   // read in our random mixing seed so I stay pretty blind.
   double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 
   cout << "Finished mixing rate histograms." << endl;
 
-  TFile f(TString::Format("/mnt/Data/xuansun/analyzed_files/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", indexNb), "RECREATE");
+  TFile f(TString::Format("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", indexNb), "RECREATE");
   // Begin processing the read in data now
   rates_base->Write();
 

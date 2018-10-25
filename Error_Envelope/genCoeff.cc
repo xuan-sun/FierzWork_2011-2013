@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
   errEnv2012_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
   errEnv2012_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
   errEnv2012_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
-  errEnv2012_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2011-2012");
+  errEnv2012_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2012-2013");
   errEnv2012_top_2sigma -> SetLineStyle(2);
   errEnv2012_top_2sigma -> Draw();
 
@@ -198,10 +198,10 @@ int main(int argc, char *argv[])
     for(double a = -5.0; a <= 5.0; a = a + 1.0)
     {
 //      for(double b = 0; b <= 0; b = b + 0.0001)
-      for(double b = -0.06; b <= 0.06; b = b + 1e-3)
+      for(double b = -0.1; b <= 0.1; b = b + 1e-3)
       {
 //        for(double c = 0; c <= 0; c = c + 1e-6)
-        for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
+        for(double c = -1e-4; c <= 1e-4; c = c + 2.5e-5)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
