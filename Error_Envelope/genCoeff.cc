@@ -166,12 +166,12 @@ int main(int argc, char *argv[])
   ErrorEnvelope_2011();
   ErrorEnvelope_2012();
 
-  errEnv2012_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
-  errEnv2012_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
-  errEnv2012_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
-  errEnv2012_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2012-2013");
-  errEnv2012_top_2sigma -> SetLineStyle(2);
-  errEnv2012_top_2sigma -> Draw();
+  errEnv2011_top_2sigma -> GetYaxis() -> SetRangeUser(-15, 15);
+  errEnv2011_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
+  errEnv2011_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
+  errEnv2011_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2012-2013");
+  errEnv2011_top_2sigma -> SetLineStyle(2);
+  errEnv2011_top_2sigma -> Draw();
 
   // Create histograms at fixed Erecon values to look at distribution of polynomials.
   histErecon.push_back(new TH1D("test1", "Erecon = 100", 100, -15, 15));
@@ -185,8 +185,8 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("test9", "Erecon = 900", 100, -15, 15));
 
   // Load the converter to get Erecon from a single EQ value.
-  cout << "Using following calibration for 2012-2013 geometry to convert Evis to Erecon..." << endl;
-  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2012-2013");
+  cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
+  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
 
   int counter, numberSaved;
   counter = 0;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
       for(double b = -0.1; b <= 0.1; b = b + 1e-3)
       {
 //        for(double c = 0; c <= 0; c = c + 1e-6)
-        for(double c = -1e-4; c <= 1e-4; c = c + 2.5e-5)
+        for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
         {
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
@@ -278,12 +278,12 @@ int main(int argc, char *argv[])
   cout << "Number of polynomials in second band: " << num2sigma << endl;
 
   // Placed here so 1 sigma error envelope goes on top.
-  errEnv2012_top_1sigma -> SetLineStyle(2);
-  errEnv2012_top_1sigma -> Draw("SAME");
-  errEnv2012_bot_1sigma -> SetLineStyle(2);
-  errEnv2012_bot_1sigma -> Draw("SAME");
-  errEnv2012_bot_2sigma -> SetLineStyle(2);
-  errEnv2012_bot_2sigma -> Draw("SAME");
+  errEnv2011_top_1sigma -> SetLineStyle(2);
+  errEnv2011_top_1sigma -> Draw("SAME");
+  errEnv2011_bot_1sigma -> SetLineStyle(2);
+  errEnv2011_bot_1sigma -> Draw("SAME");
+  errEnv2011_bot_2sigma -> SetLineStyle(2);
+  errEnv2011_bot_2sigma -> Draw("SAME");
   TLine *line = new TLine(0, 0, 1000, 0);
   line->Draw("SAME");
 
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
   }
 */
   // Save our plot and print it out as a pdf.
-//  C -> Print("output_genCoeff.pdf");
+  C -> Print("output_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -354,8 +354,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   // Get our error envelopes so we can check polynomial values against them.
 //  TF1* errEnv1 = ErrorEnvelope_2010(1);
 //  TF1* errEnv2 = ErrorEnvelope_2010(2);
-  TF1* errEnv1 = errEnv2012_top_1sigma;
-  TF1* errEnv2 = errEnv2012_top_2sigma;
+  TF1* errEnv1 = errEnv2011_top_1sigma;
+  TF1* errEnv2 = errEnv2011_top_2sigma;
 
   // Check our polynomial (the scatter plot) against a save condition.
   double x, y;

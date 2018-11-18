@@ -93,12 +93,15 @@ int main(int argc, char* argv[])
   // read in arguments.
   Int_t indexNb = atoi(argv[1]);
 
+  TString geom = "2011-2012";
+
   // Points TChains at the run files idenified in the octet lists above
   TChain* runFiles_base = new TChain("SimAnalyzed");
-  runFiles_base->Add(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_2012-2013_Beta_paramSet_100_%i.root", indexNb));
+  runFiles_base->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
 
   TChain* runFiles_fierz = new TChain("SimAnalyzed");;
-  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_2012-2013_Beta_paramSet_100_%i.root", indexNb));
+  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_-1/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
+//  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_2012-2013_Beta_paramSet_100_%i.root", indexNb));
 
   // read in our random mixing seed so I stay pretty blind.
   double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
@@ -142,7 +145,7 @@ int main(int argc, char* argv[])
 
   cout << "Finished mixing rate histograms." << endl;
 
-  TFile f(TString::Format("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", indexNb), "RECREATE");
+  TFile f(TString::Format("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_025_SimAnalyzed_%s_Beta_paramSet_100_%i_type0.root", geom.Data(), geom.Data(), indexNb), "RECREATE");
   // Begin processing the read in data now
   rates_base->Write();
 

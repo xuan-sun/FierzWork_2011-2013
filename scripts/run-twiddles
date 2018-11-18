@@ -7,7 +7,9 @@
 
 cd ..
 
-for ((x = 0; x < 606; x = x + 1))
+cd BlindingSpectrum/
+
+for ((x = 0; x < 100; x = x + 1))
 
 do
 
@@ -16,7 +18,7 @@ do
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./newXuanFitter $x
+./sim_blindingMCSingleRunSpectra $x
 make clean
 
 done

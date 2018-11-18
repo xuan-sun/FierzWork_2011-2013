@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", 23));
+  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", 23));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   int totalEntries = 0;
   for(int j = 0; j < 100; j++)
   {
-    TFile f(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/BLIND_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_025_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
   TChain* fierzChain = new TChain("SimAnalyzed");
   for(int i = 0; i < 100; i++)
   {
-    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_inf/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
+    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
   }
   fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
