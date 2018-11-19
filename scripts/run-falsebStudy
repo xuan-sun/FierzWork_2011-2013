@@ -1,0 +1,49 @@
+#!/bin/bash
+# Linux/UNIX box with ssh key based login enabled
+# SSH User name
+
+# in this loop, set the number of .mac files you want to generate
+# this loop variable also counts the Evts_#.root trees you read in. Only used for betas
+
+cd ..
+
+for ((dataNb = 0; dataNb <= 564; dataNb = dataNb + 1))
+
+do
+
+make
+./newXuanFitter $dataNb 025
+make clean
+
+make
+./newXuanFitter $dataNb 020
+make clean
+
+make
+./newXuanFitter $dataNb 010
+make clean
+
+make
+./newXuanFitter $dataNb 005
+make clean
+
+make
+./newXuanFitter $dataNb -005
+make clean
+
+make
+./newXuanFitter $dataNb -010
+make clean
+
+make
+./newXuanFitter $dataNb -020
+make clean
+
+make
+./newXuanFitter $dataNb -025
+make clean
+
+
+done
+
+echo "Done running bash script"

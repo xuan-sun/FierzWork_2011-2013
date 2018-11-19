@@ -44,7 +44,7 @@
 
 using            namespace std;
 
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
@@ -75,14 +75,17 @@ double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if(argc < 3)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (index #)" << endl;
+    cout << "(executable) (data file index) (false b index)" << endl;
     return 0;
   }
 
   int octNb = atoi(argv[1]);
+  string falseb = argv[2];
+
+  cout << "testing input: " << falseb << endl;
 
   // this little bit loads the octets once they have already been separated into super sum histograms
 //  TFile fData("BLIND_MC_A_0_b_0_Octet_43_type0_test_10percent.root");
@@ -95,15 +98,18 @@ int main(int argc, char* argv[])
 //  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
 //  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
-
-  // this much longer code loads trees and extracts the histograms that we're interested in for fitting
+  // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/Twiddles_2012-2013_Envelope/SimAnalyzed_2012-2013_Beta_paramSet_%i_0.root", octNb));
+  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/TwiddledSimFiles_A_0_b_0_matchingParamSet_13/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, octNb));
+//  dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/Twiddles_2012-2013_Envelope/SimAnalyzed_2012-2013_Beta_paramSet_%i_0.root", octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << octNb << endl;
 
+
+  int numFilesIndexMin = 0;
+  int numFilesIndexMax = 100;
 /*  // using unblinded base beta spectrum
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   TChain* betaChain = new TChain("SimAnalyzed");
@@ -116,9 +122,9 @@ int main(int argc, char* argv[])
   // using properly blinded beta spectrum
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
-  for(int j = 0; j < 100; j++)
-  {
-    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_0/BLIND_SimAnalyzed_2012-2013_Beta_paramSet_100_%i_type0.root", j));
+  for(int j = numFilesIndexMin; j < numFilesIndexMax; j++)
+  {	// note that .c_str() converts a std::string into a useable %s in Form(), must like .Data() for TString
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_%s_SimAnalyzed_%s_Beta_paramSet_100_%i_type0.root", GEOM, falseb.c_str(), GEOM, j));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
@@ -133,9 +139,9 @@ int main(int argc, char* argv[])
 
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
   TChain* fierzChain = new TChain("SimAnalyzed");
-  for(int i = 0; i < 100; i++)
+  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
   {
-    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/2012-2013_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_2012-2013_Beta_paramSet_100_%i.root", i));
+    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
   }
   fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
@@ -231,7 +237,8 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("FalsebFits_ToSimulationOnly_Twiddles13_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -241,7 +248,12 @@ int main(int argc, char* argv[])
           << fitErr << "\t"
 	  << -1 << "\t"		// these -1's are placeholders so the format is same as combinedAbFitter.cc
 	  << -1 << "\t"
-	  << covMatrixStatus << "\n";
+	  << covMatrixStatus << "\t"
+  // adding 3 new parameters at the end for only the false b testing!
+  // these need to be deleted because A) they don't matter later and B) they mess up plotting code
+	  << numFilesIndexMin << "\t"
+	  << numFilesIndexMax << "\t"
+	  << falseb << "\n";
   outfile.close();
 
 

@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = testingWith_newXuanFitter.o
-SOURCE = testingWith_newXuanFitter
+OBJECTS = sim_blindingMCSingleRunSpectra.o
+SOURCE = sim_blindingMCSingleRunSpectra
 
 .PHONY: all
 all: $(SOURCE)
