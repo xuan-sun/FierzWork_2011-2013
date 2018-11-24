@@ -42,8 +42,9 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
+#define		FALSE_B_CUT	"005"
 #define		TYPE	"type0"
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -71,6 +72,9 @@ struct entry
   double AFitValue;
   double AFitError;
   int covMatrixStatus;
+  int baseFileIndexMin;
+  int baseFileIndexMax;
+  string falseb;
 };
 
 int main(int argc, char* argv[])
@@ -82,21 +86,16 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-//  int option = atoi(argv[1]);
-
   TCanvas *C = new TCanvas("canvas", "canvas");
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 100, -0.5, 0.5);
-  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  TH1D* hbFitValues = new TH1D("bFit", "b fit values", 150, -0.75, 0.75);
+  FillArrays(Form("../BlindingSpectrum/FalsebFits_ToSimulationOnly_Twiddles13_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 
   int max = hbFitValues->GetMaximum();
 
-  PlotHist(C, 2, 1, hbFitValues, Form("twiddled b values, %s, %s", TYPE, GEOM), "b", "N", "", max);
+  PlotHist(C, 2, 1, hbFitValues, Form("twiddled b values, %s, %s, false b = %s", TYPE, GEOM, FALSE_B_CUT), "b", "N", "", max);
 /*
   TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
   leg1->AddEntry(hbFitValues,"b fit","f");
@@ -104,7 +103,7 @@ int main(int argc, char* argv[])
 */
 
   //prints the canvas with a dynamic TString name of the name of the file
-//  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
+  C->Print(Form("Falseb_%s_twiddles13_results.pdf", FALSE_B_CUT));
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -142,10 +141,16 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.bFitError
 		>> evt.AFitValue
 		>> evt.AFitError
-		>> evt.covMatrixStatus;
+		>> evt.covMatrixStatus
+		>> evt.baseFileIndexMin
+		>> evt.baseFileIndexMax
+		>> evt.falseb;
 
-      h->Fill(evt.bFitValue);
-
+      if(evt.falseb == FALSE_B_CUT)
+      {
+        h->Fill(evt.bFitValue);
+//        cout << "testing that we make the logic" << endl;
+      }
     }
 
     if(infile1.eof() == true)

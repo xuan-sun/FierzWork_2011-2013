@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -59,7 +59,7 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
-void FillArrays(TString fileName, TH1D *hist1, int codeOption);
+void FillArrays(TString fileName, TH1D *hist1);
 
 struct entry
 {
@@ -84,14 +84,12 @@ vector <double> bErrMinuitValues;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if(argc < 1)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (option # = 1 or 2)" << endl;
+    cout << "(executable)" << endl;
     return 0;
   }
-
-  int option = atoi(argv[1]);
 
   NDF = FITMAXBIN - FITMINBIN - 1;
 
@@ -99,71 +97,28 @@ int main(int argc, char* argv[])
   C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  if(option == 1)
-  {
-    TH1D *h1 = new TH1D("fierz minuit", "fierz", 50, -0.5, 0.5);
-    h1->SetStats(0);
+  TH1D *h1 = new TH1D("fierz minuit", "fierz", 50, -0.5, 0.5);
+  h1->SetStats(0);
 
-    FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, option);
+  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
+  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
 
-    TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
+  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
 
-    PlotHist(C, 1, 1, h1, "b for 2011-2012 octets", "b", "N", "");
+  PlotHist(C, 1, 1, h1, "b for all octets", "b", "N", "");
 
 //    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
-    PlotGraph(C, 1, 2, g1, "b for 2011-2012 octets", "Octet Number", "b", "AP");
+  PlotGraph(C, 1, 2, g1, "b for all octets", "Octet Number", "b", "AP");
 
-    C->cd(1);
-    TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
-    leg1->AddEntry(h1,"b xuanFitter","f");
-//    leg1->Draw();
-
-//    C -> Print(Form("ReBLINDed_bValues_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
-  }
-  else if(option == 2)
-  {
-    TH1D *h3 = new TH1D("chi2 Minuit Fit", "Chi2 Minuit Fit", 80, 0, 4);
-    TH1D *h5 = new TH1D("chi2 HF Shape", "Chi2 HF Shape", 80, 0, 4);
-    h5->SetStats(0);
-
-    FillArrays(Form("FitsUsing_CombinedAbFitter_ShapeFactors_bAndChisquareds_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h3, option);
-
-    TGraph *g3 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
-    TGraph *g5 = new TGraph(octets.size(), &(octets[0]), &(chisquared[0]));
-
-    PlotHist(C, 1, 1, h3, Form("#Chi^{2}_{DF} results, %s, %s", TYPE, GEOM), "#frac{#Chi^{2}}{n}", "N", "");
-    PlotHist(C, 2, 1, h5, "", "", "", "SAME");
-
-    TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.2, 5);
-    TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-    double hTot = 0;
-    double theoryHTot = 0;
-    for(int i = 0; i <= h5->GetNbinsX(); i++)
-    {
-      hTot = hTot + h5->GetBinContent(i);
-      theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
-
-    }
-    theoryChiHist->Scale(hTot / theoryHTot);
-    PlotHist(C, 4, 1, theoryChiHist, "", "", "", "SAME");
-
-    g3->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
-    g5->GetYaxis()->SetRangeUser(gPad->GetUymin(), 2.5);
-    PlotGraph(C, 1, 2, g3, Form("chi squared values by octet, %s, %s", TYPE, GEOM), "Octet Number", "#frac{#Chi^{2}}{n}", "AP");
-    PlotGraph(C, 2, 2, g5, "", "", "", "PSAME");
+  C->cd(1);
+  TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
+  leg1->AddEntry(h1,"b xuanFitter","f");
+//  leg1->Draw();
 
 
-    C->cd(1);
-    TLegend* leg2 = new TLegend(0.6,0.5,0.9,0.8);
-    leg2->AddEntry(h3,"#Chi^{2} xuanFitter","f");
-    leg2->AddEntry(h5,"#Chi^{2} Shape Function fit","f");
-    leg2->AddEntry(theoryChiHist,"Theory #Chi^{2} dist","f");
-    leg2->AddEntry(g3,"xuanFitter chi","p");
-    leg2->AddEntry(g5,"Shape Function fit","p");
-    leg2->Draw();
 
-    C -> Print(Form("ReBLINDed_chisquareds_plotPostShapeFactor_%s_%s_Bins_%i-%i.pdf", TYPE, GEOM, FITMINBIN, FITMAXBIN));
-  }
+
+
 
   //prints the canvas with a dynamic TString name of the name of the file
   cout << "-------------- End of Program ---------------" << endl;
@@ -232,7 +187,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
 
   C->Update();
 
-  if(GEOM == "2011-2012")
+//  if(GEOM == "2011-2012")
   {
     // all the TLine's needed for 2011-2012 calibration periods
     TLine *t1 = new TLine(4.5, gPad->GetUymin(), 4.5, gPad->GetUymax());     // Octet 0-4 inclusive
@@ -268,7 +223,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     t11->Draw("SAME");
   }
 
-  if(GEOM == "2012-2013")
+//  if(GEOM == "2012-2013")
   {
     // all the TLine's needed for 2012-2013 calibration periods
     TLine *t12 = new TLine(79.5, gPad->GetUymin(), 79.5, gPad->GetUymax());     // Octet 80-85 inclusive
@@ -324,7 +279,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
 }
 
 
-void FillArrays(TString fileName, TH1D* hist1, int codeOption)
+void FillArrays(TString fileName, TH1D* hist1)
 {
 
   entry evt;
@@ -358,23 +313,15 @@ void FillArrays(TString fileName, TH1D* hist1, int codeOption)
 		>> evt.A_minuitFit
 		>> evt.AErr_minuitFit
 		>> evt.fitMatrixStatus;
-      {
-	counter++;
+      counter++;
 
-	if(codeOption == 1)
-	{
-          hist1->Fill(evt.b_minuitFit);
-	}
-	else if(codeOption == 2)
-	{
-	  hist1->Fill(evt.chisquaredperndf);
-	}
-	octets.push_back(evt.octNb);
-	octetsErr.push_back(0.5);
-	chisquared.push_back(evt.chisquaredperndf);
-	bMinuitValues.push_back(evt.b_minuitFit);
-	bErrMinuitValues.push_back(evt.bErr_minuitFit);
-      }
+      hist1->Fill(evt.b_minuitFit);
+
+      octets.push_back(evt.octNb);
+      octetsErr.push_back(0.5);
+      chisquared.push_back(evt.chisquaredperndf);
+      bMinuitValues.push_back(evt.b_minuitFit);
+      bErrMinuitValues.push_back(evt.bErr_minuitFit);
     }
 
 
