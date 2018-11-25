@@ -200,15 +200,16 @@ void ErrorEnvelope() {
     yenv2011.push_back(0.);
     xerr2011.push_back(5.);
   }
-/*
+
   TGraphAsymmErrors *finenv2011 = new TGraphAsymmErrors(high2011.size(),&en2011[0],&yenv2011[0],&xerr2011[0],&xerr2011[0],&maxEnv2011[0],&maxEnv2011[0]);
   finenv2011->SetFillColorAlpha(col2011,0.8);
   finenv2011->SetFillStyle(fill2011);
-*/
+
+/*  // asymmetric error envelope below
   TGraphAsymmErrors *finenv2011 = new TGraphAsymmErrors(high2011.size(),&en2011[0],&yenv2011[0],&xerr2011[0],&xerr2011[0],&low2011[0],&high2011[0]);
   finenv2011->SetFillColorAlpha(col2011,0.8);
   finenv2011->SetFillStyle(fill2011);
-
+*/
   // This little bit is all my own (Xuan) creation in order to print out the values of the error envelopes.
   TCanvas *c3 = new TCanvas("c3", "c3");
   c3->cd();
@@ -302,7 +303,14 @@ void ErrorEnvelope() {
   //mg->Draw("A");
   mg->Add(gr2011,"P");
   mg->Add(gr2012,"P");
- 
+
+  // Xuan's own addition to get the actual data points in the TGraphs
+  double x, y;
+  for(int i = 0; i < gr2012->GetN(); i++)
+  {
+    gr2012->GetPoint(i, x, y);
+    cout << "At i = " << i << " we have: " << x << ", " << y << endl;
+  }
 
   mg->Draw("A");
   mg->GetXaxis()->SetTitle("E_{recon} [keV]");

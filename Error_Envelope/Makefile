@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = genCoeff.o
-SOURCE = genCoeff
+OBJECTS = weighted_genCoeff.o
+SOURCE = weighted_genCoeff
 
 .PHONY: all
 all: $(SOURCE)
