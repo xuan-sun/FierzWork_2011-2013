@@ -48,7 +48,7 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"test_weighted_genCoeff.txt"
+#define		PARAM_FILE_NAME		"test_onlyWeights_noBands_genCoeff.txt"
 #define		INPUT_EQ2ETRUE_PARAMS_2010	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2011	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2012	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat"
@@ -99,20 +99,19 @@ TF1* errEnv2012_bot_2sigma;
 // Return whether or not the thrown polynomial passed the save condition.
 bool PerformVariation(double a, double b, double c, double d, int numPassed,
                       vector < vector < vector <double> > > EQ2Etrue, TRandom3 *factor,
-		      int passNumber, int sideIndex);
+		      int sideIndex);
 
 // probability weighted on twiddle based on error envelope at source energies
 double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis);
+
+// fits our Erecon cross-section histograms
+void FitHistogram(TH1D* h);
 
 // Used for visualization, keeps the graph on screen.
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Testing histogram for plotting stuff of interest.
 vector <TH1D*> histErecon;
-
-// Counters to allow us to properly sample beyond 1 sigma distribution.
-int num1sigma = 0;
-int num2sigma = 0;
 
 // coefficients we are saving on first pass. Speeds up program
 vector < vector <double> > goodTwiddles;
@@ -160,8 +159,8 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C -> Divide(3, 2);
-  C -> cd(1);
+  C->Divide(3, 2);
+  C->cd(1);
   gROOT->SetStyle("Plain");
 
   LoadEnvelopeHistogram_2011();
@@ -177,10 +176,10 @@ int main(int argc, char *argv[])
   errEnv2011_top_2sigma -> Draw();
 
   // Create histograms at fixed Erecon values to look at distribution of polynomials.
-  histErecon.push_back(new TH1D("Ce2011-2012", "Erecon = 130", 90, -15, 15));
-  histErecon.push_back(new TH1D("Sn2011-2012", "Erecon = 368", 90, -15, 15));
-  histErecon.push_back(new TH1D("BiLow2011-2012", "Erecon = 498", 90, -15, 15));
-  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994", 90, -15, 15));
+  histErecon.push_back(new TH1D("Ce2011-2012", "Erecon = 130, #sigma_{env} = 3.06", 120, -30, 30));
+  histErecon.push_back(new TH1D("Sn2011-2012", "Erecon = 368, #sigma_{env} = 2.10", 120, -30, 30));
+  histErecon.push_back(new TH1D("BiLow2011-2012", "Erecon = 498, #sigma_{env} = 2.76", 120, -30, 30));
+  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.56", 120, -30, 30));
 
   // Load the converter to get Erecon from a single EQ value.
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
   for(int j = 0; j <= 1; j++)
   {
 //    for(double a = 2; a <= 2; a = a + 0.1)
-    for(double a = -5.0; a <= 5.0; a = a + 0.5)
+    for(double a = -10.0; a <= 10.0; a = a + 0.5)
     {
 //      for(double b = 0; b <= 0; b = b + 0.0001)
       for(double b = -0.1; b <= 0.1; b = b + 1e-3)
@@ -204,7 +203,7 @@ int main(int argc, char *argv[])
 //          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
           {
-            bool save = PerformVariation(a, b, c, d, numberSaved, converter, engine, 1, j);
+            bool save = PerformVariation(a, b, c, d, numberSaved, converter, engine, j);
 
             // A couple of counters and print-out statements to follow along
 	    if(save == true)
@@ -226,33 +225,27 @@ int main(int argc, char *argv[])
   outfile.open(PARAM_FILE_NAME, ios::app);
   numberSaved = 0;
   cout << "Number of good twiddles is " << goodTwiddles.size() << endl;
-  for(int j = 0; j <= 1; j++)
+  for(unsigned int i = 0; i < goodTwiddles.size(); i++)
   {
-    for(unsigned int i = 0; i < goodTwiddles.size(); i++)
+
+    if(abs(goodTwiddles[i][0]) < 1e-10)
     {
-      bool save2 = PerformVariation(goodTwiddles[i][0], goodTwiddles[i][1], goodTwiddles[i][2], goodTwiddles[i][3],
-				    numberSaved, converter, engine, 2, j);
+      goodTwiddles[i][0] = 0;
+    }
+    if(abs(goodTwiddles[i][1]) < 1e-10)
+    {
+      goodTwiddles[i][1] = 0;
+    }
+    if(abs(goodTwiddles[i][2]) < 1e-10)
+    {
+      goodTwiddles[i][2] = 0;
+    }
+    if(abs(goodTwiddles[i][3]) < 1e-10)
+    {
+      goodTwiddles[i][3] = 0;
+    }
 
-      if(abs(goodTwiddles[i][0]) < 1e-10)
-      {
-        goodTwiddles[i][0] = 0;
-      }
-      if(abs(goodTwiddles[i][1]) < 1e-10)
-      {
-        goodTwiddles[i][1] = 0;
-      }
-      if(abs(goodTwiddles[i][2]) < 1e-10)
-      {
-        goodTwiddles[i][2] = 0;
-      }
-      if(abs(goodTwiddles[i][3]) < 1e-10)
-      {
-        goodTwiddles[i][3] = 0;
-      }
-
-      if(save2 == true)
-      {
-        outfile	<< numberSaved << "\t"
+    outfile	<< numberSaved << "\t"
 		<< goodTwiddles[i][0] << "\t"
 		<< goodTwiddles[i][1] << "\t"
 		<< goodTwiddles[i][2] << "\t"
@@ -262,18 +255,13 @@ int main(int argc, char *argv[])
 		<< goodTwiddles[i][2] << "\t"
 		<< goodTwiddles[i][3] << "\n";
 
-        numberSaved++;
-      }
-    }
+    numberSaved++;
   }
 
   outfile.close();
 
   cout << "\nNumber of twiddle coefficients thrown: " << counter << endl;
   cout << "Number of twiddle coefficients saved: "<< numberSaved << "\n" << endl;
-
-  cout << "Number of polynomials in first band: " << num1sigma << endl;
-  cout << "Number of polynomials in second band: " << num2sigma << endl;
 
   // Placed here so 1 sigma error envelope goes on top.
   errEnv2011_top_1sigma -> SetLineStyle(2);
@@ -290,10 +278,11 @@ int main(int argc, char *argv[])
   {
     C->cd(i+2);
     histErecon[i]->Draw();
+    FitHistogram(histErecon[i]);
   }
 
   // Save our plot and print it out as a pdf.
-  C -> Print("output_weighted_genCoeff.pdf");
+  C -> Print("output_onlyWeights_noBands_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
@@ -302,14 +291,9 @@ int main(int argc, char *argv[])
 
 bool PerformVariation(double a, double b, double c, double d, int numPassed,
 		      vector < vector < vector <double> > > EQ2Etrue, TRandom3* factor,
-		      int passNumber, int sideIndex)
+		      int sideIndex)
 {
-  // booleans needed for first pass to count successes
-  bool firstBand = true;
-  bool secondBand = true;
-
   bool saveCondition = true;
-  bool throwCondition = false;
 
   double xMin = 0.1;	// For all polynomial ranges, in Evis units.
   double xMax = 1000;
@@ -349,9 +333,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   // Create our scatter plot as a TGraph.
   TGraph* graph = new TGraph(nbPoints, &(Erecon0_values[0]), &(delta_Erecon_values[0]));
 
-  // Get our error envelopes so we can check polynomial values against them.
-//  TF1* errEnv1 = ErrorEnvelope_2010(1);
-//  TF1* errEnv2 = ErrorEnvelope_2010(2);
+  // Get our error envelope so we can check polynomial values against (multiples of) them.
   TF1* errEnv1 = errEnv2011_top_1sigma;
   TF1* errEnv2 = errEnv2011_top_2sigma;
 
@@ -384,84 +366,26 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       v4 = y;
     }
 
-    // if, at any point, we are over 2 sigma away, exit and don't save and don't throw a number.
-    if(abs(y) > errEnv2->Eval(x))
+    // if, at any point, we are over 3 sigma away, exit and don't save and don't throw a number.
+    if(abs(y) > 3.0*errEnv1->Eval(x))
     {
-      if(passNumber == 1)
-      {
-        firstBand = false;
-        secondBand = false;
-        break;
-      }
-      else if(passNumber == 2)
-      {
-        saveCondition = false;
-        throwCondition = false;
-        break;
-      }
-    }
-    // if we are ever between 1 and 2 sigma and never outside 2 sigma, set flag to throw number to true
-    else if(abs(y) > errEnv1->Eval(x) && abs(y) < errEnv2->Eval(x))
-    {
-      if(passNumber == 1)
-      {
-        firstBand = false;
-        secondBand = true;
-      }
-      if(passNumber == 2)
-      {
-        throwCondition = true;
-      }
+      saveCondition = false;
+      break;
     }
   }
 
-  if(passNumber == 1)
+  if(saveCondition == true)
   {
-    if(firstBand == true)	// i.e. if we complete the search and never trip either flag, we're in first band
+    // this implements the Gaussian (hopefully) weighting
+    if(factor->Rndm() < ProbTwiddleValidity(delta_Erecon_values, Evis_axis))
     {
-      secondBand = false;
-    }
-    if(firstBand == true)	// now do the counting.
-    {
-      num1sigma++;
-    }
-    else if(secondBand == true)
-    {
-      num2sigma++;
-    }
-    if(firstBand == true || secondBand == true)
-    {
-      // this implements the Gaussian (hopefully) weighting
-      if(factor->Rndm() < ProbTwiddleValidity(delta_Erecon_values, Evis_axis))
-      {
-        vector <double> temp;
-        temp.push_back(a);
-        temp.push_back(b);
-        temp.push_back(c);
-        temp.push_back(d);
-        goodTwiddles.push_back(temp);
-      }
-    }
-  }
-  else if(passNumber == 2)
-  {
-    // if our condition is tripped, means our curve lies (not exclusively from below) between 1 and 2 sigma
-    if(throwCondition == true)
-    {
-      double percentageToSave = 1;
-//      double percentageToSave = (double)num1sigma/num2sigma;
-//      percentageToSave = percentageToSave*(0.2718/0.6827);      // this factor accounts for the % difference between 1sigma and 2sigma
-      if(factor->Rndm() < (1 - percentageToSave))
-      {
-        saveCondition = false;
-      }
-    }
-  }
+      vector <double> temp;
+      temp.push_back(a);
+      temp.push_back(b);
+      temp.push_back(c);
+      temp.push_back(d);
+      goodTwiddles.push_back(temp);
 
-  if(passNumber == 2)
-  {
-    if(saveCondition == true)
-    {
       histErecon[0] -> Fill(v1);
       histErecon[1] -> Fill(v2);
       histErecon[2] -> Fill(v3);
@@ -470,13 +394,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       graph->SetLineColor(numPassed % 50);
       graph->Draw("SAME");
     }
-    // memory management. Delete the left-over pointers. Absolutely necessary or program doesn't run.
-    else if(saveCondition == false)
-    {
-      delete graph;
-    }
   }
-  else if(passNumber == 1)
+  else if(saveCondition == false)
   {
     delete graph;
   }
@@ -630,13 +549,39 @@ double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> ene
                         + abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8)
 			) / 4.0;
 
-  TF1* gaussian = new TF1("gaus", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
+  TF1* gaussian = new TF1("gaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
   return 1;
 //  return 2.0*gaussian->Integral(totalErrorBars, 10);
 }
+
+void FitHistogram(TH1D* h)
+{
+  h->Fit("gaus");
+  TF1* fFitResults = h->GetFunction("gaus");
+
+  TLatex t2;
+  t2.SetTextSize(0.03);
+  t2.SetTextAlign(13);
+  t2.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.7*(h->GetMaximum()), Form("#mu = %f", fFitResults->GetParameter(1)));
+  TLatex t3;
+  t3.SetTextSize(0.03);
+  t3.SetTextAlign(13);
+  t3.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.6*(h->GetMaximum()), Form("#mu_{err} = %f", fFitResults->GetParError(1)));
+
+  TLatex t4;
+  t4.SetTextSize(0.03);
+  t4.SetTextAlign(13);
+  t4.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.5*(h->GetMaximum()), Form("#sigma = %f", fFitResults->GetParameter(2)));
+  TLatex t5;
+  t5.SetTextSize(0.03);
+  t5.SetTextAlign(13);
+  t5.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.4*(h->GetMaximum()), Form("#sigma_{err} = %f", fFitResults->GetParError(2)));
+
+}
+
 
 TF1* ErrorEnvelope_2010(double factor)
 {
