@@ -549,12 +549,11 @@ double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> ene
                         + abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8)
 			) / 4.0;
 
-  TF1* gaussian = new TF1("gaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
+  TF1* sampleGaussian = new TF1("sampleGaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
-  return 1;
-//  return 2.0*gaussian->Integral(totalErrorBars, 10);
+  return 2.0*sampleGaussian->Integral(totalErrorBars, 10);
 }
 
 void FitHistogram(TH1D* h)
