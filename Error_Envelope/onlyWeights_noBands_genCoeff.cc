@@ -104,6 +104,9 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
 // probability weighted on twiddle based on error envelope at source energies
 double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis);
 
+// Prints the twiddles to file so we don't need to store massive vectors
+bool PrintTwiddlesToFile(double a, double b, double c, double d);
+
 // fits our Erecon cross-section histograms
 void FitHistogram(TH1D* h);
 
@@ -113,8 +116,7 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 // Testing histogram for plotting stuff of interest.
 vector <TH1D*> histErecon;
 
-// coefficients we are saving on first pass. Speeds up program
-vector < vector <double> > goodTwiddles;
+int GlobalTwiddleCounter = 0;
 
 // Takes an Evis function and converts it to an Erecon function.
 struct EreconFunction
@@ -188,6 +190,9 @@ int main(int argc, char *argv[])
   int counter, numberSaved;
   counter = 0;
   numberSaved = 0;
+
+//  for(int k = 0; k < 10; k++)
+//  {
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
@@ -220,7 +225,8 @@ int main(int argc, char *argv[])
       }
     }
   }
-
+//  }
+/*
   ofstream outfile;
   outfile.open(PARAM_FILE_NAME, ios::app);
   numberSaved = 0;
@@ -257,11 +263,11 @@ int main(int argc, char *argv[])
 
     numberSaved++;
   }
-
   outfile.close();
 
   cout << "\nNumber of twiddle coefficients thrown: " << counter << endl;
   cout << "Number of twiddle coefficients saved: "<< numberSaved << "\n" << endl;
+*/
 
   // Placed here so 1 sigma error envelope goes on top.
   errEnv2011_top_1sigma -> SetLineStyle(2);
@@ -379,12 +385,16 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     // this implements the Gaussian (hopefully) weighting
     if(factor->Rndm() < ProbTwiddleValidity(delta_Erecon_values, Evis_axis))
     {
+/*
       vector <double> temp;
       temp.push_back(a);
       temp.push_back(b);
       temp.push_back(c);
       temp.push_back(d);
       goodTwiddles.push_back(temp);
+*/
+      GlobalTwiddleCounter++;
+      PrintTwiddlesToFile(a, b, c, d);
 
       histErecon[0] -> Fill(v1);
       histErecon[1] -> Fill(v2);
@@ -392,7 +402,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[3] -> Fill(v4);
       // Plotting stuff
       graph->SetLineColor(numPassed % 50);
-      graph->Draw("SAME");
+//      graph->Draw("SAME");
+      delete graph;
     }
   }
   else if(saveCondition == false)
@@ -553,7 +564,44 @@ double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> ene
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
-  return 2.0*sampleGaussian->Integral(totalErrorBars, 10);
+  return 2.0*sampleGaussian->Integral(1.2*totalErrorBars, 10);
+}
+
+bool PrintTwiddlesToFile(double a, double b, double c, double d)
+{
+  ofstream outfile;
+  outfile.open(PARAM_FILE_NAME, ios::app);
+
+  if(abs(a) < 1e-10)
+  {
+    a = 0;
+  }
+  if(abs(b) < 1e-10)
+  {
+    b = 0;
+  }
+  if(abs(c) < 1e-10)
+  {
+    c = 0;
+  }
+  if(abs(d) < 1e-10)
+  {
+    d = 0;
+  }
+
+  outfile << GlobalTwiddleCounter << "\t"
+	  << a << "\t"
+	  << b << "\t"
+	  << c << "\t"
+	  << d << "\t"
+          << a << "\t"
+	  << b << "\t"
+          << c << "\t"
+	  << d << "\n";
+
+  outfile.close();
+
+  return true;
 }
 
 void FitHistogram(TH1D* h)

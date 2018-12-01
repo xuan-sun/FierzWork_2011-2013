@@ -1,0 +1,25 @@
+#!/bin/bash
+# Linux/UNIX box with ssh key based login enabled
+# SSH User name
+
+# in this loop, set the number of .mac files you want to generate
+# this loop variable also counts the Evts_#.root trees you read in. Only used for betas
+
+cd ../Energy_Offset/
+
+for ((x = 0; x < 60; x = x + 1))
+
+do
+
+
+#sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
+# this -i seems to suppress printing out the file to screen. Use it.
+#sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
+
+make
+./shiftEnergyPlugIn $x
+make clean
+
+done
+
+echo "Done running bash script"

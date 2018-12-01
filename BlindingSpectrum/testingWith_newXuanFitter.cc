@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   int totalEntries = 0;
   for(int j = 0; j < 100; j++)
   {
-    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_025_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_005_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
