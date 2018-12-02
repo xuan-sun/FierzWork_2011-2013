@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("Ce2011-2012", "Erecon = 130, #sigma_{env} = 3.06", 120, -30, 30));
   histErecon.push_back(new TH1D("Sn2011-2012", "Erecon = 368, #sigma_{env} = 2.10", 120, -30, 30));
   histErecon.push_back(new TH1D("BiLow2011-2012", "Erecon = 498, #sigma_{env} = 2.76", 120, -30, 30));
-  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.56", 120, -30, 30));
+  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.56", 240, -60, 60));
 
   // Load the converter to get Erecon from a single EQ value.
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
@@ -373,11 +373,13 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     }
 
     // if, at any point, we are over 3 sigma away, exit and don't save and don't throw a number.
-    if(abs(y) > 3.0*errEnv1->Eval(x))
+/*
+    if(abs(y) > 6.0*errEnv1->Eval(x))
     {
       saveCondition = false;
       break;
     }
+*/
   }
 
   if(saveCondition == true)
@@ -415,6 +417,12 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   delete Erecon0_East;
   delete Erecon_Twiddle_East;
   delete delta_Erecon_East;
+
+  Evis_axis.clear();
+  Erecon0_values.clear();
+  delta_Erecon_values.clear();
+
+
 //  delete errEnv2;
 //  delete errEnv1;
 
@@ -564,7 +572,12 @@ double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> ene
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
-  return 2.0*sampleGaussian->Integral(1.2*totalErrorBars, 10);
+  double sampleGaussianValue = 2.0*sampleGaussian->Integral(totalErrorBars, 10);
+
+  delete sampleGaussian;
+
+//  return 1.0;
+  return sampleGaussianValue;
 }
 
 bool PrintTwiddlesToFile(double a, double b, double c, double d)
