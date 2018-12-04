@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 	    {
 	      numberSaved++;
 	    }
-            if(counter % 10000 == 0)
+            if(counter % 500 == 0)
             {
      	      cout << "First pass on coefficients. Checking thrown polynomial number... " << counter << endl;
 	    }
@@ -226,48 +226,6 @@ int main(int argc, char *argv[])
     }
   }
 //  }
-/*
-  ofstream outfile;
-  outfile.open(PARAM_FILE_NAME, ios::app);
-  numberSaved = 0;
-  cout << "Number of good twiddles is " << goodTwiddles.size() << endl;
-  for(unsigned int i = 0; i < goodTwiddles.size(); i++)
-  {
-
-    if(abs(goodTwiddles[i][0]) < 1e-10)
-    {
-      goodTwiddles[i][0] = 0;
-    }
-    if(abs(goodTwiddles[i][1]) < 1e-10)
-    {
-      goodTwiddles[i][1] = 0;
-    }
-    if(abs(goodTwiddles[i][2]) < 1e-10)
-    {
-      goodTwiddles[i][2] = 0;
-    }
-    if(abs(goodTwiddles[i][3]) < 1e-10)
-    {
-      goodTwiddles[i][3] = 0;
-    }
-
-    outfile	<< numberSaved << "\t"
-		<< goodTwiddles[i][0] << "\t"
-		<< goodTwiddles[i][1] << "\t"
-		<< goodTwiddles[i][2] << "\t"
-		<< goodTwiddles[i][3] << "\t"
-		<< goodTwiddles[i][0] << "\t"
-		<< goodTwiddles[i][1] << "\t"
-		<< goodTwiddles[i][2] << "\t"
-		<< goodTwiddles[i][3] << "\n";
-
-    numberSaved++;
-  }
-  outfile.close();
-
-  cout << "\nNumber of twiddle coefficients thrown: " << counter << endl;
-  cout << "Number of twiddle coefficients saved: "<< numberSaved << "\n" << endl;
-*/
 
   // Placed here so 1 sigma error envelope goes on top.
   errEnv2011_top_1sigma -> SetLineStyle(2);
@@ -387,14 +345,6 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     // this implements the Gaussian (hopefully) weighting
     if(factor->Rndm() < ProbTwiddleValidity(delta_Erecon_values, Evis_axis))
     {
-/*
-      vector <double> temp;
-      temp.push_back(a);
-      temp.push_back(b);
-      temp.push_back(c);
-      temp.push_back(d);
-      goodTwiddles.push_back(temp);
-*/
       GlobalTwiddleCounter++;
       PrintTwiddlesToFile(a, b, c, d);
 
@@ -550,17 +500,7 @@ double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> ene
       Bi2_index = i;
     }
   }
-/*
-  cout << "Ce source error: " << convertedTwiddle[Ce_index] << endl;
-  cout << "Sn source error: " << convertedTwiddle[Sn_index] << endl;
-  cout << "Bi1 source error: " << convertedTwiddle[Bi1_index] << endl;
-  cout << "Bi2 source error: " << convertedTwiddle[Bi2_index] << endl;
 
-  cout << "Error envelope at Ce source: " << errEnv2011_top_1sigma->Eval(130.1) << endl;
-  cout << "Error envelope at Sn source: " << errEnv2011_top_1sigma->Eval(368.5) << endl;
-  cout << "Error envelope at Bi1 source: " << errEnv2011_top_1sigma->Eval(498) << endl;
-  cout << "Error envelope at Bi2 source: " << errEnv2011_top_1sigma->Eval(993.8) << endl;
-*/
   // need absolute values since we're just counting error bars
   double totalErrorBars = ( abs(convertedTwiddle[Ce_index]) / errEnv2011_top_1sigma->Eval(130.3)
 			+ abs(convertedTwiddle[Sn_index]) / errEnv2011_top_1sigma->Eval(368.5)
