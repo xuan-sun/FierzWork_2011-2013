@@ -102,7 +102,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
 		      int sideIndex);
 
 // probability weighted on twiddle based on error envelope at source energies
-double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis);
+void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
+bool TwiddleGoodOrBad;
 
 // Prints the twiddles to file so we don't need to store massive vectors
 bool PrintTwiddlesToFile(double a, double b, double c, double d);
@@ -197,7 +198,7 @@ int main(int argc, char *argv[])
   for(int j = 0; j <= 1; j++)
   {
 //    for(double a = 2; a <= 2; a = a + 0.1)
-    for(double a = -10.0; a <= 10.0; a = a + 0.5)
+    for(double a = -15.0; a <= 15.0; a = a + 0.5)
     {
 //      for(double b = 0; b <= 0; b = b + 0.0001)
       for(double b = -0.1; b <= 0.1; b = b + 1e-3)
@@ -215,7 +216,7 @@ int main(int argc, char *argv[])
 	    {
 	      numberSaved++;
 	    }
-            if(counter % 500 == 0)
+            if(counter % 1000 == 0)
             {
      	      cout << "First pass on coefficients. Checking thrown polynomial number... " << counter << endl;
 	    }
@@ -226,6 +227,8 @@ int main(int argc, char *argv[])
     }
   }
 //  }
+
+  cout << "Number of twiddles saved should be = " << GlobalTwiddleCounter << endl;
 
   // Placed here so 1 sigma error envelope goes on top.
   errEnv2011_top_1sigma -> SetLineStyle(2);
@@ -342,8 +345,11 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
 
   if(saveCondition == true)
   {
-    // this implements the Gaussian (hopefully) weighting
-    if(factor->Rndm() < ProbTwiddleValidity(delta_Erecon_values, Evis_axis))
+    // The reason this is done as a [void + global bool] is because of a crazy memory leak.
+    // Tons of debugging, can't find the cause. But this is a work-around.
+    ProbTwiddleValidity(delta_Erecon_values, Evis_axis, factor);
+
+//    if(TwiddleGoodOrBad == true)
     {
       GlobalTwiddleCounter++;
       PrintTwiddlesToFile(a, b, c, d);
@@ -371,10 +377,6 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   Evis_axis.clear();
   Erecon0_values.clear();
   delta_Erecon_values.clear();
-
-
-//  delete errEnv2;
-//  delete errEnv1;
 
   return saveCondition;
 }
@@ -467,13 +469,12 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 	+tempEQ2Etrue[side][type][4]/((totalEvis+tempEQ2Etrue[side][type][5])*(totalEvis+tempEQ2Etrue[side][type][5]));;
 }
 
-double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis)
+void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
 {
 
   if(convertedTwiddle.size() != energyAxis.size())
   {
     cout << "ERROR. Mismatched vector sizes for input graph." << endl;
-    return 0;
   }
 
   // since both vectors same size, we need to first find index that corresponds to source energies
@@ -516,8 +517,17 @@ double ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> ene
 
   delete sampleGaussian;
 
-//  return 1.0;
-  return sampleGaussianValue;
+  // We straight up need to do all this because there is a weird memory leak.
+  // This is more complicated than it needs to be but DON'T TOUCH IT!
+  double randNb = randNum->Rndm();
+  if(randNb <= sampleGaussianValue)
+  {
+    TwiddleGoodOrBad = true;
+  }
+  else if(randNb > sampleGaussianValue)
+  {
+    TwiddleGoodOrBad = false;
+  }
 }
 
 bool PrintTwiddlesToFile(double a, double b, double c, double d)
