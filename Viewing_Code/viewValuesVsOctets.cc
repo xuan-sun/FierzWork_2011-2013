@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
   NDF = FITMAXBIN - FITMINBIN - 1;
 
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C -> Divide(2,1);
+//  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   TH1D *h1 = new TH1D("fierz minuit", "fierz", 50, -0.5, 0.5);
@@ -105,10 +105,10 @@ int main(int argc, char* argv[])
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
 
-  PlotHist(C, 1, 1, h1, "b for all octets", "b", "N", "");
+//  PlotHist(C, 1, 1, h1, "b for all octets", "b", "N", "");
 
 //    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
-  PlotGraph(C, 1, 2, g1, "b for all octets", "Octet Number", "b", "AP");
+  PlotGraph(C, 1, 1, g1, "b for all octets", "Octet Number", "b", "AP");
 
   C->cd(1);
   TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);

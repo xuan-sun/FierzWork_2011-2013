@@ -192,13 +192,13 @@ int main(int argc, char *argv[])
   counter = 0;
   numberSaved = 0;
 
-//  for(int k = 0; k < 10; k++)
+//  for(int k = 0; k < 5; k++)
 //  {
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
 //    for(double a = 2; a <= 2; a = a + 0.1)
-    for(double a = -15.0; a <= 15.0; a = a + 0.5)
+    for(double a = -20.0; a <= 20.0; a = a + 0.5)
     {
 //      for(double b = 0; b <= 0; b = b + 0.0001)
       for(double b = -0.1; b <= 0.1; b = b + 1e-3)
@@ -334,13 +334,12 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     }
 
     // if, at any point, we are over 3 sigma away, exit and don't save and don't throw a number.
-/*
-    if(abs(y) > 6.0*errEnv1->Eval(x))
+    if(abs(y) > 3.0*errEnv1->Eval(x))
     {
       saveCondition = false;
       break;
     }
-*/
+
   }
 
   if(saveCondition == true)
@@ -349,7 +348,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     // Tons of debugging, can't find the cause. But this is a work-around.
     ProbTwiddleValidity(delta_Erecon_values, Evis_axis, factor);
 
-//    if(TwiddleGoodOrBad == true)
+    if(TwiddleGoodOrBad == true)
     {
       GlobalTwiddleCounter++;
       PrintTwiddlesToFile(a, b, c, d);
@@ -502,17 +501,24 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
     }
   }
 
-  // need absolute values since we're just counting error bars
-  double totalErrorBars = ( abs(convertedTwiddle[Ce_index]) / errEnv2011_top_1sigma->Eval(130.3)
-			+ abs(convertedTwiddle[Sn_index]) / errEnv2011_top_1sigma->Eval(368.5)
-                        + abs(convertedTwiddle[Bi1_index]) / errEnv2011_top_1sigma->Eval(498)
-                        + abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8)
-			) / 4.0;
+  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2011_top_1sigma->Eval(130.3);
+  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2011_top_1sigma->Eval(368.5);
+  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2011_top_1sigma->Eval(498.0);
+  double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8);
+
+  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.5*Bi2ErrorBar) / 4.0;
+
 
   TF1* sampleGaussian = new TF1("sampleGaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
+/*
+  double sampleGaussianValue = 2.0*sampleGaussian->Integral(CeErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(SnErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(Bi1ErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(Bi2ErrorBar, 10);
+*/
   double sampleGaussianValue = 2.0*sampleGaussian->Integral(totalErrorBars, 10);
 
   delete sampleGaussian;
@@ -696,8 +702,27 @@ void LoadEnvelopeHistogram_2011()
                  >> error
                  >> errorHigh
                  >> errorLow;
-
+/*
+      if(energy >= 0 && energy < 40)
+      {
+        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.8*errorHigh);
+      }
+      else if(energy >= 40 && energy < 80)
+      {
+        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.9*errorHigh);
+      }
+      else if(energy >= 80 && energy < 120)
+      {
+        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.95*errorHigh);
+      }
+      else
+      {
+        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.8*errorHigh);
+      }
+*/
       hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), errorHigh);
+      cout << "At energy " << energy << ", we have symmetrized error envelope " << errorHigh << endl;
+
     }
 
     if(infile1.eof() == true)
