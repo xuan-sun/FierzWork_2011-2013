@@ -1,0 +1,44 @@
+#!/bin/bash
+# Linux/UNIX box with ssh key based login enabled
+# SSH User name
+
+# in this loop, set the number of .mac files you want to generate
+# this loop variable also counts the Evts_#.root trees you read in. Only used for betas
+
+cd ../Error_Envelope/
+
+for i in $(seq 0 1 4)
+
+do
+
+for w1 in $(seq 2.6 0.2 3.0)
+
+do
+
+for w2 in $(seq 1.2 1 1.2)
+
+do
+
+for w3 in $(seq 0.8 1 0.8)
+
+do
+
+for w4 in $(seq 1.6 0.2 2.0)
+
+do
+
+make
+./onlyWeights_noBands_genCoeff $w1 $w2 $w3 $w4
+make clean
+
+done
+
+done
+
+done
+
+done
+
+done
+
+echo "Done running bash script"

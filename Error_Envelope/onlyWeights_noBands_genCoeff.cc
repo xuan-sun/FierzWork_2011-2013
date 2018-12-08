@@ -104,6 +104,10 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
 // probability weighted on twiddle based on error envelope at source energies
 void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
 bool TwiddleGoodOrBad;
+double wCe;
+double wSn;
+double wBi1;
+double wBi2;
 
 // Prints the twiddles to file so we don't need to store massive vectors
 bool PrintTwiddlesToFile(double a, double b, double c, double d);
@@ -156,6 +160,18 @@ struct TwiddleFunctionErecon
 
 int main(int argc, char *argv[])
 {
+  if(argc < 5)
+  {
+    cout << "Error: improper input. Must give:" << endl;
+    cout << "(executable) (w1) (w2) (w3) (w4)" << endl;
+    return 0;
+  }
+
+  wCe = atof(argv[1]);
+  wSn = atof(argv[2]);
+  wBi1 = atof(argv[3]);
+  wBi2 = atof(argv[4]);
+
   // Ensures the seed is different for randomizing in ROOT.
   TRandom3* engine = new TRandom3(0);
   gRandom->SetSeed(0);
@@ -506,7 +522,8 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
   double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2011_top_1sigma->Eval(498.0);
   double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8);
 
-  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.5*Bi2ErrorBar) / 4.0;
+//  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.5*Bi2ErrorBar) / 4.0;
+  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wBi2*Bi2ErrorBar) / 4.0;
 
 
   TF1* sampleGaussian = new TF1("sampleGaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
@@ -596,6 +613,15 @@ void FitHistogram(TH1D* h)
   t5.SetTextAlign(13);
   t5.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.4*(h->GetMaximum()), Form("#sigma_{err} = %f", fFitResults->GetParError(2)));
 
+  ofstream outfile;
+  outfile.open("ErrorBarWeightingCoeff_Scan_pass1.txt", ios::app);
+  outfile << wCe << "\t"
+          << wSn << "\t"
+          << wBi1 << "\t"
+          << wBi2 << "\t"
+          << fFitResults->GetParameter(1) << "\t"
+          << fFitResults->GetParameter(2) << "\n";
+  outfile.close();
 }
 
 
