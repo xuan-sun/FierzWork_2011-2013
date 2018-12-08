@@ -43,7 +43,6 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -60,6 +59,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void FillArrays(TString fileName, TH1D *hist1);
+void ConvertOctetsToDate(int octNb);
 
 struct entry
 {
@@ -167,6 +167,9 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->SetTitle(title);
   gPlot->GetXaxis()->SetTitle(xAxis);
   gPlot->GetXaxis()->CenterTitle();
+//  gPlot->GetXaxis()->SetTimeDisplay(1);
+//  gPlot->GetXaxis()->SetTimeFormat("%d-%m");
+//  gPlot->GetXaxis()->SetTimeFormat("%d-%m-%y%F2011-10-23 00:00:01");
   gPlot->GetYaxis()->SetTitle(yAxis);
   gPlot->GetYaxis()->CenterTitle();
 
@@ -332,4 +335,20 @@ void FillArrays(TString fileName, TH1D* hist1)
   }
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
+}
+
+void ConvertOctetsToDate(int octNb)
+{
+  if(octNb == 0)
+  {
+    TDatime da(2011, 10, 23, 00, 00, 00);
+    octets.push_back(da.Convert());
+  }
+/*  else if(octNb == 1)
+  {
+    TDatime da(0, 0, 0, 12, 00, 00);
+    octets.push_back(da.Convert());
+  }
+*/
+
 }
