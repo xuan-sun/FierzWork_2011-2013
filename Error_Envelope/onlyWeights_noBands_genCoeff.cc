@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C->Divide(3, 2);
+  C->Divide(3, 3);
   C->cd(1);
   gROOT->SetStyle("Plain");
 
@@ -199,6 +199,10 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("Sn2011-2012", "Erecon = 368, #sigma_{env} = 2.10", 120, -30, 30));
   histErecon.push_back(new TH1D("BiLow2011-2012", "Erecon = 498, #sigma_{env} = 2.76", 120, -30, 30));
   histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.56", 240, -60, 60));
+  histErecon.push_back(new TH1D("250", "Erecon = 250, #sigma_{env} = 2.06", 120, -30, 30));
+  histErecon.push_back(new TH1D("400", "Erecon = 400, #sigma_{env} = 2.24", 120, -30, 30));
+  histErecon.push_back(new TH1D("650", "Erecon = 650, #sigma_{env} = 3.02", 120, -30, 30));
+  histErecon.push_back(new TH1D("750", "Erecon = 750, #sigma_{env} = 3.51", 120, -30, 30));
 
   // Load the converter to get Erecon from a single EQ value.
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
@@ -327,6 +331,10 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   double v2 = -10;
   double v3 = -10;
   double v4 = -10;
+  double v5 = -10;
+  double v6 = -10;
+  double v7 = -10;
+  double v8 = -10;
   for(int i = 1; i <= graph->GetN(); i++)
   {
     graph->GetPoint(i, x, y);
@@ -347,6 +355,22 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     else if(x > 993 && x < 994)
     {
       v4 = y;
+    }
+    else if(x > 249.5 && x < 250.5)
+    {
+      v5 = y;
+    }
+    else if(x > 399.5 && x < 400.5)
+    {
+      v6 = y;
+    }
+    else if(x > 649.5 && x < 650.5)
+    {
+      v7 = y;
+    }
+    else if(x > 749.5 && x < 750.5)
+    {
+      v8 = y;
     }
 
     // if, at any point, we are over 3 sigma away, exit and don't save and don't throw a number.
@@ -373,10 +397,14 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[1] -> Fill(v2);
       histErecon[2] -> Fill(v3);
       histErecon[3] -> Fill(v4);
+      histErecon[4] -> Fill(v5);
+      histErecon[5] -> Fill(v6);
+      histErecon[6] -> Fill(v7);
+      histErecon[7] -> Fill(v8);
       // Plotting stuff
       graph->SetLineColor(numPassed % 50);
-//      graph->Draw("SAME");
-      delete graph;
+      graph->Draw("SAME");
+//      delete graph;
     }
   }
   else if(saveCondition == false)
