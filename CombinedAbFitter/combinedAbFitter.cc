@@ -44,7 +44,7 @@
 
 using            namespace std;
 
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
   // These energy spectra are revCalSim'd data supersums. Aka they are "data-like" and revCal'd according to octet.
   TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
 //  TFile fData(TString::Format("/mnt/Data/xuansun/analyzed_files/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", octNb));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Dec2018_reBlindedUnknown/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
   TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
   cout << "covMatrixStatus = " << covMatrixStatus << endl;
 
   ofstream outfile;
-  outfile.open(Form("CorrectBlindingOct2018_combinedAbFitter_OneOctetbAndA_NoSuperSum_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("CorrectBlindingDec2018_combinedAbFitter_OneOctetbAndA_unscaledHenceWrong_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
           << functionMin << "\t"
@@ -292,7 +292,7 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
 
     fitA = (A*(1.0 + b*avg_mE)) / (1.0 + (b*m_e/(energies[i] + m_e)));
 
-    totChi2 = totChi2 + (/* pow((binContentsData[i] - fitb) / (binErrorsData[i]), 2.0) + */pow((blind_asymmetriesData[i] - fitA) / blind_asymmErrorsData[i], 2.0) );
+    totChi2 = totChi2 + ( pow((binContentsData[i] - fitb) / (binErrorsData[i]), 2.0) + pow((blind_asymmetriesData[i] - fitA) / blind_asymmErrorsData[i], 2.0) );
   }
 
   f = totChi2;
@@ -425,9 +425,9 @@ void CreateBlindedAsymmDataAndError()
 void LoadMBAsymmetryFile()
 {
   // Loading asymmetry for fit; 2011-2012
-//  TString fileName = Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Asymmetry_Data_Fitting/MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
-  // Loading asymmetry for fitl 2012-2013
-  TString fileName = Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Asymmetry_Data_Fitting/MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+  TString fileName = Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Asymmetry_Data_Fitting/MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+  // Loading asymmetry for fit; 2012-2013
+//  TString fileName = Form("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Asymmetry_Data_Fitting/MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
 
   double energy, asymm, asymmErr;
 

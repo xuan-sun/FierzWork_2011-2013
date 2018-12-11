@@ -98,12 +98,12 @@ int main(int argc, char* argv[])
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
-  int octNb = 43;
+  int octNb = 81;
   double xMin = atof(argv[1]);
   double xMax = atof(argv[2]);
 
 //  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Dec2018_reBlindedUnknown/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
 //  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
-  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
   l->AddEntry(fitResults, "Fitted A0", "l");
   l->Draw();
 
-/*
+
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
   t7.SetTextSize(0.03);
   t7.SetTextAlign(13);
   t7.DrawLatex(900, -0.15, Form("A #frac{1.0 + b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
-*/
+
 /*
   ofstream outfile;
   outfile.open(Form("AsymmetryDataFit_unblindedMC0_fixedA_2011-2012.txt"), ios::app);
