@@ -5,11 +5,9 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ..
+cd ../NewXuanFitter/
 
-cd BlindingSpectrum/
-
-for ((x = 0; x < 100; x = x + 1))
+for ((x = 1; x < 938; x = x + 1))
 
 do
 
@@ -18,7 +16,7 @@ do
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./sim_blindingMCSingleRunSpectra $x
+./newXuanFitter $x
 make clean
 
 done

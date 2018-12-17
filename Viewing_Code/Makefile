@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = viewRealTimeOctets.o
-SOURCE = viewRealTimeOctets
+OBJECTS = viewCombinedAbFitterResults.o
+SOURCE = viewCombinedAbFitterResults
 
 .PHONY: all
 all: $(SOURCE)

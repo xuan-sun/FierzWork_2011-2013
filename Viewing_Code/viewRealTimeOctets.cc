@@ -79,8 +79,8 @@ struct entry
 
 // global vectors for creating TGraphs.
 vector <double> octets;
-vector <double> TIME_2011;
-vector <double> TIME_2012;
+vector <TDatime> TIME_2011;
+vector <TDatime> TIME_2012;
 vector <double> octetsErr;
 vector <double> chisquared;
 vector <double> bMinuitValues_2011;
@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
   TH1D *h1 = new TH1D("fierz minuit", "fierz", 50, -0.5, 0.5);
   h1->SetStats(0);
 
+  // fills values into arrays and makes a real-time date vector
   FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
   FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
 
@@ -115,19 +116,108 @@ int main(int argc, char* argv[])
   vector <double> err2011(TIME_2011.size(), 0.);
   vector <double> err2012(TIME_2012.size(), 0.0);
 
-  TGraphErrors *g2011 = new TGraphErrors(TIME_2011.size(), &(TIME_2011[0]), &(bMinuitValues_2011[0]), &(err2011[0]), &(bErrMinuitValues_2011[0]));
-  TGraphErrors *g2012 = new TGraphErrors(TIME_2012.size(), &(TIME_2012[0]), &(bMinuitValues_2012[0]), &(err2012[0]), &(bErrMinuitValues_2012[0]));
+  vector <double> converted_TIME_2011;
+  vector <double> converted_TIME_2012;
 
-//  PlotHist(C, 1, 1, h1, "b for all octets", "b", "N", "");
+  for(unsigned int i = 0; i < TIME_2011.size(); i++)
+  {
+    converted_TIME_2011.push_back(TIME_2011[i].Convert());
+  }
+  for(unsigned int j = 0; j < TIME_2012.size(); j++)
+  {
+    converted_TIME_2012.push_back(TIME_2012[j].Convert());
+  }
+
+  // create night/day TGraphErrors
+  vector <double> night_time_2011;
+  vector <double> night_timeErr_2011;
+  vector <double> night_bVal_2011;
+  vector <double> night_bErr_2011;
+  vector <double> day_time_2011;
+  vector <double> day_timeErr_2011;
+  vector <double> day_bVal_2011;
+  vector <double> day_bErr_2011;
+
+  vector <double> night_time_2012;
+  vector <double> night_timeErr_2012;
+  vector <double> night_bVal_2012;
+  vector <double> night_bErr_2012;
+  vector <double> day_time_2012;
+  vector <double> day_timeErr_2012;
+  vector <double> day_bVal_2012;
+  vector <double> day_bErr_2012;
+
+  for(unsigned int i = 0; i < TIME_2011.size(); i++)
+  {
+    if(TIME_2011[i].GetHour() > 6 && TIME_2011[i].GetHour() <= 18)
+    {
+      day_time_2011.push_back(TIME_2011[i].Convert());
+      day_timeErr_2011.push_back(2);
+      day_bVal_2011.push_back(bMinuitValues_2011[i]);
+      day_bErr_2011.push_back(bErrMinuitValues_2011[i]);
+    }
+    else
+    {
+      night_time_2011.push_back(TIME_2011[i].Convert());
+      night_timeErr_2011.push_back(2);
+      night_bVal_2011.push_back(bMinuitValues_2011[i]);
+      night_bErr_2011.push_back(bErrMinuitValues_2011[i]);
+    }
+  }
+
+  for(unsigned int i = 0; i < TIME_2012.size(); i++)
+  {
+    if(TIME_2012[i].GetHour() > 6 && TIME_2012[i].GetHour() <= 18)
+    {
+      day_time_2012.push_back(TIME_2012[i].Convert());
+      day_timeErr_2012.push_back(2);
+      day_bVal_2012.push_back(bMinuitValues_2012[i]);
+      day_bErr_2012.push_back(bErrMinuitValues_2012[i]);
+    }
+    else
+    {
+      night_time_2012.push_back(TIME_2012[i].Convert());
+      night_timeErr_2012.push_back(2);
+      night_bVal_2012.push_back(bMinuitValues_2012[i]);
+      night_bErr_2012.push_back(bErrMinuitValues_2012[i]);
+    }
+  }
+
+  cout << "day_time_2011.size() = " << day_time_2011.size() << endl;
+  cout << "night_time_2011.size() = " << night_time_2011.size() << endl;
+  cout << "day_time_2012.size() = " << day_time_2012.size() << endl;
+  cout << "night_time_2012.size() = " << night_time_2012.size() << endl;
+
+  TGraphErrors *g_day_2011 = new TGraphErrors(day_time_2011.size(), &(day_time_2011[0]), &(day_bVal_2011[0]), &(day_timeErr_2011[0]), &(day_bErr_2011[0]));
+  TGraphErrors *g_night_2011 = new TGraphErrors(night_time_2011.size(), &(night_time_2011[0]), &(night_bVal_2011[0]), &(night_timeErr_2011[0]), &(night_bErr_2011[0]));
+  TGraphErrors *g_day_2012 = new TGraphErrors(day_time_2012.size(), &(day_time_2012[0]), &(day_bVal_2012[0]), &(day_timeErr_2012[0]), &(day_bErr_2012[0]));
+  TGraphErrors *g_night_2012 = new TGraphErrors(night_time_2012.size(), &(night_time_2012[0]), &(night_bVal_2012[0]), &(night_timeErr_2012[0]), &(night_bErr_2012[0]));
+
+
+//  TGraphErrors *g2011 = new TGraphErrors(converted_TIME_2011.size(), &(converted_TIME_2011[0]), &(bMinuitValues_2011[0]), &(err2011[0]), &(bErrMinuitValues_2011[0]));
+//  TGraphErrors *g2012 = new TGraphErrors(converted_TIME_2012.size(), &(converted_TIME_2012[0]), &(bMinuitValues_2012[0]), &(err2012[0]), &(bErrMinuitValues_2012[0]));
 
 //    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
-  PlotGraph(C, 1, 1, g2011, "b for 2011-2012", "Dates: day-month (ROOT offset by 24hr)", "b", "AP");
-  PlotGraph(C, 1, 2, g2012, "b for 2012-2013", "Dates: day-month (ROOT offset by 24hr)", "b", "AP");
+//  PlotGraph(C, 1, 1, g2011, "b for 2011-2012", "Dates: day-month (ROOT offset by 24hr)", "b", "AP");
+//  PlotGraph(C, 1, 2, g2012, "b for 2012-2013", "Dates: day-month (ROOT offset by 24hr)", "b", "AP");
 
+  PlotGraph(C, 1, 1, g_day_2011, "b for day time 2011-2012", "Dates: day-month (ROOT offset by 24hr)", "b", "AP");
+  PlotGraph(C, 2, 1, g_night_2011, "b for night time 2011-2012", "Dates: day-month (ROOT offset by 24hr)", "b", "PSAME");
+
+  PlotGraph(C, 1, 2, g_day_2012, "b for day time 2012-2013", "Dates: day-month (ROOT offset by 24hr)", "b", "AP");
+  PlotGraph(C, 2, 2, g_night_2012, "b for night time 2012-2013", "Dates: day-month (ROOT offset by 24hr)", "b", "PSAME");
+/*
   C->cd(1);
   TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
-  leg1->AddEntry(h1,"b xuanFitter","f");
-//  leg1->Draw();
+  leg1->AddEntry(g_day_2011,"day (06,18)","p");
+  leg1->AddEntry(g_night_2011,"night (00,05) (18,24)","p");
+  leg1->Draw();
+*/
+  C->cd(2);
+  TLegend* leg2 = new TLegend(0.1,0.8,0.4,0.9);
+  leg2->AddEntry(g_day_2012,"day (06,18)","p");
+  leg2->AddEntry(g_night_2012,"night (00,05) (18,24)","p");
+  leg2->Draw();
 
 
   //prints the canvas with a dynamic TString name of the name of the file
@@ -186,13 +276,13 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   if(styleIndex == 1)
   {
     gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
+    gPlot->SetMarkerSize(0.75);
     gPlot->SetMarkerColor(2);
   }
   if(styleIndex == 2)
   {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
+    gPlot->SetMarkerStyle(22);
+    gPlot->SetMarkerSize(0.75);
     gPlot->SetMarkerColor(4);
   }
 
@@ -346,243 +436,243 @@ void CreateRealTimeVector_2011()
 
   // octet 0
   TDatime da0(2011, 10, 23, 4, 8, 00);
-  TIME_2011.push_back(da0.Convert());
+  TIME_2011.push_back(da0);
 
   // octet 1
   TDatime da1(2011, 10, 23, 12, 8, 00);
-  TIME_2011.push_back(da1.Convert());
+  TIME_2011.push_back(da1);
 
   // octet 2
   TDatime da2(2011, 10, 23, 19, 47, 00);
-  TIME_2011.push_back(da2.Convert());
+  TIME_2011.push_back(da2);
 
   // octet 3
   TDatime da3(2011, 10, 24, 2, 58, 00);
-  TIME_2011.push_back(da3.Convert());
+  TIME_2011.push_back(da3);
 
   // octet 4
   TDatime da4(2011, 10, 26, 4, 32, 00);
-  TIME_2011.push_back(da4.Convert());
+  TIME_2011.push_back(da4);
 
   // octet 5
   TDatime da5(2011, 11, 05, 1, 45, 00);
-  TIME_2011.push_back(da5.Convert());
+  TIME_2011.push_back(da5);
 
   // octet 6
   TDatime da6(2011, 11, 05, 12, 48, 00);
-  TIME_2011.push_back(da6.Convert());
+  TIME_2011.push_back(da6);
 
   // octet 7
   TDatime da7(2011, 11, 05, 23, 5, 00);
-  TIME_2011.push_back(da7.Convert());
+  TIME_2011.push_back(da7);
 
   // octet 8
   TDatime da8(2011, 11, 06, 12, 50, 00);
-  TIME_2011.push_back(da8.Convert());
+  TIME_2011.push_back(da8);
 
   // octet 9
 //  TDatime da9(2011, 11, 07, 0, 00, 00);
-//  TIME.push_back(da9.Convert());
+//  TIME.push_back(da9);
 
   // octet 10
   TDatime da10(2011, 11, 11, 5, 8, 00);
-  TIME_2011.push_back(da10.Convert());
+  TIME_2011.push_back(da10);
 
   // octet 11
   TDatime da11(2011, 11, 11, 15, 56, 00);
-  TIME_2011.push_back(da11.Convert());
+  TIME_2011.push_back(da11);
 
   // octet 12
   TDatime da12(2011, 11, 12, 0, 17, 00);
-  TIME_2011.push_back(da12.Convert());
+  TIME_2011.push_back(da12);
 
   // octet 13
   TDatime da13(2011, 11, 12, 16, 54, 00);
-  TIME_2011.push_back(da13.Convert());
+  TIME_2011.push_back(da13);
 
   // octet 14
   TDatime da14(2011, 11, 13, 1, 32, 00);
-  TIME_2011.push_back(da14.Convert());
+  TIME_2011.push_back(da14);
 
   // octet 15
   TDatime da15(2011, 12, 2, 23, 37, 00);
-  TIME_2011.push_back(da15.Convert());
+  TIME_2011.push_back(da15);
 
   // octet 16
   TDatime da16(2011, 12, 03, 8, 32, 00);
-  TIME_2011.push_back(da16.Convert());
+  TIME_2011.push_back(da16);
 
   // octet 17
   TDatime da17(2011, 12, 03, 17, 30, 00);
-  TIME_2011.push_back(da17.Convert());
+  TIME_2011.push_back(da17);
 
   // octet 18
   TDatime da18(2011, 12, 04, 3, 10, 00);
-  TIME_2011.push_back(da18.Convert());
+  TIME_2011.push_back(da18);
 
   // octet 19
   TDatime da19(2011, 12, 04, 12, 50, 00);
-  TIME_2011.push_back(da19.Convert());
+  TIME_2011.push_back(da19);
 
   // octet 20
   TDatime da20(2011, 12, 04, 21, 35, 00);
-  TIME_2011.push_back(da20.Convert());
+  TIME_2011.push_back(da20);
 
   // octet 21
   TDatime da21(2011, 12, 05, 6, 56, 00);
-  TIME_2011.push_back(da21.Convert());
+  TIME_2011.push_back(da21);
 
   // octet 22
   TDatime da22(2011, 12, 05, 16, 22, 00);
-  TIME_2011.push_back(da22.Convert());
+  TIME_2011.push_back(da22);
 
   // octet 23
   TDatime da23(2011, 12, 06, 1, 49, 00);
-  TIME_2011.push_back(da23.Convert());
+  TIME_2011.push_back(da23);
 
   // octet 24
   TDatime da24(2011, 12, 17, 2, 17, 00);
-  TIME_2011.push_back(da24.Convert());
+  TIME_2011.push_back(da24);
 
   // octet 25
   TDatime da25(2011, 12, 17, 14, 12, 00);
-  TIME_2011.push_back(da25.Convert());
+  TIME_2011.push_back(da25);
 
   // octet 26
   TDatime da26(2011, 12, 18, 3, 4, 00);
-  TIME_2011.push_back(da26.Convert());
+  TIME_2011.push_back(da26);
 
   // octet 27
   TDatime da27(2011, 12, 18, 13, 18, 00);
-  TIME_2011.push_back(da27.Convert());
+  TIME_2011.push_back(da27);
 
   // octet 28
   TDatime da28(2011, 12, 19, 1, 32, 00);
-  TIME_2011.push_back(da28.Convert());
+  TIME_2011.push_back(da28);
 
   // octet 29
   TDatime da29(2011, 12, 19, 12, 36, 00);
-  TIME_2011.push_back(da29.Convert());
+  TIME_2011.push_back(da29);
 
   // octet 30
   TDatime da30(2011, 12, 20, 0, 34, 00);
-  TIME_2011.push_back(da30.Convert());
+  TIME_2011.push_back(da30);
 
   // octet 31
   TDatime da31(2011, 12, 21, 23, 16, 00);
-  TIME_2011.push_back(da31.Convert());
+  TIME_2011.push_back(da31);
 
   // octet 32
   TDatime da32(2012, 01, 14, 0, 32, 00);
-  TIME_2011.push_back(da32.Convert());
+  TIME_2011.push_back(da32);
 
   // octet 33
   TDatime da33(2012, 01, 14, 10, 42, 00);
-  TIME_2011.push_back(da33.Convert());
+  TIME_2011.push_back(da33);
 
   // octet 34
   TDatime da34(2012, 01, 14, 20, 50, 00);
-  TIME_2011.push_back(da34.Convert());
+  TIME_2011.push_back(da34);
 
   // octet 35
   TDatime da35(2012, 01, 15, 7, 54, 00);
-  TIME_2011.push_back(da35.Convert());
+  TIME_2011.push_back(da35);
 
   // octet 36
   TDatime da36(2012, 01, 15, 18, 4, 00);
-  TIME_2011.push_back(da36.Convert());
+  TIME_2011.push_back(da36);
 
   // octet 37
   TDatime da37(2012, 01, 16, 4, 33, 00);
-  TIME_2011.push_back(da37.Convert());
+  TIME_2011.push_back(da37);
 
   // octet 38
   TDatime da38(2012, 01, 16, 14, 41, 00);
-  TIME_2011.push_back(da38.Convert());
+  TIME_2011.push_back(da38);
 
   // octet 39
   TDatime da39(2012, 01, 17, 0, 58, 00);
-  TIME_2011.push_back(da39.Convert());
+  TIME_2011.push_back(da39);
 
   // octet 40
   TDatime da40(2012, 01, 18, 21, 59, 00);
-  TIME_2011.push_back(da40.Convert());
+  TIME_2011.push_back(da40);
 
   // octet 41
   TDatime da41(2012, 01, 19, 23, 37, 00);
-  TIME_2011.push_back(da41.Convert());
+  TIME_2011.push_back(da41);
 
   // octet 42
   TDatime da42(2012, 01, 20, 23, 22, 00);
-  TIME_2011.push_back(da42.Convert());
+  TIME_2011.push_back(da42);
 
   // octet 43
   TDatime da43(2012, 01, 21, 15, 48, 00);
-  TIME_2011.push_back(da43.Convert());
+  TIME_2011.push_back(da43);
 
   // octet 44
   TDatime da44(2012, 01, 22, 1, 53, 00);
-  TIME_2011.push_back(da44.Convert());
+  TIME_2011.push_back(da44);
 
   // octet 45
   TDatime da45(2012, 01, 22, 12, 1, 00);
-  TIME_2011.push_back(da45.Convert());
+  TIME_2011.push_back(da45);
 
   // octet 46
   TDatime da46(2012, 01, 22, 22, 48, 00);
-  TIME_2011.push_back(da46.Convert());
+  TIME_2011.push_back(da46);
 
   // octet 47
   TDatime da47(2012, 02, 11, 3, 53, 00);
-  TIME_2011.push_back(da47.Convert());
+  TIME_2011.push_back(da47);
 
   // octet 48
   TDatime da48(2012, 02, 11, 14, 18, 00);
-  TIME_2011.push_back(da48.Convert());
+  TIME_2011.push_back(da48);
 
   // octet 49
   TDatime da49(2012, 02, 12, 6, 33, 00);
-  TIME_2011.push_back(da49.Convert());
+  TIME_2011.push_back(da49);
 
   // octet 50
   TDatime da50(2012, 02, 12, 22, 54, 00);
-  TIME_2011.push_back(da50.Convert());
+  TIME_2011.push_back(da50);
 
   // octet 51
   TDatime da51(2012, 02, 16, 23, 30, 00);
-  TIME_2011.push_back(da51.Convert());
+  TIME_2011.push_back(da51);
 
   // octet 52
   TDatime da52(2012, 02, 18, 1, 28, 00);
-  TIME_2011.push_back(da52.Convert());
+  TIME_2011.push_back(da52);
 
   // octet 53
   TDatime da53(2012, 02, 18, 13, 33, 00);
-  TIME_2011.push_back(da53.Convert());
+  TIME_2011.push_back(da53);
 
   // octet 54
   TDatime da54(2012, 02, 18, 23, 54, 00);
-  TIME_2011.push_back(da54.Convert());
+  TIME_2011.push_back(da54);
 
   // octet 55
   TDatime da55(2012, 02, 19, 10, 00, 00);
-  TIME_2011.push_back(da55.Convert());
+  TIME_2011.push_back(da55);
 
   // octet 56
   TDatime da56(2012, 02, 19, 20, 31, 00);
-  TIME_2011.push_back(da56.Convert());
+  TIME_2011.push_back(da56);
 
   // octet 57
   TDatime da57(2012, 02, 20, 7, 13, 00);
-  TIME_2011.push_back(da57.Convert());
+  TIME_2011.push_back(da57);
 
   // octet 58
   TDatime da58(2012, 02, 20, 17, 45, 00);
-  TIME_2011.push_back(da58.Convert());
+  TIME_2011.push_back(da58);
 
   // octet 59
 //  TDatime da59(2012, 02, 24, 0, 00, 00);
-//  TIME.push_back(da59.Convert());
+//  TIME.push_back(da59);
 
 }
 
@@ -594,170 +684,170 @@ void CreateRealTimeVector_2012()
 
   // octet 80
   TDatime da80(2012, 12, 7, 20, 29, 00);
-  TIME_2012.push_back(da80.Convert());
+  TIME_2012.push_back(da80);
 
   // octet 81
   TDatime da81(2012, 12, 8, 8, 37, 00);
-  TIME_2012.push_back(da81.Convert());
+  TIME_2012.push_back(da81);
 
   // octet 82
   TDatime da82(2012, 12, 8, 18, 9, 00);
-  TIME_2012.push_back(da82.Convert());
+  TIME_2012.push_back(da82);
 
   // octet 83
   TDatime da83(2012, 12, 9, 3, 45, 00);
-  TIME_2012.push_back(da83.Convert());
+  TIME_2012.push_back(da83);
 
   // octet 84
   TDatime da84(2012, 12, 9, 13, 18, 00);
-  TIME_2012.push_back(da84.Convert());
+  TIME_2012.push_back(da84);
 
   // octet 85
   TDatime da85(2012, 12, 10, 0, 37, 00);
-  TIME_2012.push_back(da85.Convert());
+  TIME_2012.push_back(da85);
 
   // octet 86
   TDatime da86(2012, 12, 12, 0, 3, 00);
-  TIME_2012.push_back(da86.Convert());
+  TIME_2012.push_back(da86);
 
   // octet 87
   TDatime da87(2012, 12, 12, 18, 36, 00);
-  TIME_2012.push_back(da87.Convert());
+  TIME_2012.push_back(da87);
 
   // octet 88
   TDatime da88(2012, 12, 14, 22, 33, 00);
-  TIME_2012.push_back(da88.Convert());
+  TIME_2012.push_back(da88);
 
   // octet 89
   TDatime da89(2012, 12, 15, 8, 38, 00);
-  TIME_2012.push_back(da89.Convert());
+  TIME_2012.push_back(da89);
 
   // octet 90
   TDatime da90(2012, 12, 15, 18, 55, 00);
-  TIME_2012.push_back(da90.Convert());
+  TIME_2012.push_back(da90);
 
   // octet 91
 //  TDatime da91(2012, 12, 15, 12, 00, 00);
-//  TIME.push_back(da91.Convert());
+//  TIME.push_back(da91);
 
   // octet 92
   TDatime da92(2012, 12, 16, 22, 06, 00);
-  TIME_2012.push_back(da92.Convert());
+  TIME_2012.push_back(da92);
 
   // octet 93
 //  TDatime da93(2012, 12, 16, 12, 00, 00);
-//  TIME.push_back(da93.Convert());
+//  TIME.push_back(da93);
 
   // octet 94
   TDatime da94(2012, 12, 17, 9, 55, 00);
-  TIME_2012.push_back(da94.Convert());
+  TIME_2012.push_back(da94);
 
   // octet 95
   TDatime da95(2012, 12, 18, 0, 2, 00);
-  TIME_2012.push_back(da95.Convert());
+  TIME_2012.push_back(da95);
 
   // octet 96
   TDatime da96(2013, 1, 12, 0, 10, 00);
-  TIME_2012.push_back(da96.Convert());
+  TIME_2012.push_back(da96);
 
   // octet 97
   TDatime da97(2013, 1, 12, 8, 55, 00);
-  TIME_2012.push_back(da97.Convert());
+  TIME_2012.push_back(da97);
 
   // octet 98
   TDatime da98(2013, 1, 12, 22, 21, 00);
-  TIME_2012.push_back(da98.Convert());
+  TIME_2012.push_back(da98);
 
   // octet 99
   TDatime da99(2013, 1, 13, 11, 59, 00);
-  TIME_2012.push_back(da99.Convert());
+  TIME_2012.push_back(da99);
 
   // octet 100
   TDatime da100(2013, 1, 13, 22, 9, 00);
-  TIME_2012.push_back(da100.Convert());
+  TIME_2012.push_back(da100);
 
   // octet 101
 //  TDatime da101(2013, 1, 17, 0, 00, 00);
-//  TIME.push_back(da101.Convert());
+//  TIME.push_back(da101);
 
   // octet 102
   TDatime da102(2013, 1, 18, 1, 37, 00);
-  TIME_2012.push_back(da102.Convert());
+  TIME_2012.push_back(da102);
 
   // octet 103
   TDatime da103(2013, 1, 19, 14, 51, 00);
-  TIME_2012.push_back(da103.Convert());
+  TIME_2012.push_back(da103);
 
   // octet 104
   TDatime da104(2013, 1, 20, 1, 35, 00);
-  TIME_2012.push_back(da104.Convert());
+  TIME_2012.push_back(da104);
 
   // octet 105
   TDatime da105(2013, 1, 20, 10, 53, 00);
-  TIME_2012.push_back(da105.Convert());
+  TIME_2012.push_back(da105);
 
   // octet 106
   TDatime da106(2013, 1, 20, 20, 7, 00);
-  TIME_2012.push_back(da106.Convert());
+  TIME_2012.push_back(da106);
 
   // octet 107
 //  TDatime da107(2013, 1, 21, 8, 00, 00);
-//  TIME.push_back(da107.Convert());
+//  TIME.push_back(da107);
 
   // octet 108
   TDatime da108(2013, 1, 21, 13, 8, 00);
-  TIME_2012.push_back(da108.Convert());
+  TIME_2012.push_back(da108);
 
   // octet 109
   TDatime da109(2013, 1, 21, 23, 29, 00);
-  TIME_2012.push_back(da109.Convert());
+  TIME_2012.push_back(da109);
 
   // octet 110
   TDatime da110(2013, 1, 25, 20, 4, 00);
-  TIME_2012.push_back(da110.Convert());
+  TIME_2012.push_back(da110);
 
   // octet 111
   TDatime da111(2013, 1, 26, 8, 26, 00);
-  TIME_2012.push_back(da111.Convert());
+  TIME_2012.push_back(da111);
 
   // octet 112
   TDatime da112(2013, 1, 27, 1, 42, 00);
-  TIME_2012.push_back(da112.Convert());
+  TIME_2012.push_back(da112);
 
   // octet 113
   TDatime da113(2013, 1, 27, 11, 58, 00);
-  TIME_2012.push_back(da113.Convert());
+  TIME_2012.push_back(da113);
 
   // octet 114
   TDatime da114(2013, 1, 27, 21, 46, 00);
-  TIME_2012.push_back(da114.Convert());
+  TIME_2012.push_back(da114);
 
   // octet 115
   TDatime da115(2013, 1, 31, 0, 14, 00);
-  TIME_2012.push_back(da115.Convert());
+  TIME_2012.push_back(da115);
 
   // octet 116
   TDatime da116(2013, 1, 31, 20, 14, 00);
-  TIME_2012.push_back(da116.Convert());
+  TIME_2012.push_back(da116);
 
   // octet 117
   TDatime da117(2013, 2, 2, 4, 20, 00);
-  TIME_2012.push_back(da117.Convert());
+  TIME_2012.push_back(da117);
 
   // octet 118
   TDatime da118(2013, 2, 2, 17, 46, 00);
-  TIME_2012.push_back(da118.Convert());
+  TIME_2012.push_back(da118);
 
   // octet 119
   TDatime da119(2013, 2, 3, 5, 7, 00);
-  TIME_2012.push_back(da119.Convert());
+  TIME_2012.push_back(da119);
 
   // octet 120
   TDatime da120(2013, 2, 3, 18, 49, 00);
-  TIME_2012.push_back(da120.Convert());
+  TIME_2012.push_back(da120);
 
   // octet 121
 //  TDatime da121(2013, 2, 4, 0, 00, 00);
-//  TIME.push_back(da121.Convert());
+//  TIME.push_back(da121);
 
 }
