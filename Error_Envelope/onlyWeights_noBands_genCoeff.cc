@@ -108,6 +108,7 @@ double wCe;
 double wSn;
 double wBi1;
 double wBi2;
+int printIndex = 0;
 
 // Prints the twiddles to file so we don't need to store massive vectors
 bool PrintTwiddlesToFile(double a, double b, double c, double d);
@@ -116,7 +117,7 @@ bool PrintTwiddlesToFile(double a, double b, double c, double d);
 void FitHistogram(TH1D* h);
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Testing histogram for plotting stuff of interest.
 vector <TH1D*> histErecon;
@@ -160,7 +161,7 @@ struct TwiddleFunctionErecon
 
 int main(int argc, char *argv[])
 {
-/*
+
   if(argc < 5)
   {
     cout << "Error: improper input. Must give:" << endl;
@@ -172,12 +173,12 @@ int main(int argc, char *argv[])
   wSn = atof(argv[2]);
   wBi1 = atof(argv[3]);
   wBi2 = atof(argv[4]);
+/*
+  wCe = 2.2;
+  wSn = 0.6;
+  wBi1 = 0.9;
+  wBi2 = 1.8;
 */
-  wCe = 1.0;
-  wSn = 1.0;
-  wBi1 = 1.0;
-  wBi2 = 2.0;
-
   // Ensures the seed is different for randomizing in ROOT.
   TRandom3* engine = new TRandom3(0);
   gRandom->SetSeed(0);
@@ -204,7 +205,8 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("Ce2012-2013", "Erecon = 150, #sigma_{env} = 2.71", 120, -30, 30));
   histErecon.push_back(new TH1D("Sn2012-2013", "Erecon = 388, #sigma_{env} = 3.73", 120, -30, 30));
   histErecon.push_back(new TH1D("BiLow2012-2013", "Erecon = 518, #sigma_{env} = 4.22", 120, -30, 30));
-  histErecon.push_back(new TH1D("BiHigh2012-2013", "Erecon = 1014, #sigma_{env} = 7.30", 240, -60, 60));
+  histErecon.push_back(new TH1D("BiHigh2012-2013", "Erecon = 994/*1014*/, #sigma_{env} = 6.85", 240, -60, 60));
+  histErecon.push_back(new TH1D("BiHigh2012-2013_real", "Erecon = 1014, #sigma_{env} = 7.30", 240, -60, 60));
   histErecon.push_back(new TH1D("250", "Erecon = 250, #sigma_{env} = 2.06", 120, -30, 30));
   histErecon.push_back(new TH1D("400", "Erecon = 400, #sigma_{env} = 2.24", 120, -30, 30));
   histErecon.push_back(new TH1D("650", "Erecon = 650, #sigma_{env} = 3.02", 120, -30, 30));
@@ -267,17 +269,19 @@ int main(int argc, char *argv[])
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-  for(unsigned int i = 0; i < 4/*histErecon.size()*/; i++)
+  for(unsigned int i = 0; i < 5/*histErecon.size()*/; i++)
   {
     C->cd(i+2);
+    printIndex = i + 1;
     histErecon[i]->Draw();
     FitHistogram(histErecon[i]);
   }
+  printIndex = 0;
 
   // Save our plot and print it out as a pdf.
   C -> Print("output_onlyWeights_noBands_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
@@ -337,6 +341,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   double v2 = -10;
   double v3 = -10;
   double v4 = -10;
+  double v44 = -10;
   double v5 = -10;
   double v6 = -10;
   double v7 = -10;
@@ -358,9 +363,13 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     {
       v3 = y;
     }
-    else if(x > 1013 && x < 1014)
+    else if(x > 993.5 && x < 994.5)
     {
       v4 = y;
+    }
+    else if(x > 1013.5 && x < 1014.5)
+    {
+      v44 = y;
     }
     else if(x > 249.5 && x < 250.5)
     {
@@ -403,10 +412,11 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[1] -> Fill(v2);
       histErecon[2] -> Fill(v3);
       histErecon[3] -> Fill(v4);
-      histErecon[4] -> Fill(v5);
-      histErecon[5] -> Fill(v6);
-      histErecon[6] -> Fill(v7);
-      histErecon[7] -> Fill(v8);
+      histErecon[4] -> Fill(v44);
+      histErecon[5] -> Fill(v5);
+      histErecon[6] -> Fill(v6);
+      histErecon[7] -> Fill(v7);
+      histErecon[8] -> Fill(v8);
       // Plotting stuff
       graph->SetLineColor(numPassed % 50);
       graph->Draw("SAME");
@@ -545,10 +555,16 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
     {
       Bi1_index = i;
     }
-    if(energyAxis[i] > 1013.5 && energyAxis[i] < 1014.5)
+    if(energyAxis[i] > 993.5 && energyAxis[i] < 994.5)
     {
       Bi2_index = i;
     }
+/*
+    if(energyAxis[i] > 1013.5 && energyAxis[i] < 1014.5)
+    {
+      Bi2_index_real = i;
+    }
+*/
   }
 
   double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2012_top_1sigma->Eval(130.3);
@@ -647,17 +663,28 @@ void FitHistogram(TH1D* h)
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
   t5.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.4*(h->GetMaximum()), Form("#sigma_{err} = %f", fFitResults->GetParError(2)));
-/*
+
   ofstream outfile;
-  outfile.open("ErrorBarWeightingCoeff_Scan_pass1.txt", ios::app);
+  outfile.open("ErrorBarWeightingCoeff_Scan_2012-2013_pass2.txt", ios::app);
+
+  if(printIndex == 1)
+  {
   outfile << wCe << "\t"
           << wSn << "\t"
           << wBi1 << "\t"
           << wBi2 << "\t"
-          << fFitResults->GetParameter(1) << "\t"
-          << fFitResults->GetParameter(2) << "\n";
+          << fFitResults->GetParameter(2) << "\t";
+  }
+  else if(printIndex > 1 && printIndex < 5)
+  {
+    outfile << fFitResults->GetParameter(2) << "\t";
+  }
+  else if(printIndex == 5)
+  {
+    outfile << fFitResults->GetParameter(2) << "\n";
+  }
   outfile.close();
-*/
+
 }
 
 
@@ -829,7 +856,7 @@ void LoadEnvelopeHistogram_2012()
                  >> error
                  >> errorHigh
                  >> errorLow;
-
+/*
       if(energy >= 900 && energy < 925)
       {
         hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), 0.95*errorHigh);
@@ -846,6 +873,10 @@ void LoadEnvelopeHistogram_2012()
       {
         hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), 0.8*errorHigh);
       }
+      else if(energy >= 1000 && energy < 1025)
+      {
+        hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), 0.75*errorHigh);
+      }
       else if(energy >= 1025 && energy < 1050)
       {
         hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), 0.7*errorHigh);
@@ -858,10 +889,11 @@ void LoadEnvelopeHistogram_2012()
       {
         hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), 0.6*errorHigh);
       }
-      else
-      {
+*/
+//      else
+//      {
         hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), errorHigh);
-      }
+//      }
 
 
 //      hEnvelope2012->SetBinContent(hEnvelope2012->FindBin(energy), errorHigh);

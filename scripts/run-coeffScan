@@ -7,19 +7,15 @@
 
 cd ../Error_Envelope/
 
-for i in $(seq 0 1 4)
+for w1 in $(seq 2.0 0.2 2.4)
 
 do
 
-for w1 in $(seq 2.6 0.2 3.0)
+for w2 in $(seq 0.6 0.05 0.7)
 
 do
 
-for w2 in $(seq 1.2 1 1.2)
-
-do
-
-for w3 in $(seq 0.8 1 0.8)
+for w3 in $(seq 0.8 0.1 1.0)
 
 do
 
@@ -30,8 +26,6 @@ do
 make
 ./onlyWeights_noBands_genCoeff $w1 $w2 $w3 $w4
 make clean
-
-done
 
 done
 
