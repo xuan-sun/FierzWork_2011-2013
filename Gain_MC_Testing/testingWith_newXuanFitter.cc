@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
 
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("Evts");
-  dataChain->AddFile("Evts_A_0_b_0_half.root");
-  dataChain->Draw("99KE >> dataHist");
+  dataChain->AddFile("Statistical_Fitting_Test/Evts_A_0_b_0_statTest_9.root");
+  dataChain->Draw("KE >> dataHist");
 
   cout << "Total data events: " << dataChain->GetEntries() << endl;
 
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(700, 0.008, Form("gain = %f", 0.99));
+  t5.DrawLatex(700, 0.008, Form("gain = %f", 1.0));
 
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");

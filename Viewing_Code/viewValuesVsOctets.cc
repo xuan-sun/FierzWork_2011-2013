@@ -100,13 +100,15 @@ int main(int argc, char* argv[])
   TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 50, -0.5, 0.5);
 //  h1->SetStats(0);
 
-  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
-//  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
+//  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
+  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
 
-  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
+  vector <double> chisquaredError(chisquared.size(), 0.01);
+
+  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chisquaredError[0]));
 
 
-  TF1 *fit1 = new TF1("fit1", "[0]", 0, 59);
+  TF1 *fit1 = new TF1("fit1", "[0]", 60, 121);
   g1->Fit(fit1, "R");
 
 
@@ -125,7 +127,7 @@ int main(int argc, char* argv[])
 //  double xPrint = 45;
 //  double yPrint = -0.3;
 
-
+/*
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -138,7 +140,7 @@ int main(int argc, char* argv[])
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
   t4.DrawLatex(xPrint, yPrint-0.1, Form("error factor = %i", 3));
-
+*/
 
 
 

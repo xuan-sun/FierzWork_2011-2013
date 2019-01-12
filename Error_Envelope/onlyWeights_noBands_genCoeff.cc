@@ -106,6 +106,7 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 bool TwiddleGoodOrBad;
 double wCe;
 double wSn;
+double wEnd;
 double wBi1;
 double wBi2;
 int printIndex = 0;
@@ -117,7 +118,7 @@ bool PrintTwiddlesToFile(double a, double b, double c, double d);
 void FitHistogram(TH1D* h);
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Testing histogram for plotting stuff of interest.
 vector <TH1D*> histErecon;
@@ -174,10 +175,11 @@ int main(int argc, char *argv[])
   wBi1 = atof(argv[3]);
   wBi2 = atof(argv[4]);
 */
-  wCe = 2.2;
-  wSn = 0.6;
-  wBi1 = 0.9;
-  wBi2 = 1.8;
+  wCe = 1.0;
+  wSn = 1.0;
+  wEnd = 1.0;
+  wBi1 = 1.0;
+  wBi2 = 1.0;
 
   // Ensures the seed is different for randomizing in ROOT.
   TRandom3* engine = new TRandom3(0);
@@ -185,7 +187,7 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C->Divide(3, 2);
+  C->Divide(4, 2);
   C->cd(1);
   gROOT->SetStyle("Plain");
 
@@ -205,13 +207,16 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("Ce2012-2013", "Erecon = 150, #sigma_{env} = 2.71", 120, -30, 30));
   histErecon.push_back(new TH1D("Sn2012-2013", "Erecon = 388, #sigma_{env} = 3.73", 120, -30, 30));
   histErecon.push_back(new TH1D("BiLow2012-2013", "Erecon = 518, #sigma_{env} = 4.22", 120, -30, 30));
+  histErecon.push_back(new TH1D("endpoint", "Erecon = 782, #sigma_{env} = 4.51", 120, -30, 30));
   histErecon.push_back(new TH1D("BiHigh2012-2013", "Erecon = 994/*1014*/, #sigma_{env} = 6.85", 240, -60, 60));
   histErecon.push_back(new TH1D("BiHigh2012-2013_real", "Erecon = 1014, #sigma_{env} = 7.30", 240, -60, 60));
+
+/*
   histErecon.push_back(new TH1D("250", "Erecon = 250, #sigma_{env} = 2.06", 120, -30, 30));
   histErecon.push_back(new TH1D("400", "Erecon = 400, #sigma_{env} = 2.24", 120, -30, 30));
   histErecon.push_back(new TH1D("650", "Erecon = 650, #sigma_{env} = 3.02", 120, -30, 30));
   histErecon.push_back(new TH1D("750", "Erecon = 750, #sigma_{env} = 3.51", 120, -30, 30));
-
+*/
   // Load the converter to get Erecon from a single EQ value.
   cout << "Using following calibration for 2012-2013 geometry to convert Evis to Erecon..." << endl;
   vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2012-2013");
@@ -269,7 +274,7 @@ int main(int argc, char *argv[])
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-  for(unsigned int i = 0; i < 5/*histErecon.size()*/; i++)
+  for(unsigned int i = 0; i < histErecon.size(); i++)
   {
     C->cd(i+2);
     printIndex = i + 1;
@@ -281,7 +286,7 @@ int main(int argc, char *argv[])
   // Save our plot and print it out as a pdf.
   C -> Print("output_onlyWeights_noBands_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
@@ -340,6 +345,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   double v1 = -10;
   double v2 = -10;
   double v3 = -10;
+  double vEnd = -10;
   double v4 = -10;
   double v44 = -10;
   double v5 = -10;
@@ -362,6 +368,10 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     else if(x > 487.5 && x < 488.5)
     {
       v3 = y;
+    }
+    else if(x > 781.5 && x < 782.5)
+    {
+      vEnd = y;
     }
     else if(x > 993.5 && x < 994.5)
     {
@@ -411,12 +421,15 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[0] -> Fill(v1);
       histErecon[1] -> Fill(v2);
       histErecon[2] -> Fill(v3);
-      histErecon[3] -> Fill(v4);
-      histErecon[4] -> Fill(v44);
+      histErecon[3] -> Fill(vEnd);
+      histErecon[4] -> Fill(v4);
+      histErecon[5] -> Fill(v44);
+/*
       histErecon[5] -> Fill(v5);
       histErecon[6] -> Fill(v6);
       histErecon[7] -> Fill(v7);
       histErecon[8] -> Fill(v8);
+*/
       // Plotting stuff
       graph->SetLineColor(numPassed % 50);
       graph->Draw("SAME");
@@ -539,6 +552,7 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
   // since both vectors same size, we need to first find index that corresponds to source energies
   int Ce_index = 0;
   int Sn_index = 0;
+  int End_index = 0;
   int Bi1_index = 0;
   int Bi2_index = 0;
   for(unsigned int i = 0; i < energyAxis.size(); i++)
@@ -550,6 +564,10 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
     if(energyAxis[i] > 387.5 && energyAxis[i] < 388.5)
     {
       Sn_index = i;
+    }
+    if(energyAxis[i] > 781.5 && energyAxis[i] < 782.5)
+    {
+      End_index = i;
     }
     if(energyAxis[i] > 517.5 && energyAxis[i] < 518.5)
     {
@@ -567,14 +585,15 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 */
   }
 
-  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2012_top_1sigma->Eval(130.3);
-  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2012_top_1sigma->Eval(368.5);
-  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2012_top_1sigma->Eval(498.0);
+  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2012_top_1sigma->Eval(150.3);
+  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2012_top_1sigma->Eval(388.5);
+  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2012_top_1sigma->Eval(518.0);
+  double EndErrorBar = abs(convertedTwiddle[End_index]) / errEnv2012_top_1sigma->Eval(782);
   double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2012_top_1sigma->Eval(993.8);
 
   // weights for 2011-2012 error bars that work best
 //  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
-  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wBi2*Bi2ErrorBar) / 4.0;
+  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;
 
 
   TF1* sampleGaussian = new TF1("sampleGaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);

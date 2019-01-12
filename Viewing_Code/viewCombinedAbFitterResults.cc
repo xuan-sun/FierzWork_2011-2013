@@ -146,7 +146,7 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.AFitError
 		>> evt.covMatrixStatus;
 
-      h->Fill(evt.bFitValue);
+      h->Fill(evt.bFitValue, 1/sqrt(evt.chi2_ndf));
 
     }
 
