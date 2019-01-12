@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
 
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("Evts");
-  dataChain->AddFile("Evts_A_0_b_0.2.root");
-  dataChain->Draw("KE >> dataHist");
+  dataChain->AddFile("Evts_A_0_b_0_half.root");
+  dataChain->Draw("99KE >> dataHist");
 
   cout << "Total data events: " << dataChain->GetEntries() << endl;
 
@@ -235,11 +235,15 @@ int main(int argc, char* argv[])
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(700, 0.012, Form("b_{input} = %f", 0.2));
+  t3.DrawLatex(700, 0.012, Form("b_{input} = %f", 0.0));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
   t4.DrawLatex(700, 0.010, Form("b_{fit} = %f #pm %f", fitVal, fitErr));
+  TLatex t5;
+  t5.SetTextSize(0.03);
+  t5.SetTextAlign(13);
+  t5.DrawLatex(700, 0.008, Form("gain = %f", 0.99));
 
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");

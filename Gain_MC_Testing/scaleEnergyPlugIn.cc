@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   // read in arguments.
 //  Int_t octNb = atoi(argv[1]);
 
-  TString fileName = "Evts_A_0_b_0.root";
+  TString fileName = "Evts_A_0_b_0_half.root";
   AddBranchToTreeInFile(fileName);
   cout << "Done updating runNumber = " << fileName.Data() << endl;
 
@@ -84,13 +84,13 @@ void AddBranchToTreeInFile(TString fName)
   double ke;
   t->SetBranchAddress("KE", &ke);
 
-  double ke_102;
-  TBranch *b = t->Branch("102KE", &ke_102, "ke_102/D");
+  double ke_99;
+  TBranch *b = t->Branch("99KE", &ke_99, "ke_99/D");
 
   for(long int i = 0; i < t->GetEntries(); i++)
   {
     t->GetEntry(i);
-    ke_102 = 1.02*ke;
+    ke_99 = 0.99*ke;
     b->Fill();
   }
 

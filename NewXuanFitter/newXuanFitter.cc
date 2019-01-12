@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, octNb));
+  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << octNb << endl;
@@ -105,17 +105,17 @@ int main(int argc, char* argv[])
 
   int numFilesIndexMin = 0;
   int numFilesIndexMax = 100;
-/*  // using unblinded base beta spectrum
+  // using unblinded base beta spectrum
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   TChain* betaChain = new TChain("SimAnalyzed");
-  for(int i = 0; i < 100; i++)
+  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
   {
-    betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/A_0_b_0/SimAnalyzed_2011-2012_Beta_paramSet_100_%i.root", i));
+    betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
   }
   betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-*/
+
   // using properly blinded beta spectrum
-  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+/*  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
   for(int j = numFilesIndexMin; j < numFilesIndexMax; j++)
   {	// note that .c_str() converts a std::string into a useable %s in Form(), must like .Data() for TString
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
     f.Close();
   }
   mcTheoryHistBeta->SetEntries(totalEntries);
-
+*/
   cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
 
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
@@ -232,7 +232,8 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"

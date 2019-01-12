@@ -162,23 +162,23 @@ struct TwiddleFunctionErecon
 int main(int argc, char *argv[])
 {
 
-  if(argc < 5)
+  if(argc < 1)
   {
     cout << "Error: improper input. Must give:" << endl;
     cout << "(executable) (w1) (w2) (w3) (w4)" << endl;
     return 0;
   }
-
+/*
   wCe = atof(argv[1]);
   wSn = atof(argv[2]);
   wBi1 = atof(argv[3]);
   wBi2 = atof(argv[4]);
-/*
+*/
   wCe = 2.2;
   wSn = 0.6;
   wBi1 = 0.9;
   wBi2 = 1.8;
-*/
+
   // Ensures the seed is different for randomizing in ROOT.
   TRandom3* engine = new TRandom3(0);
   gRandom->SetSeed(0);
@@ -911,4 +911,5 @@ void LoadEnvelopeHistogram_2012()
   cout << "Done filling in data from " << fileName.Data() << endl;
 
 }
+
 

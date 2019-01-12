@@ -97,15 +97,18 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("fierz minuit", "fierz", 50, -0.5, 0.5);
-  h1->SetStats(0);
+  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 50, -0.5, 0.5);
+//  h1->SetStats(0);
 
-  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
-  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
+  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
+//  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
 
-//  PlotHist(C, 1, 1, h1, "b for all octets", "b", "N", "");
+
+  TF1 *fit1 = new TF1("fit1", "[0]", 0, 59);
+  g1->Fit(fit1, "R");
+
 
 //    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
   PlotGraph(C, 1, 1, g1, "b for all octets", "Octet Number", "b", "AP");
@@ -116,6 +119,25 @@ int main(int argc, char* argv[])
 //  leg1->Draw();
 
 
+  double xPrint = 105;
+  double yPrint = -0.3;
+
+//  double xPrint = 45;
+//  double yPrint = -0.3;
+
+
+  TLatex t2;
+  t2.SetTextSize(0.03);
+  t2.SetTextAlign(13);
+  t2.DrawLatex(xPrint, yPrint+0.1, Form("#frac{#Chi^{2}}{NDF} = #frac{%f}{%i} = %f", fit1->GetChisquare(), fit1->GetNDF(), (fit1->GetChisquare() / fit1->GetNDF())));
+  TLatex t3;
+  t3.SetTextSize(0.03);
+  t3.SetTextAlign(13);
+  t3.DrawLatex(xPrint, yPrint, Form("b #pm #sigma_{b} = %f #pm %f", fit1->GetParameter(0), fit1->GetParError(0)));
+  TLatex t4;
+  t4.SetTextSize(0.03);
+  t4.SetTextAlign(13);
+  t4.DrawLatex(xPrint, yPrint-0.1, Form("error factor = %i", 3));
 
 
 
@@ -324,7 +346,7 @@ void FillArrays(TString fileName, TH1D* hist1)
       octetsErr.push_back(0.5);
       chisquared.push_back(evt.chisquaredperndf);
       bMinuitValues.push_back(evt.b_minuitFit);
-      bErrMinuitValues.push_back(evt.bErr_minuitFit);
+      bErrMinuitValues.push_back(3*evt.bErr_minuitFit);
     }
 
 
