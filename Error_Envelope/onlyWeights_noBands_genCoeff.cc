@@ -118,7 +118,7 @@ bool PrintTwiddlesToFile(double a, double b, double c, double d);
 void FitHistogram(TH1D* h);
 
 // Used for visualization, keeps the graph on screen.
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Testing histogram for plotting stuff of interest.
 vector <TH1D*> histErecon;
@@ -175,10 +175,10 @@ int main(int argc, char *argv[])
   wBi1 = atof(argv[3]);
   wBi2 = atof(argv[4]);
 */
-  wCe = 1.0;
+  wCe = 2.8;
   wSn = 1.0;
-  wEnd = 1.0;
-  wBi1 = 1.0;
+  wBi1 = 0.75;
+  wEnd = 1.5;
   wBi2 = 1.0;
 
   // Ensures the seed is different for randomizing in ROOT.
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
   // Save our plot and print it out as a pdf.
   C -> Print("output_onlyWeights_noBands_genCoeff.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }

@@ -7,7 +7,7 @@
 
 cd ../NewXuanFitter/
 
-for ((x = 1; x < 938; x = x + 1))
+for ((x = 1; x < 1527; x = x + 1))
 
 do
 
