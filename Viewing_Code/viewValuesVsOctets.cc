@@ -100,8 +100,8 @@ int main(int argc, char* argv[])
   TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 50, -0.5, 0.5);
 //  h1->SetStats(0);
 
-//  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
-  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
+  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), h1);
+//  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), h1);
 
   vector <double> chisquaredError(chisquared.size(), 0.01);
 
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 //  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chisquaredError[0]));
 
 
-  TF1 *fit1 = new TF1("fit1", "[0]", 60, 121);
+  TF1 *fit1 = new TF1("fit1", "[0]", -1, 59);
   g1->Fit(fit1, "R");
 
 
@@ -122,8 +122,8 @@ int main(int argc, char* argv[])
 //  leg1->Draw();
 
 
-  double xPrint = 105;
-  double yPrint = -0.4;
+  double xPrint = 45;
+  double yPrint = -0.3;
 
 //  double xPrint = 45;
 //  double yPrint = -0.3;
@@ -137,11 +137,12 @@ int main(int argc, char* argv[])
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
   t3.DrawLatex(xPrint, yPrint, Form("b #pm #sigma_{b} = %f #pm %f", fit1->GetParameter(0), fit1->GetParError(0)));
+/*
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
   t4.DrawLatex(xPrint, yPrint-0.1, Form("error value = %f", 0.2158));
-
+*/
 
 
 
@@ -349,8 +350,8 @@ void FillArrays(TString fileName, TH1D* hist1)
       octetsErr.push_back(0.5);
       chisquared.push_back(evt.chisquaredperndf);
       bMinuitValues.push_back(evt.b_minuitFit);
-      bErrMinuitValues.push_back(0.1431);
-//      bErrMinuitValues.push_back(3*evt.bErr_minuitFit);
+//      bErrMinuitValues.push_back(0.1431);
+      bErrMinuitValues.push_back(evt.bErr_minuitFit);
     }
 
 
