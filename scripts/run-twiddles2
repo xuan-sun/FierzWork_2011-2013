@@ -7,9 +7,7 @@
 
 cd ../Fast_NewXuanFitter/
 
-make
-
-for ((x = 1; x < 1585; x = x + 1))
+for ((x = 0; x < 100; x = x + 1))
 
 do
 
@@ -17,12 +15,10 @@ do
 # this -i seems to suppress printing out the file to screen. Use it.
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
-#make
-./fast_newXuanFitter $x
-#make clean
+make
+./treesToHist $x
+make clean
 
 done
-
-make clean
 
 echo "Done running bash script"

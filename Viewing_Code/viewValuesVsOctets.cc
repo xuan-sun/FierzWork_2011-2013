@@ -105,7 +105,8 @@ int main(int argc, char* argv[])
 
   vector <double> chisquaredError(chisquared.size(), 0.01);
 
-  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chisquaredError[0]));
+  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
+//  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chisquaredError[0]));
 
 
   TF1 *fit1 = new TF1("fit1", "[0]", 60, 121);
@@ -122,12 +123,12 @@ int main(int argc, char* argv[])
 
 
   double xPrint = 105;
-  double yPrint = -0.3;
+  double yPrint = -0.4;
 
 //  double xPrint = 45;
 //  double yPrint = -0.3;
 
-/*
+
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -139,8 +140,8 @@ int main(int argc, char* argv[])
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(xPrint, yPrint-0.1, Form("error factor = %i", 3));
-*/
+  t4.DrawLatex(xPrint, yPrint-0.1, Form("error value = %f", 0.2158));
+
 
 
 
@@ -348,7 +349,8 @@ void FillArrays(TString fileName, TH1D* hist1)
       octetsErr.push_back(0.5);
       chisquared.push_back(evt.chisquaredperndf);
       bMinuitValues.push_back(evt.b_minuitFit);
-      bErrMinuitValues.push_back(3*evt.bErr_minuitFit);
+      bErrMinuitValues.push_back(0.1431);
+//      bErrMinuitValues.push_back(3*evt.bErr_minuitFit);
     }
 
 
