@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -86,10 +86,14 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH2D *hbAndChi2 = new TH2D("bAndChi2", "b vs chi2", 100, -0.5, 0.5, 100, 0, 2);
+  TH2D *hbAndChi2 = new TH2D("bAndChi2", Form("b vs chi2: %s, %s", TYPE, GEOM), 40, -0.5, 1.5, 80, 0, 4);
+  hbAndChi2->GetXaxis()->SetTitle("b");
+  hbAndChi2->GetYaxis()->SetTitle("chi2/ndf");
 
 //  FillArrays(Form("TwiddledbValues_NoAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
-  FillArrays(Form("AsymmetricTwiddledbValues_secondPass_noAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
+//  FillArrays(Form("AsymmetricTwiddledbValues_secondPass_noAsymm100MillBLINDEDBaseline_A_1_b_0_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
+  FillArrays(Form("../Fast_NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index16.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbAndChi2);
+
 
   hbAndChi2->Draw("COLZ");
 
@@ -135,12 +139,12 @@ void FillArrays(TString fileName, TH2D* h)
 		>> evt.holder1
 		>> evt.holder2
 		>> evt.covMatrixStatus;
-
+/*
       if(evt.bFitValue > 0)
       {
         cout << "With a b = " << evt.bFitValue << ", index number is " << evt.indexNb << endl;
       }
-
+*/
       h->Fill(evt.bFitValue, evt.chi2_ndf);
     }
 

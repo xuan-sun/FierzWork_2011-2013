@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = view2dTwiddledbAndChi2.o
-SOURCE = view2dTwiddledbAndChi2
+OBJECTS = viewValuesVsOctets.o
+SOURCE = viewValuesVsOctets
 
 .PHONY: all
 all: $(SOURCE)
