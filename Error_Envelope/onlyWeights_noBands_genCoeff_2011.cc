@@ -48,7 +48,7 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"test_onlyWeights_noBands_genCoeff.txt"
+#define		PARAM_FILE_NAME		"test_onlyWeights_noBands_genCoeff_2011.txt"
 #define		INPUT_EQ2ETRUE_PARAMS_2010	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2011	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2012	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat"
@@ -118,7 +118,7 @@ bool PrintTwiddlesToFile(double a, double b, double c, double d);
 void FitHistogram(TH1D* h);
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Testing histogram for plotting stuff of interest.
 vector <TH1D*> histErecon;
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-//  C->Divide(4, 2);
+  C->Divide(4, 2);
   C->cd(1);
   gROOT->SetStyle("Plain");
 
@@ -196,20 +196,19 @@ int main(int argc, char *argv[])
   ErrorEnvelope_2011();
   ErrorEnvelope_2012();
 
-  errEnv2012_top_2sigma -> GetYaxis() -> SetRangeUser(-20, 20);
-  errEnv2012_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
-  errEnv2012_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
-  errEnv2012_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2012-2013");
-  errEnv2012_top_2sigma -> SetLineStyle(2);
-  errEnv2012_top_2sigma -> Draw();
+  errEnv2011_top_2sigma -> GetYaxis() -> SetRangeUser(-20, 20);
+  errEnv2011_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
+  errEnv2011_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
+  errEnv2011_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2012-2013");
+  errEnv2011_top_2sigma -> SetLineStyle(2);
+  errEnv2011_top_2sigma -> Draw();
 
   // Create histograms at fixed Erecon values to look at distribution of polynomials.
-  histErecon.push_back(new TH1D("Ce2012-2013", "Erecon = 150, #sigma_{env} = 2.71", 120, -30, 30));
-  histErecon.push_back(new TH1D("Sn2012-2013", "Erecon = 388, #sigma_{env} = 3.73", 120, -30, 30));
-  histErecon.push_back(new TH1D("BiLow2012-2013", "Erecon = 518, #sigma_{env} = 4.22", 120, -30, 30));
+  histErecon.push_back(new TH1D("Ce2012-2013", "Erecon = 130, #sigma_{env} = 2.71", 120, -30, 30));
+  histErecon.push_back(new TH1D("Sn2012-2013", "Erecon = 368, #sigma_{env} = 3.73", 120, -30, 30));
+  histErecon.push_back(new TH1D("BiLow2012-2013", "Erecon = 498, #sigma_{env} = 4.22", 120, -30, 30));
   histErecon.push_back(new TH1D("endpoint", "Erecon = 782, #sigma_{env} = 4.51", 120, -30, 30));
   histErecon.push_back(new TH1D("BiHigh2012-2013", "Erecon = 994/*1014*/, #sigma_{env} = 6.85", 240, -60, 60));
-  histErecon.push_back(new TH1D("BiHigh2012-2013_real", "Erecon = 1014, #sigma_{env} = 7.30", 240, -60, 60));
 
 /*
   histErecon.push_back(new TH1D("250", "Erecon = 250, #sigma_{env} = 2.06", 120, -30, 30));
@@ -218,8 +217,8 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("750", "Erecon = 750, #sigma_{env} = 3.51", 120, -30, 30));
 */
   // Load the converter to get Erecon from a single EQ value.
-  cout << "Using following calibration for 2012-2013 geometry to convert Evis to Erecon..." << endl;
-  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2012-2013");
+  cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
+  vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
 
   int counter, numberSaved;
   counter = 0;
@@ -264,20 +263,20 @@ int main(int argc, char *argv[])
   cout << "Number of twiddles saved should be = " << GlobalTwiddleCounter << endl;
 
   // Placed here so 1 sigma error envelope goes on top.
-  errEnv2012_top_1sigma -> SetLineStyle(2);
-  errEnv2012_top_1sigma -> Draw("SAME");
-  errEnv2012_bot_1sigma -> SetLineStyle(2);
-  errEnv2012_bot_1sigma -> Draw("SAME");
-  errEnv2012_bot_2sigma -> SetLineStyle(2);
-  errEnv2012_bot_2sigma -> Draw("SAME");
+  errEnv2011_top_1sigma -> SetLineStyle(2);
+  errEnv2011_top_1sigma -> Draw("SAME");
+  errEnv2011_bot_1sigma -> SetLineStyle(2);
+  errEnv2011_bot_1sigma -> Draw("SAME");
+  errEnv2011_bot_2sigma -> SetLineStyle(2);
+  errEnv2011_bot_2sigma -> Draw("SAME");
 
-  errEnv2012_top_2sigma -> Draw("SAME");
+  errEnv2011_top_2sigma -> Draw("SAME");
 
   TLine *line = new TLine(0, 0, 1000, 0);
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-/*
+
   for(unsigned int i = 0; i < histErecon.size(); i++)
   {
     C->cd(i+2);
@@ -286,11 +285,11 @@ int main(int argc, char *argv[])
     FitHistogram(histErecon[i]);
   }
   printIndex = 0;
-*/
+
   // Save our plot and print it out as a pdf.
-  C -> Print("output_onlyWeights_noBands_genCoeff.pdf");
+  C -> Print("output_onlyWeights_noBands_genCoeff_2011.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
@@ -340,8 +339,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   TGraph* graph = new TGraph(nbPoints, &(Erecon0_values[0]), &(delta_Erecon_values[0]));
 
   // Get our error envelope so we can check polynomial values against (multiples of) them.
-  TF1* errEnv1 = errEnv2012_top_1sigma;
-  TF1* errEnv2 = errEnv2012_top_2sigma;
+  TF1* errEnv1 = errEnv2011_top_1sigma;
+  TF1* errEnv2 = errEnv2011_top_2sigma;
 
   // Check our polynomial (the scatter plot) against a save condition.
   double x, y;
@@ -361,11 +360,11 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     graph->GetPoint(i, x, y);
 
     // This is to plot a Erecon slice histogram
-    if(x > 150 && x < 151)
+    if(x > 130 && x < 131)
     {
       v1 = y;
     }
-    else if(x > 388 && x < 389)
+    else if(x > 368 && x < 369)
     {
       v2 = y;
     }
@@ -561,11 +560,11 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
   int Bi2_index = 0;
   for(unsigned int i = 0; i < energyAxis.size(); i++)
   {
-    if(energyAxis[i] > 149.5 && energyAxis[i] < 150.5)
+    if(energyAxis[i] > 129.5 && energyAxis[i] < 130.5)
     {
       Ce_index = i;
     }
-    if(energyAxis[i] > 387.5 && energyAxis[i] < 388.5)
+    if(energyAxis[i] > 367.5 && energyAxis[i] < 368.5)
     {
       Sn_index = i;
     }
@@ -573,7 +572,7 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
     {
       End_index = i;
     }
-    if(energyAxis[i] > 517.5 && energyAxis[i] < 518.5)
+    if(energyAxis[i] > 497.5 && energyAxis[i] < 498.5)
     {
       Bi1_index = i;
     }
@@ -589,15 +588,15 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 */
   }
 
-  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2012_top_1sigma->Eval(150.3);
-  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2012_top_1sigma->Eval(388.5);
-  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2012_top_1sigma->Eval(518.0);
+  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2012_top_1sigma->Eval(130.3);
+  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2012_top_1sigma->Eval(368.5);
+  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2012_top_1sigma->Eval(498.0);
   double EndErrorBar = abs(convertedTwiddle[End_index]) / errEnv2012_top_1sigma->Eval(782);
   double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2012_top_1sigma->Eval(993.8);
 
   // weights for 2011-2012 error bars that work best
-//  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
-  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;
+  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
+//  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;
 
 
   TF1* sampleGaussian = new TF1("sampleGaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
