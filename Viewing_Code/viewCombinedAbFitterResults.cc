@@ -43,15 +43,15 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
 using            namespace std;
 
 // Fundamental constants that get used
-const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-double NDF = -1;
+const double m_e = 511.00;                      ///< electron mass, keV/c^2
+double NDF = 47;				// taken from the .txt file. All twiddles fit the same range so same NDF
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit", 225, 0, 4.5);
-  FillArrays(Form("../NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index15.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  TH1D* hbFitValues = new TH1D("bFit", "b fit", 100, 0, 4.5);
+  FillArrays(Form("../Fast_NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index16.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../CombinedAbFitter/CorrectBlindingDec2018_combinedAbFitter_OneOctetbAndA_statErrorScaledBy3_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
@@ -98,12 +98,29 @@ int main(int argc, char* argv[])
 
   int max = hbFitValues->GetMaximum();
 
-  PlotHist(C, 2, 1, hbFitValues, Form("b fits, %s, %s", TYPE, GEOM), "chisquared/ndf", "N", "", max);
-/*
-  TLegend* leg1 = new TLegend(0.1,0.6,0.35,0.8);
+  PlotHist(C, 2, 1, hbFitValues, Form("b fits, %s, %s", TYPE, GEOM), "chisquared/ndf", "N", "", 1.25*max);
+
+  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);
+  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+  double hTot = 0;
+  double theoryHTot = 0;
+  // must do minimum value of 0.1 or else the chisquared function diverges down, messing up normalization.
+  for(int i = hbFitValues->FindBin(0.1); i <= hbFitValues->GetNbinsX(); i++)
+  {
+    hTot = hTot + hbFitValues->GetBinContent(i);
+    theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
+
+  }
+  theoryChiHist->Scale(hTot / theoryHTot);
+
+  PlotHist(C, 1, 1, theoryChiHist, "", "", "", "SAME", 1.25*max);
+
+
+  TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
   leg1->AddEntry(hbFitValues,"b fit","f");
+  leg1->AddEntry(theoryChiHist,"theory #frac{#Chi^{2}}{NDF = 47}","f");
   leg1->Draw();
-*/
+
 
   //prints the canvas with a dynamic TString name of the name of the file
 //  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
@@ -148,7 +165,6 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 
 //      h->Fill(evt.bFitValue, 1/sqrt(evt.chi2_ndf));
       h->Fill(evt.chi2_ndf);
-
     }
 
     if(infile1.eof() == true)

@@ -187,35 +187,27 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C->Divide(4, 2);
+//  C->Divide(3, 2);
   C->cd(1);
   gROOT->SetStyle("Plain");
 
   LoadEnvelopeHistogram_2011();
-  LoadEnvelopeHistogram_2012();
   ErrorEnvelope_2011();
-  ErrorEnvelope_2012();
 
   errEnv2011_top_2sigma -> GetYaxis() -> SetRangeUser(-20, 20);
   errEnv2011_top_2sigma -> GetYaxis() -> SetTitle("E_{recon} Error (keV)");
   errEnv2011_top_2sigma -> GetXaxis() -> SetTitle("E_{recon} (keV)");
-  errEnv2011_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2012-2013");
+  errEnv2011_top_2sigma -> SetTitle("Non-linearity Polynomial Variations, 2011-2012");
   errEnv2011_top_2sigma -> SetLineStyle(2);
   errEnv2011_top_2sigma -> Draw();
 
   // Create histograms at fixed Erecon values to look at distribution of polynomials.
-  histErecon.push_back(new TH1D("Ce2012-2013", "Erecon = 130, #sigma_{env} = 2.71", 120, -30, 30));
-  histErecon.push_back(new TH1D("Sn2012-2013", "Erecon = 368, #sigma_{env} = 3.73", 120, -30, 30));
-  histErecon.push_back(new TH1D("BiLow2012-2013", "Erecon = 498, #sigma_{env} = 4.22", 120, -30, 30));
-  histErecon.push_back(new TH1D("endpoint", "Erecon = 782, #sigma_{env} = 4.51", 120, -30, 30));
-  histErecon.push_back(new TH1D("BiHigh2012-2013", "Erecon = 994/*1014*/, #sigma_{env} = 6.85", 240, -60, 60));
+  histErecon.push_back(new TH1D("Ce2011-2012", "Erecon = 130, #sigma_{env} = 3.1", 120, -30, 30));
+  histErecon.push_back(new TH1D("Sn2011-2012", "Erecon = 368, #sigma_{env} = 2.1", 120, -30, 30));
+  histErecon.push_back(new TH1D("BiLow2011-2012", "Erecon = 498, #sigma_{env} = 2.76", 120, -30, 30));
+  histErecon.push_back(new TH1D("endpoint", "Erecon = 782, #sigma_{env} = 3.8", 120, -30, 30));
+  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.6", 240, -60, 60));
 
-/*
-  histErecon.push_back(new TH1D("250", "Erecon = 250, #sigma_{env} = 2.06", 120, -30, 30));
-  histErecon.push_back(new TH1D("400", "Erecon = 400, #sigma_{env} = 2.24", 120, -30, 30));
-  histErecon.push_back(new TH1D("650", "Erecon = 650, #sigma_{env} = 3.02", 120, -30, 30));
-  histErecon.push_back(new TH1D("750", "Erecon = 750, #sigma_{env} = 3.51", 120, -30, 30));
-*/
   // Load the converter to get Erecon from a single EQ value.
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
   vector < vector < vector <double> > > converter = GetEQ2EtrueParams("2011-2012");
@@ -224,8 +216,6 @@ int main(int argc, char *argv[])
   counter = 0;
   numberSaved = 0;
 
-//  for(int k = 0; k < 5; k++)
-//  {
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
@@ -258,7 +248,6 @@ int main(int argc, char *argv[])
       }
     }
   }
-//  }
 
   cout << "Number of twiddles saved should be = " << GlobalTwiddleCounter << endl;
 
@@ -276,7 +265,7 @@ int main(int argc, char *argv[])
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-
+/*
   for(unsigned int i = 0; i < histErecon.size(); i++)
   {
     C->cd(i+2);
@@ -285,7 +274,7 @@ int main(int argc, char *argv[])
     FitHistogram(histErecon[i]);
   }
   printIndex = 0;
-
+*/
   // Save our plot and print it out as a pdf.
   C -> Print("output_onlyWeights_noBands_genCoeff_2011.pdf");
   cout << "-------------- End of Program ---------------" << endl;
@@ -380,10 +369,12 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     {
       v4 = y;
     }
+/*
     else if(x > 1013.5 && x < 1014.5)
     {
       v44 = y;
     }
+*/
     else if(x > 249.5 && x < 250.5)
     {
       v5 = y;
@@ -426,7 +417,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[2] -> Fill(v3);
       histErecon[3] -> Fill(vEnd);
       histErecon[4] -> Fill(v4);
-      histErecon[5] -> Fill(v44);
+//      histErecon[5] -> Fill(v44);
 /*
       histErecon[5] -> Fill(v5);
       histErecon[6] -> Fill(v6);
@@ -588,11 +579,11 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 */
   }
 
-  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2012_top_1sigma->Eval(130.3);
-  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2012_top_1sigma->Eval(368.5);
-  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2012_top_1sigma->Eval(498.0);
-  double EndErrorBar = abs(convertedTwiddle[End_index]) / errEnv2012_top_1sigma->Eval(782);
-  double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2012_top_1sigma->Eval(993.8);
+  double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2011_top_1sigma->Eval(130.3);
+  double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2011_top_1sigma->Eval(368.5);
+  double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2011_top_1sigma->Eval(498.0);
+  double EndErrorBar = abs(convertedTwiddle[End_index]) / errEnv2011_top_1sigma->Eval(782);
+  double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8);
 
   // weights for 2011-2012 error bars that work best
   double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
@@ -686,6 +677,7 @@ void FitHistogram(TH1D* h)
   t5.SetTextAlign(13);
   t5.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.4*(h->GetMaximum()), Form("#sigma_{err} = %f", fFitResults->GetParError(2)));
 
+/*
   ofstream outfile;
   outfile.open("ErrorBarWeightingCoeff_Scan_2012-2013_pass2.txt", ios::app);
 
@@ -706,7 +698,7 @@ void FitHistogram(TH1D* h)
     outfile << fFitResults->GetParameter(2) << "\n";
   }
   outfile.close();
-
+*/
 }
 
 
