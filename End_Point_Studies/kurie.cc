@@ -44,13 +44,13 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -63,21 +63,32 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot,
 // Perform a few useful, simple calculations
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 
-vector <double> binContentsMC0;
-vector <double> binErrorsMC0;
+vector <double> binContents;
+vector <double> binErrors;
 vector <double> energy;
 vector <double> energyErr;
 double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 1)
+  if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
     cout << "(executable) (data file index)" << endl;
     return 0;
   }
 
+  int twiddleIndex = atoi(argv[1]);
+
+  // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
+  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
+  TChain* dataChain = new TChain("SimAnalyzed");
+  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, twiddleIndex));
+  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << twiddleIndex << endl;
+
+/*
   int numFilesIndexMin = 0;
   int numFilesIndexMax = 100;
   // using unblinded base beta spectrum i.e. no twiddles, no input b
@@ -88,16 +99,17 @@ int main(int argc, char* argv[])
     betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
   }
   betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-
   cout << "Completed loading betaChain with events equal to " << mcTheoryHistBeta->GetEntries() << endl;
+*/
+
 
   // create vectors of the basic, loaded in histogram.
-  for(int i = 0; i < mcTheoryHistBeta->GetNbinsX(); i++)
+  for(int i = 0; i < dataHist->GetNbinsX(); i++)
   {
-    energy.push_back( mcTheoryHistBeta->GetBinCenter(i) );
+    energy.push_back(dataHist->GetBinCenter(i));
     energyErr.push_back(5.0);	// 5keV bin error is 1/2 bin width
-    binContentsMC0.push_back(mcTheoryHistBeta->GetBinContent(i));
-    binErrorsMC0.push_back(mcTheoryHistBeta->GetBinError(i));
+    binContents.push_back(dataHist->GetBinContent(i));
+    binErrors.push_back(dataHist->GetBinError(i));
   }
 
   // convert the histogram into a kurie plot.
@@ -105,7 +117,7 @@ int main(int argc, char* argv[])
   vector <double> kurieErr;
 
   double W = 0;
-  for(unsigned int i = 0; i < binContentsMC0.size(); i++)
+  for(unsigned int i = 0; i < binContents.size(); i++)
   {
     W = energy[i] + 511;
 
@@ -116,18 +128,14 @@ int main(int argc, char* argv[])
       continue;
     }
 
-    kurie.push_back(sqrt( binContentsMC0[i] / ( W * sqrt(W*W - 511.0*511.0) ) ));
-    kurieErr.push_back(sqrt( binErrorsMC0[i] / ( W * sqrt(W*W - 511.0*511.0) ) ));
+    kurie.push_back(sqrt( binContents[i] / ( W * sqrt(W*W - 511.0*511.0) ) ));
+    kurieErr.push_back(sqrt( binErrors[i] / ( W * sqrt(W*W - 511.0*511.0) ) ));
   }
-
-  TGraphErrors *g1 = new TGraphErrors(binContentsMC0.size(), &(energy[0]), &(binContentsMC0[0]), &(energyErr[0]), &(binErrorsMC0[0]));
 
   TGraphErrors *g2 = new TGraphErrors(kurie.size(), &(energy[0]), &(kurie[0]), &(energyErr[0]), &(kurieErr[0]));
 
   TF1 *fit1 = new TF1("fit1", "[0] + [1]*x", energy[FITMINBIN], energy[FITMAXBIN]);
   g2->Fit(fit1, "R");
-
-
 
   // plot everything and visualize
   TCanvas *C = new TCanvas("canvas", "canvas");
@@ -158,10 +166,29 @@ int main(int argc, char* argv[])
   t4.SetTextAlign(13);
   t4.DrawLatex(700, 0.75, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
+  ofstream outfile;
+  outfile.open(Form("endPointFits_GaussianTwiddles_%s_%s_Bins_%i-%i_index16.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile << twiddleIndex << "\t"
+          << fit1->GetChisquare() << "\t"
+          << fit1->GetNDF() << "\t"
+          << fit1->GetChisquare() / fit1->GetNDF() << "\t"
+          << fit1->GetParameter(0) << "\t"
+          << fit1->GetParError(0) << "\t"
+          << fit1->GetParameter(1) << "\t"
+          << fit1->GetParError(1) << "\t"         // these -1's are placeholders so the format is same as combinedAbFitter.cc
+          << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
+          << FITMINBIN << "\t"
+	  << FITMAXBIN << "\t"
+	  << energy[FITMINBIN] << "\t"
+	  << energy[FITMAXBIN] << "\n";
+  outfile.close();
+
+
+
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
