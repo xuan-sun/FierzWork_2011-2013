@@ -78,17 +78,27 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  int twiddleIndex = atoi(argv[1]);
+  int index = atoi(argv[1]);
 
-  // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
+  // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
+  TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
+  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
+  dataHist = (TH1D*)f.Get("Super sum");
+
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
+
+
+/*
+  // this bit reads in twiddle files
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
   dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, twiddleIndex));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << twiddleIndex << endl;
-
+*/
 /*
+  // this bit reads in baseline monte carlos
   int numFilesIndexMin = 0;
   int numFilesIndexMax = 100;
   // using unblinded base beta spectrum i.e. no twiddles, no input b
@@ -167,8 +177,8 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.75, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-  outfile.open(Form("endPointFits_GaussianTwiddles_%s_%s_Bins_%i-%i_index16.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile << twiddleIndex << "\t"
+  outfile.open(Form("endPointFits_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile << index << "\t"
           << fit1->GetChisquare() << "\t"
           << fit1->GetNDF() << "\t"
           << fit1->GetChisquare() / fit1->GetNDF() << "\t"

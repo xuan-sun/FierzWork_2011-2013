@@ -50,14 +50,14 @@
 using            namespace std;
 
 // Fundamental constants that get used
-const double m_e = 511.00;                      ///< electron mass, keV/c^2
-double NDF = 47;				// taken from the .txt file. All twiddles fit the same range so same NDF
+const double m_e = 511.00;                                              ///< electron mass, keV/c^2
+double NDF = -1;
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
-void FillArrays(TString fileName, TH1D *h, int hFillOption);
+void FillArrays(TString fileName, TH2D *h);
 
 struct entry
 {
@@ -73,8 +73,7 @@ struct entry
   double fitbinmin;
   double fitbinmax;
   double lowE;
-  double highE;
-};
+  double highE;};
 
 int main(int argc, char* argv[])
 {
@@ -85,50 +84,30 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-//  int option = atoi(argv[1]);
-
   TCanvas *C = new TCanvas("canvas", "canvas");
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "end points", 50, 760, 810);
-  FillArrays(Form("endPointFits_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h, 1);
+  TH2D *h2 = new TH2D("bAndChi2", Form("b vs chi2: %s, %s", TYPE, GEOM), 40, -0.5, 1.5, 80, 0, 4);
+  h2->GetXaxis()->SetTitle("b");
+  h2->GetYaxis()->SetTitle("chi2/ndf");
 
-  int max = h->GetMaximum();
+  FillArrays(Form("endPointFits_GaussianTwiddles_%s_%s_Bins_%i-%i_index15.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2);
 
-  PlotHist(C, 2, 1, h, Form("endpoints, %s, %s", TYPE, GEOM), "chisquared/ndf", "N", "", max);
+  h2->Draw("COLZ");
 
-/*
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);
-  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-  double hTot = 0;
-  double theoryHTot = 0;
-  // must do minimum value of 0.1 or else the chisquared function diverges down, messing up normalization.
-  for(int i = hbFitValues->FindBin(0.1); i <= hbFitValues->GetNbinsX(); i++)
-  {
-    hTot = hTot + hbFitValues->GetBinContent(i);
-    theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
-
-  }
-  theoryChiHist->Scale(hTot / theoryHTot);
-  PlotHist(C, 1, 1, theoryChiHist, "", "", "", "SAME", 1.25*max);
-
-  TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
-  leg1->AddEntry(hbFitValues,"b fit","f");
-  leg1->AddEntry(theoryChiHist,"theory #frac{#Chi^{2}}{NDF = 47}","f");
-  leg1->Draw();
-*/
 
   //prints the canvas with a dynamic TString name of the name of the file
-//  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
+//  C->Print("2D_bAndChi2_SymmetricTwiddles_newXuanFitter.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
   return 0;
 }
 
-void FillArrays(TString fileName, TH1D* h, int hFillOption)
+void FillArrays(TString fileName, TH2D* h)
 {
+
   entry evt;
 
   //opens the file that I name in DATA_FILE_IN
@@ -150,20 +129,20 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
     if(!infile1.eof())
     {
       bufstream >> evt.indexNb
-		>> evt.chi2
-		>> evt.ndf
-		>> evt.chi2_ndf
-		>> evt.par0
-		>> evt.par0Err
-		>> evt.par1
-		>> evt.par1Err
-		>> evt.endpoint
-		>> evt.fitbinmin
-		>> evt.fitbinmax
-		>> evt.lowE
-		>> evt.highE;
+                >> evt.chi2
+                >> evt.ndf
+                >> evt.chi2_ndf
+                >> evt.par0
+                >> evt.par0Err
+                >> evt.par1
+                >> evt.par1Err
+                >> evt.endpoint
+                >> evt.fitbinmin
+                >> evt.fitbinmax
+                >> evt.lowE
+                >> evt.highE;
 
-      h->Fill(evt.endpoint);
+      h->Fill(evt.endpoint, evt.chi2_ndf);
     }
 
     if(infile1.eof() == true)
