@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -57,9 +57,9 @@ double NDF = -1;
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
-void FillArrays(TString fileName, TH2D *h);
+void FillArrays(TString fileName, TH2D *h, int opt);
 
-struct entry
+struct endPointEntry
 {
   int indexNb;
   double chi2;
@@ -73,7 +73,25 @@ struct entry
   double fitbinmin;
   double fitbinmax;
   double lowE;
-  double highE;};
+  double highE;
+};
+
+struct fitterEntry
+{
+  int indexNb;
+  double avg_mE;
+  double chi2;
+  double ndf;
+  double chi2_ndf;
+  double bFitValue;
+  double bFitError;
+  double AFitValue;
+  double AFitError;
+  int covMatrixStatus;
+};
+
+vector <endPointEntry> endpoints;
+vector <fitterEntry> fits;
 
 int main(int argc, char* argv[])
 {
@@ -88,11 +106,21 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH2D *h2 = new TH2D("bAndChi2", Form("b vs chi2: %s, %s", TYPE, GEOM), 40, -0.5, 1.5, 80, 0, 4);
-  h2->GetXaxis()->SetTitle("b");
-  h2->GetYaxis()->SetTitle("chi2/ndf");
+  TH2D *h2 = new TH2D("bAndEndpoint", Form("b vs endpoint: %s, %s", TYPE, GEOM), 50, 770, 800, 50, -0.5, 0.5);
+  h2->GetXaxis()->SetTitle("endpoint (keV)");
+  h2->GetYaxis()->SetTitle("b fit value");
 
-  FillArrays(Form("endPointFits_GaussianTwiddles_%s_%s_Bins_%i-%i_index15.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2);
+  FillArrays(Form("endPointFits_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 1);
+  FillArrays(Form("../NewXuanFitter/CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
+
+  for(unsigned int i = 0; i < endpoints.size(); i++)
+  {
+    h2->Fill(endpoints[i].endpoint, fits[i].bFitValue);
+  }
+
+
+  cout << "size endpoints = " << endpoints.size() << endl;
+  cout << "size fits = " << fits.size() << endl;
 
   h2->Draw("COLZ");
 
@@ -105,10 +133,10 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-void FillArrays(TString fileName, TH2D* h)
+void FillArrays(TString fileName, TH2D* h, int opt)
 {
-
-  entry evt;
+  endPointEntry evt1;
+  fitterEntry evt2;
 
   //opens the file that I name in DATA_FILE_IN
   string buf;
@@ -128,21 +156,41 @@ void FillArrays(TString fileName, TH2D* h)
 
     if(!infile1.eof())
     {
-      bufstream >> evt.indexNb
-                >> evt.chi2
-                >> evt.ndf
-                >> evt.chi2_ndf
-                >> evt.par0
-                >> evt.par0Err
-                >> evt.par1
-                >> evt.par1Err
-                >> evt.endpoint
-                >> evt.fitbinmin
-                >> evt.fitbinmax
-                >> evt.lowE
-                >> evt.highE;
+      if(opt == 1)
+      {
+        bufstream >> evt1.indexNb
+                >> evt1.chi2
+                >> evt1.ndf
+                >> evt1.chi2_ndf
+                >> evt1.par0
+                >> evt1.par0Err
+                >> evt1.par1
+                >> evt1.par1Err
+                >> evt1.endpoint
+                >> evt1.fitbinmin
+                >> evt1.fitbinmax
+                >> evt1.lowE
+                >> evt1.highE;
 
-      h->Fill(evt.endpoint, evt.chi2_ndf);
+//      h->Fill(evt.endpoint, evt.chi2_ndf);
+
+        endpoints.push_back(evt1);
+      }
+      else if(opt == 2)
+      {
+        bufstream >> evt2.indexNb
+		>> evt2.avg_mE
+                >> evt2.chi2
+                >> evt2.ndf
+                >> evt2.chi2_ndf
+                >> evt2.bFitValue
+                >> evt2.bFitError
+                >> evt2.AFitValue
+                >> evt2.AFitError
+                >> evt2.covMatrixStatus;
+
+        fits.push_back(evt2);
+      }
     }
 
     if(infile1.eof() == true)

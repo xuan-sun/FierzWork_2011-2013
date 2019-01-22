@@ -155,8 +155,6 @@ void ErrorEnvelope() {
   std::vector < std::vector<Double_t> > env2011 = GetGeomEnvelope("2011-2012");
   std::vector < std::vector<Double_t> > env2012 = GetGeomEnvelope("2012-2013");
 
- 
-
   /////////////////////////////////////////////////// 2011-2012 /////////////////////////////////////////////////////////
 
 
@@ -306,11 +304,13 @@ void ErrorEnvelope() {
 
   // Xuan's own addition to get the actual data points in the TGraphs
   double x, y;
-  for(int i = 0; i < gr2012->GetN(); i++)
+  for(int i = 0; i < gr2011->GetN(); i++)
   {
-    gr2012->GetPoint(i, x, y);
+    gr2011->GetPoint(i, x, y);
     cout << "At i = " << i << " we have: " << x << ", " << y << endl;
   }
+  gr2011->Print();
+  gr2012->Print();
 
   mg->Draw("A");
   mg->GetXaxis()->SetTitle("E_{recon} [keV]");
