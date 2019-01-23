@@ -175,10 +175,10 @@ int main(int argc, char *argv[])
   wBi1 = atof(argv[3]);
   wBi2 = atof(argv[4]);
 */
-  wCe = 2.8;
-  wSn = 1.0;
-  wBi1 = 0.75;
-  wEnd = 1.5;
+  wCe = 6.0;
+  wSn = 4.0;
+  wBi1 = 2.5;
+  wEnd = 2.0;
   wBi2 = 1.0;
 
   // Ensures the seed is different for randomizing in ROOT.
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 
   // Start the plotting stuff so we can loop and use "SAME" as much as possible.
   TCanvas *C = new TCanvas("canvas", "canvas");
-//  C->Divide(3, 2);
+  C->Divide(3, 2);
   C->cd(1);
   gROOT->SetStyle("Plain");
 
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
   histErecon.push_back(new TH1D("Sn2011-2012", "Erecon = 368, #sigma_{env} = 2.1", 120, -30, 30));
   histErecon.push_back(new TH1D("BiLow2011-2012", "Erecon = 498, #sigma_{env} = 2.76", 120, -30, 30));
   histErecon.push_back(new TH1D("endpoint", "Erecon = 782, #sigma_{env} = 3.8", 120, -30, 30));
-  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.6", 240, -60, 60));
+  histErecon.push_back(new TH1D("BiHigh2011-2012", "Erecon = 994, #sigma_{env} = 7.6", 120, -30, 30));
 
   // Load the converter to get Erecon from a single EQ value.
   cout << "Using following calibration for 2011-2012 geometry to convert Evis to Erecon..." << endl;
@@ -219,16 +219,12 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-//    for(double a = 2; a <= 2; a = a + 0.1)
     for(double a = -20.0; a <= 20.0; a = a + 0.5)
     {
-//      for(double b = 0; b <= 0; b = b + 0.0001)
       for(double b = -0.1; b <= 0.1; b = b + 1e-3)
       {
-//        for(double c = 0; c <= 0; c = c + 1e-6)
         for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
         {
-//          for(double d = -1e-7; d <= 1e-7; d = d + 5e-8)
 	  for(double d = 0; d <= 0; d++)
           {
             bool save = PerformVariation(a, b, c, d, numberSaved, converter, engine, j);
@@ -265,7 +261,7 @@ int main(int argc, char *argv[])
   line->Draw("SAME");
 
   // Plot all the additional Erecon slice histograms
-/*
+
   for(unsigned int i = 0; i < histErecon.size(); i++)
   {
     C->cd(i+2);
@@ -274,7 +270,7 @@ int main(int argc, char *argv[])
     FitHistogram(histErecon[i]);
   }
   printIndex = 0;
-*/
+
   // Save our plot and print it out as a pdf.
   C -> Print("output_errEnv2.pdf");
   cout << "-------------- End of Program ---------------" << endl;
@@ -339,11 +335,6 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   double v3 = -10;
   double vEnd = -10;
   double v4 = -10;
-  double v44 = -10;
-  double v5 = -10;
-  double v6 = -10;
-  double v7 = -10;
-  double v8 = -10;
   for(int i = 1; i <= graph->GetN(); i++)
   {
     graph->GetPoint(i, x, y);
@@ -369,31 +360,9 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     {
       v4 = y;
     }
-/*
-    else if(x > 1013.5 && x < 1014.5)
-    {
-      v44 = y;
-    }
-*/
-    else if(x > 249.5 && x < 250.5)
-    {
-      v5 = y;
-    }
-    else if(x > 399.5 && x < 400.5)
-    {
-      v6 = y;
-    }
-    else if(x > 649.5 && x < 650.5)
-    {
-      v7 = y;
-    }
-    else if(x > 749.5 && x < 750.5)
-    {
-      v8 = y;
-    }
 
-    // if, at any point, we are over 3 sigma away, exit and don't save and don't throw a number.
-    if(abs(y) > 3.0*errEnv1->Eval(x))
+    // if, at any point, we are outside error envelope, exit and don't save and don't throw a number.
+    if(abs(y) > 1.0*errEnv1->Eval(x))
     {
       saveCondition = false;
       break;
@@ -417,13 +386,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[2] -> Fill(v3);
       histErecon[3] -> Fill(vEnd);
       histErecon[4] -> Fill(v4);
-//      histErecon[5] -> Fill(v44);
-/*
-      histErecon[5] -> Fill(v5);
-      histErecon[6] -> Fill(v6);
-      histErecon[7] -> Fill(v7);
-      histErecon[8] -> Fill(v8);
-*/
+
       // Plotting stuff
       graph->SetLineColor(numPassed % 50);
       graph->Draw("SAME");
@@ -571,12 +534,7 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
     {
       Bi2_index = i;
     }
-/*
-    if(energyAxis[i] > 1013.5 && energyAxis[i] < 1014.5)
-    {
-      Bi2_index_real = i;
-    }
-*/
+
   }
 
   double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2011_top_1sigma->Eval(130.3);
@@ -586,7 +544,7 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
   double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8);
 
   // weights for 2011-2012 error bars that work best
-  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
+//  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
 //  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;
 
 
@@ -594,13 +552,14 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
-/*
-  double sampleGaussianValue = 2.0*sampleGaussian->Integral(CeErrorBar, 10)
-			     * 2.0*sampleGaussian->Integral(SnErrorBar, 10)
-			     * 2.0*sampleGaussian->Integral(Bi1ErrorBar, 10)
-			     * 2.0*sampleGaussian->Integral(Bi2ErrorBar, 10);
-*/
-  double sampleGaussianValue = 2.0*sampleGaussian->Integral(totalErrorBars, 10);
+
+  double sampleGaussianValue = 2.0*sampleGaussian->Integral(wCe*CeErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(wSn*SnErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(wBi1*Bi1ErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(wEnd*EndErrorBar, 10)
+			     * 2.0*sampleGaussian->Integral(wBi2*Bi2ErrorBar, 10);
+
+//  double sampleGaussianValue = 2.0*sampleGaussian->Integral(totalErrorBars, 10);
 
   delete sampleGaussian;
 
@@ -805,25 +764,9 @@ void LoadEnvelopeHistogram_2011()
                  >> error
                  >> errorHigh
                  >> errorLow;
-/*
-      if(energy >= 0 && energy < 40)
-      {
-        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.8*errorHigh);
-      }
-      else if(energy >= 40 && energy < 80)
-      {
-        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.9*errorHigh);
-      }
-      else if(energy >= 80 && energy < 120)
-      {
-        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.95*errorHigh);
-      }
-      else
-      {
-        hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 0.8*errorHigh);
-      }
-*/
-      hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), errorHigh);
+
+      // creating a "flat" error envelope of 20keV. Further work with weighting.
+      hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 20 /*errorHigh*/);
       cout << "At energy " << energy << ", we have symmetrized 2011-2012 error envelope: " << errorHigh << endl;
 
     }

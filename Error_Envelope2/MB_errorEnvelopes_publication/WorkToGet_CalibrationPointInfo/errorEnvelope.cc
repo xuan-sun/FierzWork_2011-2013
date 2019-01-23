@@ -198,16 +198,16 @@ void ErrorEnvelope() {
     yenv2011.push_back(0.);
     xerr2011.push_back(5.);
   }
-
+/*
   TGraphAsymmErrors *finenv2011 = new TGraphAsymmErrors(high2011.size(),&en2011[0],&yenv2011[0],&xerr2011[0],&xerr2011[0],&maxEnv2011[0],&maxEnv2011[0]);
   finenv2011->SetFillColorAlpha(col2011,0.8);
   finenv2011->SetFillStyle(fill2011);
-
-/*  // asymmetric error envelope below
+*/
+  // asymmetric error envelope below
   TGraphAsymmErrors *finenv2011 = new TGraphAsymmErrors(high2011.size(),&en2011[0],&yenv2011[0],&xerr2011[0],&xerr2011[0],&low2011[0],&high2011[0]);
   finenv2011->SetFillColorAlpha(col2011,0.8);
   finenv2011->SetFillStyle(fill2011);
-*/
+
   // This little bit is all my own (Xuan) creation in order to print out the values of the error envelopes.
   TCanvas *c3 = new TCanvas("c3", "c3");
   c3->cd();
@@ -270,9 +270,16 @@ void ErrorEnvelope() {
     xerr2012.push_back(5.);
   }
 
+/*
   TGraphAsymmErrors *finenv2012 = new TGraphAsymmErrors(high2012.size(),&en2012[0],&yenv2012[0],&xerr2012[0],&xerr2012[0],&maxEnv2012[0],&maxEnv2012[0]);
   finenv2012->SetFillColorAlpha(col2012,0.7);
   finenv2012->SetFillStyle(fill2012);
+*/
+  // asymmetric error envelope below
+  TGraphAsymmErrors *finenv2012 = new TGraphAsymmErrors(high2012.size(),&en2012[0],&yenv2012[0],&xerr2012[0],&xerr2012[0],&low2012[0],&high2012[0]);
+  finenv2012->SetFillColorAlpha(col2012,0.8);
+  finenv2012->SetFillStyle(fill2012);
+
 
   // This little bit is all my own (Xuan) creation in order to print out the values of the error envelopes.
   double x2012 = -1;
