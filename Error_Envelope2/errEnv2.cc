@@ -111,6 +111,9 @@ double wBi1;
 double wBi2;
 int printIndex = 0;
 
+bool Chi2WeightingCheck(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
+
+
 // Prints the twiddles to file so we don't need to store massive vectors
 bool PrintTwiddlesToFile(double a, double b, double c, double d);
 
@@ -496,6 +499,51 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 	+tempEQ2Etrue[side][type][1]*totalEvis
 	+tempEQ2Etrue[side][type][2]/(totalEvis+tempEQ2Etrue[side][type][3])
 	+tempEQ2Etrue[side][type][4]/((totalEvis+tempEQ2Etrue[side][type][5])*(totalEvis+tempEQ2Etrue[side][type][5]));;
+}
+
+bool Chi2WeightingCheck(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
+{
+  // since both vectors same size, we need to first find index that corresponds to source energies
+  int Ce_index = 0;
+  int Sn_index = 0;
+  int End_index = 0;
+  int Bi1_index = 0;
+  int Bi2_index = 0;
+  // note these current numbers are the central points used in 2011-2012.
+  // for this chi2 weighting, we will not use the endpoint.
+  for(unsigned int i = 0; i < energyAxis.size(); i++)
+  {
+    if(energyAxis[i] > 129.5 && energyAxis[i] < 130.5)
+    {
+      Ce_index = i;
+    }
+    if(energyAxis[i] > 367.5 && energyAxis[i] < 368.5)
+    {
+      Sn_index = i;
+    }
+    if(energyAxis[i] > 781.5 && energyAxis[i] < 782.5)
+    {
+      End_index = i;
+    }
+    if(energyAxis[i] > 497.5 && energyAxis[i] < 498.5)
+    {
+      Bi1_index = i;
+    }
+    if(energyAxis[i] > 993.5 && energyAxis[i] < 994.5)
+    {
+      Bi2_index = i;
+    }
+
+  }
+
+
+  
+
+
+
+
+
+  return true;
 }
 
 void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
