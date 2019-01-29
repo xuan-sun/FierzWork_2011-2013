@@ -48,7 +48,8 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"test_errEnv2.txt"
+#define		PARAM_FILE_NAME		"twiddles_errEnv2.txt"
+#define		CHI2_FILE_NAME		"chi2_errEnv2.txt"
 #define		INPUT_EQ2ETRUE_PARAMS_2010	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2011	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2012	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat"
@@ -111,11 +112,11 @@ double wBi1;
 double wBi2;
 int printIndex = 0;
 
-bool Chi2WeightingCheck(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
-
+double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
+bool Chi2AcceptReject(double chi2, TRandom3 *randNum);
 
 // Prints the twiddles to file so we don't need to store massive vectors
-bool PrintTwiddlesToFile(double a, double b, double c, double d);
+bool PrintTwiddlesToFile(double a, double b, double c, double d, double chi2);
 
 // fits our Erecon cross-section histograms
 void FitHistogram(TH1D* h);
@@ -178,11 +179,18 @@ int main(int argc, char *argv[])
   wBi1 = atof(argv[3]);
   wBi2 = atof(argv[4]);
 */
+/*
   wCe = 6.0;
   wSn = 4.0;
   wBi1 = 2.5;
   wEnd = 2.0;
   wBi2 = 1.0;
+*/
+  wCe = 3.0;
+  wSn = 1.2;
+  wBi1 = 0.8;
+  wEnd = 1.0;
+  wBi2 = 1.4;
 
   // Ensures the seed is different for randomizing in ROOT.
   TRandom3* engine = new TRandom3(0);
@@ -222,11 +230,11 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = -20.0; a <= 20.0; a = a + 0.5)
+    for(double a = -20.0; a <= 20.0; a = a + 0.2)
     {
-      for(double b = -0.1; b <= 0.1; b = b + 1e-3)
+      for(double b = -0.1; b <= 0.1; b = b + 5e-4)
       {
-        for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
+        for(double c = -1e-4; c <= 1e-4; c = c + 1e-5)
         {
 	  for(double d = 0; d <= 0; d++)
           {
@@ -365,7 +373,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     }
 
     // if, at any point, we are outside error envelope, exit and don't save and don't throw a number.
-    if(abs(y) > 1.0*errEnv1->Eval(x))
+    if(abs(y) > 3.0*errEnv1->Eval(x))
     {
       saveCondition = false;
       break;
@@ -379,10 +387,12 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     // Tons of debugging, can't find the cause. But this is a work-around.
     ProbTwiddleValidity(delta_Erecon_values, Evis_axis, factor);
 
+    double chi2_per_ndf = Chi2Calc(delta_Erecon_values, Evis_axis, factor);
+
     if(TwiddleGoodOrBad == true)
     {
       GlobalTwiddleCounter++;
-      PrintTwiddlesToFile(a, b, c, d);
+      PrintTwiddlesToFile(a, b, c, d, chi2_per_ndf);
 
       histErecon[0] -> Fill(v1);
       histErecon[1] -> Fill(v2);
@@ -391,8 +401,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[4] -> Fill(v4);
 
       // Plotting stuff
-      graph->SetLineColor(numPassed % 50);
-      graph->Draw("SAME");
+//      graph->SetLineColor(numPassed % 50);
+//      graph->Draw("SAME");
 //      delete graph;
     }
   }
@@ -501,7 +511,30 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 	+tempEQ2Etrue[side][type][4]/((totalEvis+tempEQ2Etrue[side][type][5])*(totalEvis+tempEQ2Etrue[side][type][5]));;
 }
 
-bool Chi2WeightingCheck(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
+bool Chi2AcceptReject(double chi2, TRandom3 *randNum)
+{
+  bool acceptreject = false;
+
+  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 10);
+  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+
+  double hMax = theoryChiHist->GetMaximum();
+
+  double randSample = randNum->Rndm() * hMax;
+
+  if(randSample <= theoryChiHist->GetBinContents(chi2))
+  {
+    acceptreject = true;
+  }
+  else
+  {
+    acceptreject = false;
+  }
+
+  return acceptreject;
+}
+
+double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
 {
   // since both vectors same size, we need to first find index that corresponds to source energies
   int Ce_index = 0;
@@ -537,13 +570,17 @@ bool Chi2WeightingCheck(vector <double> convertedTwiddle, vector <double> energy
   }
 
 
-  
+  double chi2 = 0;
 
+  // these are the UNSHIFTED values of the calibration source points
+  // no longer using absolute values since we do NOT assume symmetric
+  chi2 = (convertedTwiddle[Ce_index] + 1.43306)*(convertedTwiddle[Ce_index] + 1.43306) / (1.81023*1.81023)
+	+ (convertedTwiddle[Sn_index] - 0.906305)*(convertedTwiddle[Sn_index] - 0.906305) / (2.5161*2.5161)
+	+ (convertedTwiddle[Bi1_index] + 1.35907)*(convertedTwiddle[Bi1_index] + 1.35907) / (3.80851*3.80851)
+	+ (convertedTwiddle[Bi2_index] + 1.55156)*(convertedTwiddle[Bi2_index] + 1.55156) / (5.76559*5.76559);
+  chi2 = chi2 / 4.0;	// dividing by DOF
 
-
-
-
-  return true;
+  return chi2;
 }
 
 void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
@@ -593,21 +630,21 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 
   // weights for 2011-2012 error bars that work best
 //  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
-//  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;
+  double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;
 
 
   TF1* sampleGaussian = new TF1("sampleGaussian", "TMath::Gaus(x, 0, 1, 1)", -10, 10);
 
   // because we are doing absolute values, we only care about the half-Gaussian
   // so we want to take the sigma to the endpoint (times 2) as probability of acceptance
-
+/*
   double sampleGaussianValue = 2.0*sampleGaussian->Integral(wCe*CeErrorBar, 10)
 			     * 2.0*sampleGaussian->Integral(wSn*SnErrorBar, 10)
 			     * 2.0*sampleGaussian->Integral(wBi1*Bi1ErrorBar, 10)
 			     * 2.0*sampleGaussian->Integral(wEnd*EndErrorBar, 10)
 			     * 2.0*sampleGaussian->Integral(wBi2*Bi2ErrorBar, 10);
-
-//  double sampleGaussianValue = 2.0*sampleGaussian->Integral(totalErrorBars, 10);
+*/
+  double sampleGaussianValue = 2.0*sampleGaussian->Integral(totalErrorBars, 10);
 
   delete sampleGaussian;
 
@@ -624,7 +661,7 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
   }
 }
 
-bool PrintTwiddlesToFile(double a, double b, double c, double d)
+bool PrintTwiddlesToFile(double a, double b, double c, double d, double chi2)
 {
   ofstream outfile;
   outfile.open(PARAM_FILE_NAME, ios::app);
@@ -657,6 +694,43 @@ bool PrintTwiddlesToFile(double a, double b, double c, double d)
 	  << d << "\n";
 
   outfile.close();
+
+
+  // open up a second file to save the chi2 values and the indices.
+  // This will avoid messing with the current formatting of the SimulationProcessorManager
+
+  ofstream outfile1;
+  outfile1.open(CHI2_FILE_NAME, ios::app);
+
+  if(abs(a) < 1e-10)
+  {
+    a = 0;
+  }
+  if(abs(b) < 1e-10)
+  {
+    b = 0;
+  }
+  if(abs(c) < 1e-10)
+  {
+    c = 0;
+  }
+  if(abs(d) < 1e-10)
+  {
+    d = 0;
+  }
+
+  outfile1 << GlobalTwiddleCounter << "\t"
+	  << chi2 << "\t"
+          << a << "\t"
+          << b << "\t"
+          << c << "\t"
+          << d << "\t"
+          << a << "\t"
+          << b << "\t"
+          << c << "\t"
+          << d << "\n";
+
+  outfile1.close();
 
   return true;
 }
@@ -814,7 +888,7 @@ void LoadEnvelopeHistogram_2011()
                  >> errorLow;
 
       // creating a "flat" error envelope of 20keV. Further work with weighting.
-      hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), 20 /*errorHigh*/);
+      hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), errorHigh);
       cout << "At energy " << energy << ", we have symmetrized 2011-2012 error envelope: " << errorHigh << endl;
 
     }
