@@ -42,15 +42,10 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		TYPE	"type0"
-#define		FITMINBIN	17
-#define		FITMAXBIN	65
-
 using            namespace std;
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-double NDF = -1;
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
@@ -65,8 +60,6 @@ int main(int argc, char* argv[])
     cout << "(executable)" << endl;
     return 0;
   }
-
-  NDF = FITMAXBIN - FITMINBIN - 1;
 
   TCanvas *C = new TCanvas("canvas", "canvas");
 //  C -> Divide(2,1);
@@ -315,22 +308,25 @@ int main(int argc, char* argv[])
   Bi2Error.push_back(0);
 
 
+  TGraphErrors *gCe = new TGraphErrors(calPeriod.size(), &(calPeriod[0]), &(CeMean[0]), &(calPeriodError[0]), &(CeError[0]));
+  TGraphErrors *gSn = new TGraphErrors(calPeriod.size(), &(calPeriod[0]), &(SnMean[0]), &(calPeriodError[0]), &(SnError[0]));
+  TGraphErrors *gBi1 = new TGraphErrors(calPeriod.size(), &(calPeriod[0]), &(Bi1Mean[0]), &(calPeriodError[0]), &(Bi1Error[0]));
+  TGraphErrors *gBi2 = new TGraphErrors(calPeriod.size(), &(calPeriod[0]), &(Bi2Mean[0]), &(calPeriodError[0]), &(Bi2Error[0]));
 
+  gCe->GetYaxis()->SetRangeUser(-10, 10);
 
-//  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
-//  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chisquaredError[0]));
+  PlotGraph(C, 2, 1, gBi2, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "AP");
+  PlotGraph(C, 3, 1, gBi1, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "PSAME");
+  PlotGraph(C, 4, 1, gSn, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "PSAME");
+  PlotGraph(C, 6, 1, gCe, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "PSAME");
 
-//    g1->GetYaxis()->SetRangeUser(-0.3, 0.3);
-//  PlotGraph(C, 1, 1, g1, "b for all octets", "Octet Number", "b", "AP");
+  TLegend* leg1 = new TLegend(0.7,0.7,0.9,0.9);
+  leg1->AddEntry(gCe,"Ce","p");
+  leg1->AddEntry(gSn,"Sn","p");
+  leg1->AddEntry(gBi1,"Bi low","p");
+  leg1->AddEntry(gBi2,"Bi high","p");
+  leg1->Draw();
 
-  C->cd(1);
-//  TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
-//  leg1->AddEntry(h1,"b xuanFitter","f");
-//  leg1->Draw();
-
-
-  double xPrint = 45;
-  double yPrint = -0.3;
 
 //  double xPrint = 45;
 //  double yPrint = -0.3;
@@ -370,7 +366,9 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->GetYaxis()->CenterTitle();
 
   gPlot->SetMarkerStyle(21);
-  gPlot->SetMarkerSize(0.5);
+  gPlot->SetMarkerSize(1.0);
+
+  gPlot->SetLineColor(styleIndex);
   gPlot->SetMarkerColor(styleIndex);
 
   gPlot->Draw(command);
