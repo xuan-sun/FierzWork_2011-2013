@@ -83,7 +83,9 @@ void LoadEnvelopeHistogram_2011();
 void LoadEnvelopeHistogram_2012();
 
 // variables related to running the 2011-2012 error envelopes.
-TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
+//TH1D *hEnvelope2011 = new TH1D("2011-2012", "2011-2012", 110, 0, 1100);
+TH1D *hEnvelope2011_top = new TH1D("2011-2012-top", "2011-2012 top", 110, 0, 1100);
+TH1D *hEnvelope2011_bot = new TH1D("2011-2012-bot", "2011-2012 bot", 110, 0, 1100);
 TF1* errEnv2011_top_1sigma;
 TF1* errEnv2011_top_2sigma;
 TF1* errEnv2011_bot_1sigma;
@@ -229,11 +231,11 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = -20.0; a <= 20.0; a = a + 0.2)
+    for(double a = -20.0; a <= 20.0; a = a + 1.0)
     {
-      for(double b = -0.1; b <= 0.1; b = b + 5e-4)
+      for(double b = -0.1; b <= 0.1; b = b + 1e-3)
       {
-        for(double c = -1e-4; c <= 1e-4; c = c + 1e-5)
+        for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
         {
 	  for(double d = 0; d <= 0; d++)
           {
@@ -334,8 +336,14 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
   TGraph* graph = new TGraph(nbPoints, &(Erecon0_values[0]), &(delta_Erecon_values[0]));
 
   // Get our error envelope so we can check polynomial values against (multiples of) them.
-  TF1* errEnv1 = errEnv2011_top_1sigma;
-  TF1* errEnv2 = errEnv2011_top_2sigma;
+//  TF1* errEnv1 = errEnv2011_top_1sigma;
+//  TF1* errEnv2 = errEnv2011_top_2sigma;
+
+  TF1* errEnvTop1 = errEnv2011_top_1sigma;
+  TF1* errEnvTop2 = errEnv2011_top_2sigma;
+  TF1* errEnvBot1 = errEnv2011_bot_1sigma;
+  TF1* errEnvBot2 = errEnv2011_bot_2sigma;
+
 
   // Check our polynomial (the scatter plot) against a save condition.
   double x, y;
@@ -372,7 +380,7 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
     }
 
     // if, at any point, we are outside error envelope, exit and don't save and don't throw a number.
-    if(abs(y) > 3.0*errEnv1->Eval(x))
+    if(y > 3.0*errEnvTop1->Eval(x) || y < 3.0*errEnvBot1->Eval(x))
     {
       saveCondition = false;
       break;
@@ -509,6 +517,7 @@ double CalculateErecon(double totalEvis, vector < vector < vector <double> > > t
 	+tempEQ2Etrue[side][type][2]/(totalEvis+tempEQ2Etrue[side][type][3])
 	+tempEQ2Etrue[side][type][4]/((totalEvis+tempEQ2Etrue[side][type][5])*(totalEvis+tempEQ2Etrue[side][type][5]));;
 }
+
 
 double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum)
 {
@@ -791,22 +800,22 @@ void ErrorEnvelope_2012()
 double converter1top2011(double *x, double *par)
 {
   double energy = x[0];
-  return 1*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+  return 1*hEnvelope2011_top->GetBinContent(hEnvelope2011_top->FindBin(energy));
 }
 double converter2top2011(double *x, double *par)
 {
   double energy = x[0];
-  return 2*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+  return 2*hEnvelope2011_top->GetBinContent(hEnvelope2011_top->FindBin(energy));
 }
 double converter1bot2011(double *x, double *par)
 {
-  double energy = x[0];
-  return (-1)*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+  double energy = x[0];	// note the minus signs because the error envelope is given in magnitude
+  return (-1)*hEnvelope2011_bot->GetBinContent(hEnvelope2011_bot->FindBin(energy));
 }
 double converter2bot2011(double *x, double *par)
 {
   double energy = x[0];
-  return (-2)*hEnvelope2011->GetBinContent(hEnvelope2011->FindBin(energy));
+  return (-2)*hEnvelope2011_bot->GetBinContent(hEnvelope2011_bot->FindBin(energy));
 }
 
 double converter1top2012(double *x, double *par)
@@ -832,7 +841,7 @@ double converter2bot2012(double *x, double *par)
 
 void LoadEnvelopeHistogram_2011()
 {
-  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012.txt";
+  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012_asymmetric.txt";
 
   int binNum = 0;
   double energy = 0;
@@ -864,8 +873,9 @@ void LoadEnvelopeHistogram_2011()
                  >> errorLow;
 
       // creating a "flat" error envelope of 20keV. Further work with weighting.
-      hEnvelope2011->SetBinContent(hEnvelope2011->FindBin(energy), errorHigh);
-      cout << "At energy " << energy << ", we have symmetrized 2011-2012 error envelope: " << errorHigh << endl;
+      hEnvelope2011_top->SetBinContent(hEnvelope2011_top->FindBin(energy), errorHigh);
+      hEnvelope2011_bot->SetBinContent(hEnvelope2011_top->FindBin(energy), errorLow);
+//      cout << "At energy " << energy << ", we have symmetrized 2011-2012 error envelope: " << errorHigh << endl;
 
     }
 
