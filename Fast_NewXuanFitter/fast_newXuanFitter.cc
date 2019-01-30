@@ -41,6 +41,7 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 #include	 <TMinuit.h>
+#include	 <TSystem.h>
 
 using            namespace std;
 
@@ -84,10 +85,21 @@ int main(int argc, char* argv[])
 
   int index = atoi(argv[1]);
 
+  // checks if the file exists because we threw out a bunch of twiddles
+  if(gSystem->AccessPathName(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_17/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index)))
+  {
+    cout << "File does not exist. Exiting program." << endl;
+    return 0;
+  }
+  else
+  {
+    cout << "File exists. Continuing..." << endl;
+  }
+
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_16/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index));
+  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_17/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
@@ -221,7 +233,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index16.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index17.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << index << "\t"

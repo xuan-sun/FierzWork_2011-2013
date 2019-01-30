@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = viewStuff.o
-SOURCE = viewStuff
+OBJECTS = viewFitsWTwiddleWeighting.o
+SOURCE = viewFitsWTwiddleWeighting
 
 .PHONY: all
 all: $(SOURCE)

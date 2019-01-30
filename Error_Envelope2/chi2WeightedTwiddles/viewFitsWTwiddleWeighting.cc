@@ -50,17 +50,30 @@
 using            namespace std;
 
 // Fundamental constants that get used
-const double m_e = 511.00;                      ///< electron mass, keV/c^2
-double NDF = 47;				// taken from the .txt file. All twiddles fit the same range so same NDF
+const double m_e = 511.00;                                              ///< electron mass, keV/c^2
+double NDF = -1;
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
-void FillArrays(TString fileName, TH1D *h, int hFillOption);
-void FitHistogram(TH1D* h);
+void FillArrays(TString fileName, TH1D *h, int opt);
 
-struct entry
+struct twiddleEntry
+{
+  int indexNb;
+  double chi2;
+  double Ea;
+  double Eb;
+  double Ec;
+  double Ed;
+  double Wa;
+  double Wb;
+  double Wc;
+  double Wd;
+};
+
+struct fitterEntry
 {
   int indexNb;
   double avg_mE;
@@ -74,6 +87,9 @@ struct entry
   int covMatrixStatus;
 };
 
+vector <twiddleEntry> twiddles;
+vector <fitterEntry> fits;
+
 int main(int argc, char* argv[])
 {
   if(argc < 1)
@@ -83,61 +99,52 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-//  int option = atoi(argv[1]);
-
   TCanvas *C = new TCanvas("canvas", "canvas");
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* hbFitValues = new TH1D("bFit", "b fit", 100, -0.6, 0.6);
-  FillArrays(Form("../Fast_NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index17.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../CombinedAbFitter/CorrectBlindingDec2018_combinedAbFitter_OneOctetbAndA_statErrorScaledBy3_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-//  FillArrays(Form("../TestingBlinding_UsingRevCalSimData_CombinedAbFitter_NoAsymmWeight_OneOctetbAndA_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
-
-  int max = hbFitValues->GetMaximum();
-
-  PlotHist(C, 2, 1, hbFitValues, Form("b fits, %s, %s", TYPE, GEOM), "twiddled b fits", "N", "", 1.25*max);
-
-  FitHistogram(hbFitValues);
+  TH1D *h = new TH1D("h", Form("twiddled b: %s, %s", TYPE, GEOM), 100, -1, 1);
+  h->GetXaxis()->SetTitle("b fit value");
+  h->GetYaxis()->SetTitle("N");
 
 
-/*
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);
-  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-  double hTot = 0;
-  double theoryHTot = 0;
-  // must do minimum value of 0.1 or else the chisquared function diverges down, messing up normalization.
-  for(int i = hbFitValues->FindBin(0.1); i <= hbFitValues->GetNbinsX(); i++)
+  FillArrays(Form("chi2WeightedTwiddles/chi2_errEnv2_hold2.txt"), h, 1);
+  FillArrays(Form("../Fast_NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index17.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h, 2);
+
+  int counter = 0;
+  double twiddleChi2 = -1;
+  for(unsigned int i = 0; i < fits.size(); i++)
   {
-    hTot = hTot + hbFitValues->GetBinContent(i);
-    theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
-
+    for(unsigned int j = 0; j < twiddles.size(); j++)
+    {
+      if(twiddles[j].indexNb == fits[i].indexNb)
+      {
+        twiddleChi2 = twiddles[j].chi2;
+        counter++;
+        h->Fill(fits[i].bFitValue, twiddleChi2);
+      }
+    }
   }
-  theoryChiHist->Scale(hTot / theoryHTot);
 
-  PlotHist(C, 1, 1, theoryChiHist, "", "", "", "SAME", 1.25*max);
+  cout << "counter = " << counter << endl;
+  cout << "size twiddles = " << twiddles.size() << endl;
+  cout << "size fits = " << fits.size() << endl;
 
+  h->Draw();
 
-  TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
-  leg1->AddEntry(hbFitValues,"b fit","f");
-  leg1->AddEntry(theoryChiHist,"theory #frac{#Chi^{2}}{NDF = 47}","f");
-  leg1->Draw();
-*/
 
   //prints the canvas with a dynamic TString name of the name of the file
-//  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
+//  C->Print("2D_bAndChi2_SymmetricTwiddles_newXuanFitter.pdf");
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
 
   return 0;
 }
 
-void FillArrays(TString fileName, TH1D* h, int hFillOption)
+void FillArrays(TString fileName, TH1D* h, int opt)
 {
-  entry evt;
+  twiddleEntry evt1;
+  fitterEntry evt2;
 
   //opens the file that I name in DATA_FILE_IN
   string buf;
@@ -157,20 +164,36 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 
     if(!infile1.eof())
     {
-      bufstream >> evt.indexNb
-		>> evt.avg_mE
-		>> evt.chi2
-		>> evt.ndf
-		>> evt.chi2_ndf
-		>> evt.bFitValue
-		>> evt.bFitError
-		>> evt.AFitValue
-		>> evt.AFitError
-		>> evt.covMatrixStatus;
+      if(opt == 1)
+      {
+        bufstream >> evt1.indexNb
+                >> evt1.chi2
+                >> evt1.Ea
+                >> evt1.Eb
+                >> evt1.Ec
+                >> evt1.Ed
+                >> evt1.Wa
+                >> evt1.Wb
+                >> evt1.Wc
+                >> evt1.Wd;
 
-//      h->Fill(evt.bFitValue);
-      h->Fill(evt.bFitValue, 1/sqrt(evt.chi2_ndf));
-//      h->Fill(evt.chi2_ndf);
+        twiddles.push_back(evt1);
+      }
+      else if(opt == 2)
+      {
+        bufstream >> evt2.indexNb
+		>> evt2.avg_mE
+                >> evt2.chi2
+                >> evt2.ndf
+                >> evt2.chi2_ndf
+                >> evt2.bFitValue
+                >> evt2.bFitError
+                >> evt2.AFitValue
+                >> evt2.AFitError
+                >> evt2.covMatrixStatus;
+
+        fits.push_back(evt2);
+      }
     }
 
     if(infile1.eof() == true)
@@ -221,28 +244,3 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   C->Update();
 }
 
-
-void FitHistogram(TH1D* h)
-{
-  h->Fit("gaus");
-  TF1* fFitResults = h->GetFunction("gaus");
-
-  TLatex t2;
-  t2.SetTextSize(0.03);
-  t2.SetTextAlign(13);
-  t2.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.7*(h->GetMaximum()), Form("#mu = %f", fFitResults->GetParameter(1)));
-  TLatex t3;
-  t3.SetTextSize(0.03);
-  t3.SetTextAlign(13);
-  t3.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.6*(h->GetMaximum()), Form("#mu_{err} = %f", fFitResults->GetParError(1)));
-
-  TLatex t4;
-  t4.SetTextSize(0.03);
-  t4.SetTextAlign(13);
-  t4.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.5*(h->GetMaximum()), Form("#sigma = %f", fFitResults->GetParameter(2)));
-  TLatex t5;
-  t5.SetTextSize(0.03);
-  t5.SetTextAlign(13);
-  t5.DrawLatex(0.5*(h->GetNbinsX()/2.0)*(h->GetBinWidth(5)), 0.4*(h->GetMaximum()), Form("#sigma_{err} = %f", fFitResults->GetParError(2)));
-
-}
