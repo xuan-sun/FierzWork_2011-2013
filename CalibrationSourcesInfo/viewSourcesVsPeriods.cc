@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
   TGraphErrors *gBi1 = new TGraphErrors(calPeriod.size(), &(calPeriod[0]), &(Bi1Mean[0]), &(calPeriodError[0]), &(Bi1Error[0]));
   TGraphErrors *gBi2 = new TGraphErrors(calPeriod.size(), &(calPeriod[0]), &(Bi2Mean[0]), &(calPeriodError[0]), &(Bi2Error[0]));
 
-  gCe->GetYaxis()->SetRangeUser(-10, 10);
+//  gCe->GetYaxis()->SetRangeUser(-10, 10);
 
   PlotGraph(C, 2, 1, gCe, "Ce", "CalPeriod (1-24)", "E_{error}", "AP");
   PlotGraph(C, 3, 2, gSn, "Sn", "CalPeriod (1-24)", "E_{error}", "AP");
