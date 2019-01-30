@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   }
 
   TCanvas *C = new TCanvas("canvas", "canvas");
-//  C -> Divide(2,1);
+  C -> Divide(2,2);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   vector <double> calPeriod;
@@ -315,18 +315,83 @@ int main(int argc, char* argv[])
 
   gCe->GetYaxis()->SetRangeUser(-10, 10);
 
-  PlotGraph(C, 2, 1, gBi2, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "AP");
-  PlotGraph(C, 3, 1, gBi1, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "PSAME");
-  PlotGraph(C, 4, 1, gSn, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "PSAME");
-  PlotGraph(C, 6, 1, gCe, "Calibration sources", "CalPeriod (1-24)", "E_{error}", "PSAME");
+  PlotGraph(C, 2, 1, gCe, "Ce", "CalPeriod (1-24)", "E_{error}", "AP");
+  PlotGraph(C, 3, 2, gSn, "Sn", "CalPeriod (1-24)", "E_{error}", "AP");
+  PlotGraph(C, 4, 3, gBi1, "Bi low", "CalPeriod (1-24)", "E_{error}", "AP");
+  PlotGraph(C, 6, 4, gBi2, "Bi high", "CalPeriod (1-24)", "E_{error}", "AP");
 
+
+  // draw the outsides of the 1sigma calibration sources across the 2011-2012 calibration periods
+  TLine *Ce2011High = new TLine(1, 0.37717, 12, 0.37717);
+  TLine *Ce2011Low = new TLine(1, -3.24329, 12, -3.24329);
+  TLine *Sn2011High = new TLine(1, 3.422405, 12, 3.422405);
+  TLine *Sn2011Low = new TLine(1, -1.609795, 12, -1.609795);
+  TLine *Bi12011High = new TLine(1, 2.44944, 12, 2.44944);
+  TLine *Bi12011Low = new TLine(1, -5.16758, 12, -5.16758);
+  TLine *Bi22011High = new TLine(1, 4.21403, 12, 4.21403);
+  TLine *Bi22011Low = new TLine(1, -7.31715, 12, -7.31715);
+
+  C->cd(1);
+  Ce2011High->SetLineColor(2);
+  Ce2011Low->SetLineColor(2);
+  Ce2011High->Draw();
+  Ce2011Low->Draw();
+  C->cd(2);
+  Sn2011High->SetLineColor(3);
+  Sn2011Low->SetLineColor(3);
+  Sn2011High->Draw();
+  Sn2011Low->Draw();
+  C->cd(3);
+  Bi12011High->SetLineColor(4);
+  Bi12011Low->SetLineColor(4);
+  Bi12011High->Draw();
+  Bi12011Low->Draw();
+  C->cd(4);
+  Bi22011High->SetLineColor(6);
+  Bi22011Low->SetLineColor(6);
+  Bi22011High->Draw();
+  Bi22011Low->Draw();
+
+
+  // draw the outsides of the 1sigma calibration sources across the 2012-2013 calibration periods
+  TLine *Ce2012High = new TLine(16, 1.194444, 24, 1.194444);
+  TLine *Ce2012Low = new TLine(16, -2.794556, 24, -2.794556);
+  TLine *Sn2012High = new TLine(16, 0.63822, 24, 0.63822);
+  TLine *Sn2012Low = new TLine(16, -5.11058, 24, -5.11058);
+  TLine *Bi12012High = new TLine(16, 3.505842, 24, 3.505842);
+  TLine *Bi12012Low = new TLine(16, -4.289938, 24, -4.289938);
+  TLine *Bi22012High = new TLine(16, 6.4073116, 24, 6.4073116);
+  TLine *Bi22012Low = new TLine(16, -6.3869084, 24, -6.3869084);
+
+  C->cd(1);
+  Ce2012High->SetLineColor(2);
+  Ce2012Low->SetLineColor(2);
+  Ce2012High->Draw();
+  Ce2012Low->Draw();
+  C->cd(2);
+  Sn2012High->SetLineColor(3);
+  Sn2012Low->SetLineColor(3);
+  Sn2012High->Draw();
+  Sn2012Low->Draw();
+  C->cd(3);
+  Bi12012High->SetLineColor(4);
+  Bi12012Low->SetLineColor(4);
+  Bi12012High->Draw();
+  Bi12012Low->Draw();
+  C->cd(4);
+  Bi22012High->SetLineColor(6);
+  Bi22012Low->SetLineColor(6);
+  Bi22012High->Draw();
+  Bi22012Low->Draw();
+
+/*
   TLegend* leg1 = new TLegend(0.7,0.7,0.9,0.9);
   leg1->AddEntry(gCe,"Ce","p");
   leg1->AddEntry(gSn,"Sn","p");
   leg1->AddEntry(gBi1,"Bi low","p");
   leg1->AddEntry(gBi2,"Bi high","p");
   leg1->Draw();
-
+*/
 
 //  double xPrint = 45;
 //  double yPrint = -0.3;
@@ -366,7 +431,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->GetYaxis()->CenterTitle();
 
   gPlot->SetMarkerStyle(21);
-  gPlot->SetMarkerSize(1.0);
+  gPlot->SetMarkerSize(0.75);
 
   gPlot->SetLineColor(styleIndex);
   gPlot->SetMarkerColor(styleIndex);
