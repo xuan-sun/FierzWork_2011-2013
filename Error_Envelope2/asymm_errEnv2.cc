@@ -181,17 +181,17 @@ int main(int argc, char *argv[])
   wBi2 = atof(argv[4]);
 */
 /*
-  wCe = 6.0;
-  wSn = 4.0;
-  wBi1 = 2.5;
-  wEnd = 2.0;
-  wBi2 = 1.0;
-*/
   wCe = 3.0;
   wSn = 1.2;
   wBi1 = 0.8;
   wEnd = 1.0;
   wBi2 = 1.4;
+*/
+  wCe = 1.0;
+  wSn = 1.0;
+  wBi1 = 1.0;
+  wEnd = 1.0;
+  wBi2 = 1.0;
 
   // Ensures the seed is different for randomizing in ROOT.
   TRandom3* engine = new TRandom3(0);
@@ -231,11 +231,11 @@ int main(int argc, char *argv[])
   // outer loop, j, is the side index.
   for(int j = 0; j <= 1; j++)
   {
-    for(double a = -20.0; a <= 20.0; a = a + 1.0)
+    for(double a = -20.0; a <= 20.0; a = a + 0.25)
     {
-      for(double b = -0.1; b <= 0.1; b = b + 1e-3)
+      for(double b = -0.1; b <= 0.1; b = b + 5e-4)
       {
-        for(double c = -1e-4; c <= 1e-4; c = c + 2e-5)
+        for(double c = -1e-4; c <= 1e-4; c = c + 1e-5)
         {
 	  for(double d = 0; d <= 0; d++)
           {
@@ -408,8 +408,8 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
       histErecon[4] -> Fill(v4);
 
       // Plotting stuff
-//      graph->SetLineColor(numPassed % 50);
-//      graph->Draw("SAME");
+      graph->SetLineColor(numPassed % 50);
+      graph->Draw("SAME");
 //      delete graph;
     }
   }
@@ -607,12 +607,66 @@ void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energ
 
   }
 
+
+  double CeErrorBar;
+  double SnErrorBar;
+  double Bi1ErrorBar;
+  double EndErrorBar;
+  double Bi2ErrorBar;
+
+  if(convertedTwiddle[Ce_index] < 0)
+  {
+    CeErrorBar = convertedTwiddle[Ce_index] / errEnv2011_bot_1sigma->Eval(130.3);
+  }
+  else if(convertedTwiddle[Ce_index] >= 0)
+  {
+    CeErrorBar = convertedTwiddle[Ce_index] / errEnv2011_top_1sigma->Eval(130.3);
+  }
+
+  if(convertedTwiddle[Sn_index] < 0)
+  {
+    SnErrorBar = convertedTwiddle[Sn_index] / errEnv2011_bot_1sigma->Eval(368.5);
+  }
+  else if(convertedTwiddle[Sn_index] >= 0)
+  {
+    SnErrorBar = convertedTwiddle[Sn_index] / errEnv2011_top_1sigma->Eval(368.5);
+  }
+
+  if(convertedTwiddle[Bi1_index] < 0)
+  {
+    Bi1ErrorBar = convertedTwiddle[Bi1_index] / errEnv2011_bot_1sigma->Eval(498.0);
+  }
+  else if(convertedTwiddle[Bi1_index] >= 0)
+  {
+    Bi1ErrorBar = convertedTwiddle[Bi1_index] / errEnv2011_top_1sigma->Eval(498.0);
+  }
+
+  if(convertedTwiddle[End_index] < 0)
+  {
+    EndErrorBar = convertedTwiddle[End_index] / errEnv2011_bot_1sigma->Eval(782);
+  }
+  else if(convertedTwiddle[End_index] >= 0)
+  {
+    EndErrorBar = convertedTwiddle[End_index] / errEnv2011_top_1sigma->Eval(782);
+  }
+
+  if(convertedTwiddle[Bi2_index] < 0)
+  {
+    Bi2ErrorBar = convertedTwiddle[Bi2_index] / errEnv2011_bot_1sigma->Eval(993.8);
+  }
+  else if(convertedTwiddle[Bi2_index] >= 0)
+  {
+    Bi2ErrorBar = convertedTwiddle[Bi2_index] / errEnv2011_top_1sigma->Eval(993.8);
+  }
+
+
+/*
   double CeErrorBar = abs(convertedTwiddle[Ce_index]) / errEnv2011_top_1sigma->Eval(130.3);
   double SnErrorBar = abs(convertedTwiddle[Sn_index]) / errEnv2011_top_1sigma->Eval(368.5);
   double Bi1ErrorBar = abs(convertedTwiddle[Bi1_index]) / errEnv2011_top_1sigma->Eval(498.0);
   double EndErrorBar = abs(convertedTwiddle[End_index]) / errEnv2011_top_1sigma->Eval(782);
   double Bi2ErrorBar = abs(convertedTwiddle[Bi2_index]) / errEnv2011_top_1sigma->Eval(993.8);
-
+*/
   // weights for 2011-2012 error bars that work best
 //  double totalErrorBars = (2.8*CeErrorBar + 1.2*SnErrorBar + 0.8*Bi1ErrorBar + 1.6*Bi2ErrorBar) / 4.0;
   double totalErrorBars = (wCe*CeErrorBar + wSn*SnErrorBar + wBi1*Bi1ErrorBar + wEnd*EndErrorBar + wBi2*Bi2ErrorBar) / 5.0;

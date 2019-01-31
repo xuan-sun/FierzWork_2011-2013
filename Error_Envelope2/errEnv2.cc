@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
     {
       for(double b = -0.1; b <= 0.1; b = b + 5e-4)
       {
-        for(double c = -1e-4; c <= 1e-4; c = c + 1e-5)
+        for(double c = -2e-4; c <= 2e-4; c = c + 1e-5)
         {
 	  for(double d = 0; d <= 0; d++)
           {

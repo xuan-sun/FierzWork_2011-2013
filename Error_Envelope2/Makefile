@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = asymm_errEnv2.o
-SOURCE = asymm_errEnv2
+OBJECTS = viewStuff.o
+SOURCE = viewStuff
 
 .PHONY: all
 all: $(SOURCE)

@@ -91,32 +91,32 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("twiddles", "twiddles w/ 2011-2012 calibration sources", 100, 0, 10);
-  FillArrays(Form("chi2_errEnv2_hold2.txt"), h, 1);
+  TH1D* h = new TH1D("twiddles", "twiddles w/ 2011-2012 calibration sources", 100, 0.1, 10);
+  FillArrays(Form("chi2_errEnv2_hold.txt"), h, 1);
 
   int max = h->GetMaximum();
 
   PlotHist(C, 2, 1, h, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 1.2*max);
 
 
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 10);
-  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+  TF1 *theoryChiP = new TF1("theoryPlot", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
+  TH1D *theoryChiHistP = (TH1D*)(theoryChiP->GetHistogram());
   double hTot = 0;
   double theoryHTot = 0;
   // must do minimum value of 0.1 or else the chisquared function diverges down, messing up normalization.
   for(int i = h->FindBin(0.1); i <= h->GetNbinsX(); i++)
   {
     hTot = hTot + h->GetBinContent(i);
-    theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
+    theoryHTot = theoryHTot + theoryChiHistP->GetBinContent(i);
 
   }
-  theoryChiHist->Scale(hTot / theoryHTot);
+  theoryChiHistP->Scale(hTot / theoryHTot);
 
-  PlotHist(C, 1, 1, theoryChiHist, "", "", "", "SAME", 1.2*max);
+  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", 1.2*max);
 
   TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
   leg1->AddEntry(h,"twiddle chi2/ndf","f");
-  leg1->AddEntry(theoryChiHist,"theory #frac{#Chi^{2}}{NDF = 1}","f");
+  leg1->AddEntry(theoryChiHistP,"theory #frac{#Chi^{2}}{NDF = 1}","f");
   leg1->Draw();
 
 
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 void FillArrays(TString fileName, TH1D* h, int hFillOption)
 {
   TRandom3 *randNum = new TRandom3(0);
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 10);
+  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
   TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
 
   entry evt;
@@ -145,7 +145,6 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
   //a check to make sure the file is open
   if(!infile1.is_open())
     cout << "Problem opening " << fileName << endl;
-
 
   while(true)
   {
@@ -168,10 +167,11 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 //----------- testing accept-reject ------------//
   double hMax = theoryChiHist->GetMaximum();
   double randSample = randNum->Rndm() * hMax;
-//  if(randSample <= theoryChiHist->GetBinContent(theoryChiHist->FindBin(evt.chi2_ndf)))
+
+  if(randSample <= theoryChiHist->GetBinContent(theoryChiHist->FindBin(evt.chi2_ndf)))
   {
     h->Fill(evt.chi2_ndf);
-//    PrintChosenTwiddles(evt);
+    PrintChosenTwiddles(evt);
   }
 
 //----------- testing accept-reject ------------//
