@@ -74,7 +74,7 @@ struct entry
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
 void FillArrays(TString fileName, TH1D *h, int hFillOption);
 void PrintChosenTwiddles(entry cevt);
-
+void RepopulateHist(TString fileName, TH1D* hRef, TH1D* hNew);
 
 int main(int argc, char* argv[])
 {
@@ -91,28 +91,32 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
+  // load the full ch2 histogram first
+  TString fPath = Form("chi2_errEnv2_index19.txt");
   TH1D* h = new TH1D("twiddles", "twiddles w/ 2011-2012 calibration sources", 100, 0.1, 10);
-  FillArrays(Form("chi2_errEnv2_index19.txt"), h, 1);
+  FillArrays(fPath, h, 1);
 
-  int max = h->GetMaximum();
+  // use previous histogram to resample according to theory chi2 distribution
+  TH1D* h2 = new TH1D("twiddlesRe", "twiddles w/ 2011-2012 calibration sources, chi2 sampling", 100, 0.1, 10);
+  int max = h2->GetMaximum();
+  RepopulateHist(fPath, h, h2);
+  PlotHist(C, 2, 1, h2, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 200);
 
-  PlotHist(C, 2, 1, h, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 1.0*max);
-
-
+  // overlay a (normalized) plot of the theory chi2 distribution.
   TF1 *theoryChiP = new TF1("theoryPlot", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
   TH1D *theoryChiHistP = (TH1D*)(theoryChiP->GetHistogram());
   double hTot = 0;
   double theoryHTot = 0;
   // must do minimum value of 0.1 or else the chisquared function diverges down, messing up normalization.
-  for(int i = h->FindBin(0.1); i <= h->GetNbinsX(); i++)
+  for(int i = h2->FindBin(0.1); i <= h2->GetNbinsX(); i++)
   {
-    hTot = hTot + h->GetBinContent(i);
+    hTot = hTot + h2->GetBinContent(i);
     theoryHTot = theoryHTot + theoryChiHistP->GetBinContent(i);
 
   }
   theoryChiHistP->Scale(hTot / theoryHTot);
 
-  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", 1.0*max);
+  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", 200);
 
   TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
   leg1->AddEntry(h,"twiddle chi2/ndf","f");
@@ -130,10 +134,6 @@ int main(int argc, char* argv[])
 
 void FillArrays(TString fileName, TH1D* h, int hFillOption)
 {
-  TRandom3 *randNum = new TRandom3(0);
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
-  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-
   entry evt;
 
   //opens the file that I name in DATA_FILE_IN
@@ -164,20 +164,7 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.Wc
 		>> evt.Wd;
 
-//----------- testing accept-reject ------------//
-  double hMax = theoryChiHist->GetMaximum();
-  double randSample = randNum->Rndm() * hMax;
-
-  if(randSample <= theoryChiHist->GetBinContent(theoryChiHist->FindBin(evt.chi2_ndf)))
-  {
-    h->Fill(evt.chi2_ndf);
-    PrintChosenTwiddles(evt);
-  }
-
-//----------- testing accept-reject ------------//
-
-//      h->Fill(evt.bFitValue, 1/sqrt(evt.chi2_ndf));
-//      h->Fill(evt.chi2_ndf);
+       h->Fill(evt.chi2_ndf);
     }
 
     if(infile1.eof() == true)
@@ -188,6 +175,71 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }
+
+void RepopulateHist(TString fileName, TH1D* hRef, TH1D* hNew)
+{
+  TRandom3 *randNum = new TRandom3(0);
+  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
+  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
+
+  entry evt;
+
+  //opens the file that I name in DATA_FILE_IN
+  string buf;
+  ifstream infile1;
+  cout << "The file being opened is: " << fileName << endl;
+  infile1.open(fileName);
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << fileName << endl;
+
+  while(true)
+  {
+    getline(infile1, buf);
+    istringstream bufstream(buf);
+
+    if(!infile1.eof())
+    {
+      bufstream >> evt.indexNb
+                >> evt.chi2_ndf
+                >> evt.Ea
+                >> evt.Eb
+                >> evt.Ec
+                >> evt.Ed
+                >> evt.Wa
+                >> evt.Wb
+                >> evt.Wc
+                >> evt.Wd;
+
+      double hMax = theoryChiHist->GetMaximum();
+      int hMaxBin = theoryChiHist->GetMaximumBin();
+      double randSample = randNum->Rndm() * hMax;
+      double acceptProb = theoryChiHist->GetBinContent(theoryChiHist->FindBin(evt.chi2_ndf))
+		        * ( hRef->GetBinContent(hMaxBin)
+		        / hRef->GetBinContent(hRef->FindBin(evt.chi2_ndf)));
+
+      if(randSample <= theoryChiHist->GetBinContent(theoryChiHist->FindBin(evt.chi2_ndf)))
+      {
+        hNew->Fill(evt.chi2_ndf);
+        PrintChosenTwiddles(evt);
+      }
+
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  cout << "Data from " << fileName << " has been read again successfully." << endl;
+
+
+
+
+}
+
 
 void PrintChosenTwiddles(entry cevt)
 {
