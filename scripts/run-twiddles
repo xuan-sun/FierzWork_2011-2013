@@ -9,7 +9,7 @@ cd ../Fast_NewXuanFitter/
 
 make
 
-for ((x = 1; x < 10655; x = x + 1))
+for ((x = 1; x < 7720; x = x + 1))
 
 do
 

@@ -92,11 +92,11 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   TH1D* h = new TH1D("twiddles", "twiddles w/ 2011-2012 calibration sources", 100, 0.1, 10);
-  FillArrays(Form("chi2_errEnv2_hold.txt"), h, 1);
+  FillArrays(Form("chi2_errEnv2_index19.txt"), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 1.2*max);
+  PlotHist(C, 2, 1, h, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 1.0*max);
 
 
   TF1 *theoryChiP = new TF1("theoryPlot", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
   }
   theoryChiHistP->Scale(hTot / theoryHTot);
 
-  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", 1.2*max);
+  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", 1.0*max);
 
   TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
   leg1->AddEntry(h,"twiddle chi2/ndf","f");

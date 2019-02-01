@@ -90,7 +90,8 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   TH1D* hbFitValues = new TH1D("bFit", "b fit", 100, -0.6, 0.6);
-  FillArrays(Form("../Fast_NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index17.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+  FillArrays(Form("../Fast_NewXuanFitter/asymmetric_gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index19.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
+//  FillArrays(Form("../Fast_NewXuanFitter/gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_index17.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../CombinedAbFitter/CorrectBlindingDec2018_combinedAbFitter_OneOctetbAndA_statErrorScaledBy3_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2012-2013", FITMINBIN, FITMAXBIN), hbFitValues, 1);
 //  FillArrays(Form("../CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, "2011-2012", FITMINBIN, FITMAXBIN), hbFitValues, 1);
@@ -168,8 +169,8 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.AFitError
 		>> evt.covMatrixStatus;
 
-//      h->Fill(evt.bFitValue);
-      h->Fill(evt.bFitValue, 1/sqrt(evt.chi2_ndf));
+      h->Fill(evt.bFitValue);
+//      h->Fill(evt.bFitValue, 1/sqrt(evt.chi2_ndf));
 //      h->Fill(evt.chi2_ndf);
     }
 
