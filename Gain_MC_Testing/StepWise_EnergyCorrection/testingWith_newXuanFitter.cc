@@ -44,8 +44,8 @@
 
 using            namespace std;
 
-#define		FITMINBIN	1
-#define		FITMAXBIN	70
+#define		FITMINBIN	17
+#define		FITMAXBIN	65
 
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
 
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("Evts");
-  dataChain->AddFile("Statistical_Fitting_Test/Evts_A_0_b_0_statTest_9.root");
-  dataChain->Draw("KE >> dataHist");
+  dataChain->AddFile("../Evts_A_0_b_0_v2.root");
+  dataChain->Draw("KEstep >> dataHist");
 
   cout << "Total data events: " << dataChain->GetEntries() << endl;
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
   TChain* betaChain = new TChain("Evts");
   for(int i = 0; i < 100; i++)
   {
-    betaChain->AddFile(Form("A_0_b_0/Evts_%i.root", i));
+    betaChain->AddFile(Form("../A_0_b_0/Evts_%i.root", i));
   }
   betaChain->Draw("KE >> mcTheoryHistBeta");
 
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
   TChain* fierzChain = new TChain("Evts");
   for(int i = 0; i < 100; i++)
   {
-    fierzChain->AddFile(Form("A_0_b_inf/Evts_%i.root", i));
+    fierzChain->AddFile(Form("../A_0_b_inf/Evts_%i.root", i));
   }
   fierzChain->Draw("KE >> mcTheoryHistFierz");
 

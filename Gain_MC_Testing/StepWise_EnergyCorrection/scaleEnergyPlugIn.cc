@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   // read in arguments.
 //  Int_t octNb = atoi(argv[1]);
 
-  TString fileName = "../Evts_A_0_b_0.root";
+  TString fileName = "../Evts_A_0_b_0_v2.root";
   AddBranchToTreeInFile(fileName);
   cout << "Done updating runNumber = " << fileName.Data() << endl;
 
@@ -90,6 +90,16 @@ void AddBranchToTreeInFile(TString fName)
   for(long int i = 0; i < t->GetEntries(); i++)
   {
     t->GetEntry(i);
+    if(ke > 0 && ke < 368.5)
+    {	// scaling pre-Sn energies to the shifted (miscalibrated) Sn energy
+      newKE = ke*(364.0 / 368.5);
+    }
+    else if(ke > 368.5 && ke < 1000)
+    {	// scales all values post-Sn to stretch to new-Sn and endpoint (782keV)
+      newKE = ke*(782.0 / 773.58) - 8.51;
+    }
+
+
     newKE = 0.99*ke;
     b->Fill();
   }

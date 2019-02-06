@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = scaleEnergyPlugIn.o
-SOURCE = scaleEnergyPlugIn
+OBJECTS = testingWith_newXuanFitter.o
+SOURCE = testingWith_newXuanFitter
 
 .PHONY: all
 all: $(SOURCE)
