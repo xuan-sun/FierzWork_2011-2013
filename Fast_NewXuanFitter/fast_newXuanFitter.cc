@@ -86,7 +86,8 @@ int main(int argc, char* argv[])
 
   int index = atoi(argv[1]);
 
-  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index);
+  TString dataFilePath = Form("../Gain_MC_Testing/Data_EndPointModification/Octer_%i_ssDataHist_%s", index, TYPE);
+//  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index);
 
   // checks if the file exists because we threw out a bunch of twiddles
   if(gSystem->AccessPathName(dataFilePath))
@@ -236,7 +237,8 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("asymmetric_gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_%s.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN, SAVE_INDEX), ios::app);
+//  outfile.open(Form("asymmetric_gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_%s.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN, SAVE_INDEX), ios::app);
+  outfile.open(Form("CorrectBlindingOct2018_newXuanFitter_bFitsFromData_endpointCorr_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << index << "\t"

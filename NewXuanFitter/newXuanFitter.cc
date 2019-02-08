@@ -87,15 +87,17 @@ int main(int argc, char* argv[])
 
   // this little bit loads the octets once they have already been separated into super sum histograms
 //  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
-//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Dec2018_reBlindedUnknown/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
+  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
 //  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+  TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
 //  TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
-//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
-//  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
-//  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
+  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
-  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
+/*  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
   dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, octNb));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
@@ -113,7 +115,7 @@ int main(int argc, char* argv[])
     betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
   }
   betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-
+*/
   // using properly blinded beta spectrum
 /*  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
@@ -130,6 +132,7 @@ int main(int argc, char* argv[])
   }
   mcTheoryHistBeta->SetEntries(totalEntries);
 */
+/*
   cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
 
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
@@ -141,7 +144,7 @@ int main(int argc, char* argv[])
   fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
   cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
-
+*/
 
   // the work beyond here is unrelated to which data structure you chose
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
@@ -232,7 +235,8 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("endpointCorr_CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"

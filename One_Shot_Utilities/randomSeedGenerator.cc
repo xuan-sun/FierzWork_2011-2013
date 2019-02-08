@@ -50,11 +50,9 @@ int main(int argc, char* argv[])
 
   for(int i = 0; i < 9; i++)
   {
-//    outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\t";
-    outfile << 0.1 << "\t";
+    outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\t";
   }
-//  outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\n";
-  outfile << 0.1 << "\n";
+  outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\n";
 
   for(int j = 0; j < 10; j++)
   {
