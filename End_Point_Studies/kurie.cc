@@ -82,7 +82,8 @@ int main(int argc, char* argv[])
 
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
   TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
-  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
+//  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
+  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
   dataHist = (TH1D*)f.Get("Super sum");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
@@ -177,7 +178,7 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.75, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-  outfile.open(Form("endPointFits_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << index << "\t"
           << fit1->GetChisquare() << "\t"
           << fit1->GetNDF() << "\t"

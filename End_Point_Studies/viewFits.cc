@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -91,8 +91,8 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "end points", 50, 760, 810);
-  FillArrays(Form("endPointFits_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h, 1);
+  TH1D* h = new TH1D("endpoints", "end points", 40, 770, 790);
+  FillArrays(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h, 1);
 
   int max = h->GetMaximum();
 

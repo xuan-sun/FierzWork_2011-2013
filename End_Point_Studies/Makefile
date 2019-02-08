@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = 2d_plotter.o
-SOURCE = 2d_plotter
+OBJECTS = viewFits.o
+SOURCE = viewFits
 
 .PHONY: all
 all: $(SOURCE)
