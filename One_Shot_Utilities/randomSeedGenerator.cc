@@ -45,21 +45,25 @@ int main(int argc, char* argv[])
   TRandom3 *engine = new TRandom3(0);
 
   ofstream outfile;
-  TString fileName = Form("randomMixingSeeds_newFormatThatWorks.txt");
+  TString fileName = Form("randomMixingSeeds.txt");
   outfile.open(fileName.Data(), ios::app);
 
-  for(int i = 0; i < 9; i++)
-  {
-    outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\t";
-  }
-  outfile << 0.1 + (0.06*engine->Rndm() - 0.03) << "\n";
+  double flagCheck = engine->Rndm();
 
-  for(int j = 0; j < 10; j++)
-  {
-    cout << "For verification, our random seed generator is giving " << j << ": "
-	 << 0.1 + (0.06*engine->Rndm() - 0.03) << endl;
-  }
+  cout << flagCheck << endl;
 
+  if(flagCheck < 0.5)
+  {
+    outfile << 1000 << "\t";
+    outfile << 0.06 << "\n";	// 0.06 -> b = -0.1
+//    outfile << 0.06*engine->Rndm() << "\n";
+  }
+  else if(flagCheck >= 0.5)
+  {
+    outfile << -1 << "\t";
+    outfile << 0.04 << "\n";	// 0.04 -> b = 0.1
+//    outfile << 0.04*engine->Rndm() << "\n";
+  }
 
   outfile.close();
 
