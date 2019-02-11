@@ -88,14 +88,15 @@ int main(int argc, char* argv[])
   dataChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/All_Twiddles_Are_Baseline/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", 23));
   dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
 
-  cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
+
+//  cout << "Loaded dataChain with nEvents = " << dataChain->GetEntries() << ", indexed by " << octNb << endl;
 
   // using properly blinded beta spectrum
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
   for(int j = 0; j < 100; j++)
   {
-    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_005_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/BlindTest_b_-0.1_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
@@ -247,7 +248,8 @@ int main(int argc, char* argv[])
 */  TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", (-0.2/avg_mE)       ));
+  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", 0.04/ (1 - avg_mE) ));
+//  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", (0.4/(1 - avg_mE)) ));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);

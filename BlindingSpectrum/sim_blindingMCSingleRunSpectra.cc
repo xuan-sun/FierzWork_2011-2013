@@ -100,16 +100,18 @@ int main(int argc, char* argv[])
   runFiles_base->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
 
   TChain* runFiles_fierz = new TChain("SimAnalyzed");;
-//  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_-1/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
   runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
 
+  TChain* runFiles_n1 = new TChain("SimAnalyzed");
+  runFiles_n1->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_-1/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
+
   // read in our random mixing seed so I stay pretty blind.
-  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+  double flag, seed;
 
   string buf1;
   ifstream infile1;
   cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
-  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
+  infile1.open("NewWFlag_randomMixingSeeds_forFullBlind/randomMixingSeeds.txt");
 
   //a check to make sure the file is open
   if(!infile1.is_open())
@@ -122,7 +124,7 @@ int main(int argc, char* argv[])
 
     if(!infile1.eof())
     {
-      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+      bufstream1 >> flag >> seed;
     }
 
     if(infile1.eof() == true)
@@ -133,19 +135,28 @@ int main(int argc, char* argv[])
 
   cout << "Loaded mixing seeds" << endl;
 
+  TH1D* rates_base;
+
   // load all the histograms of east and west, turn them into rates.
-  // ALWAYS USE S0 FOR MIXING.
-  TH1D* rates_base = CreateRateHistograms(runFiles_base, 1 - s0);
-  TH1D* rates_fierz = CreateRateHistograms(runFiles_fierz, s0);
+  if(flag == 1000)
+  {
+    rates_base = CreateRateHistograms(runFiles_base, 1 - seed);
+    TH1D* rates_fierz = CreateRateHistograms(runFiles_fierz, seed);
 
-  cout << "Created vectors of rate histograms" << endl;
+    rates_base->Add(rates_base, rates_fierz, 1, 1);
+  }
+  else if(flag == -1)
+  {
+    rates_base = CreateRateHistograms(runFiles_base, 1 - seed);
+    TH1D* rates_n1 = CreateRateHistograms(runFiles_n1, seed);
 
-  // Sum the two files together.
-  rates_base->Add(rates_base, rates_fierz, 1, 1);
+    rates_base->Add(rates_base, rates_n1, 1, 1);
+  }
+
 
   cout << "Finished mixing rate histograms." << endl;
 
-  TFile f(TString::Format("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/False_b_-005_SimAnalyzed_%s_Beta_paramSet_100_%i_type0.root", geom.Data(), geom.Data(), indexNb), "RECREATE");
+  TFile f(TString::Format("BlindTest_b_-0.1_SimAnalyzed_%s_Beta_paramSet_100_%i_type0.root", geom.Data(), indexNb), "RECREATE");
   // Begin processing the read in data now
   rates_base->Write();
 
