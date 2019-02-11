@@ -61,6 +61,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString 
 
 // Perform a few useful, simple calculations
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
+double CalculateInputb(TString randomSeedPath);
 
 // functions needed for TMinuit fitter
 void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
@@ -96,7 +97,7 @@ int main(int argc, char* argv[])
   int totalEntries = 0;
   for(int j = 0; j < 100; j++)
   {
-    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/BlindTest_b_-0.1_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/2011-2012_geom_twiddledAndBaselineSimulations/A_0_b_0/BlindTest_b_0.1_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0.root", j));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
@@ -248,7 +249,7 @@ int main(int argc, char* argv[])
 */  TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", 0.04/ (1 - avg_mE) ));
+  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", CalculateInputb(Form("NewWFlag_randomMixingSeeds_forFullBlind/randomMixingSeeds.txt")) ));
 //  t3.DrawLatex(700, 0.016, Form("b_{input} = %f", (0.4/(1 - avg_mE)) ));
   TLatex t4;
   t4.SetTextSize(0.03);
@@ -332,3 +333,46 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
   return num/denom;
 }
 
+double CalculateInputb(TString randomSeedPath)
+{
+  // read in our random mixing seed so I stay pretty blind.
+  double flag, seed;
+
+  string buf1;
+  ifstream infile1;
+  cout << "The file being opened is: " << randomSeedPath.Data() << endl;
+  infile1.open(randomSeedPath.Data());
+
+  //a check to make sure the file is open
+  if(!infile1.is_open())
+    cout << "Problem opening " << randomSeedPath.Data() << endl;
+
+  while(true)
+  {
+    getline(infile1, buf1);
+    istringstream bufstream1(buf1);
+
+    if(!infile1.eof())
+    {
+      bufstream1 >> flag >> seed;
+    }
+
+    if(infile1.eof() == true)
+    {
+      break;
+    }
+  }
+
+  double returnb = 0;
+
+  if(flag == 1000)
+  {
+    returnb = -seed / avg_mE;
+  }
+  else if(flag == -1)
+  {
+    returnb = seed / (1 - avg_mE);
+  }
+
+  return returnb;
+}
