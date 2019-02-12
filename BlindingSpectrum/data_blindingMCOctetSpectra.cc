@@ -36,6 +36,9 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 #include	 <TRandom3.h>
+
+#define		 GEOM		"2012-2013"
+
 using		 namespace std;
 
 struct Event
@@ -100,16 +103,17 @@ int main(int argc, char* argv[])
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/%s/octet_list_%i.dat", "OctetLists", octNb));
 
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2012-2013_geom/A_0_b_0");
-  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2012-2013_geom/A_0_b_inf");
+  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_0", GEOM));
+  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_inf", GEOM));
+  vector < TChain* > runFiles_n1 = GetChainsOfRuns(octetIndices, Form("/mnt/data2/xuansun/revCalSim/A_0_b_-1_baselineSimulations/%s_geom", GEOM));
 
   // read in our random mixing seed so I stay pretty blind.
-  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+  double flag, seed;
 
   string buf1;
   ifstream infile1;
   cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
-  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
+  infile1.open("NewWFlag_randomMixingSeeds_forFullBlind/randomMixingSeeds.txt");
 
   //a check to make sure the file is open
   if(!infile1.is_open())
@@ -122,7 +126,7 @@ int main(int argc, char* argv[])
 
     if(!infile1.eof())
     {
-      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+      bufstream1 >> flag >> seed;
     }
 
     if(infile1.eof() == true)
@@ -134,26 +138,48 @@ int main(int argc, char* argv[])
   cout << "Loaded mixing seeds" << endl;
 
   // load all the histograms of east and west, turn them into rates.
-  // ALWAYS USE S0 FOR MIXING.
-  vector < vector < TH1D* > > rates_base = CreateRateHistograms(runFiles_base, 1 - s0);
-  vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, s0);
+  vector < vector < TH1D* > > rates_base;
 
-  cout << "Created vectors of rate histograms" << endl;
-
-  // Sum the two files together.
-  for(unsigned int i = 0; i < rates_base.size(); i++)
+  if(flag == 1000)
   {
-    for(unsigned int j = 0; j < rates_base[i].size(); j++)
+    rates_base = CreateRateHistograms(runFiles_base, 1 - seed);
+    vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, seed);
+
+    cout << "Created vectors of rate histograms" << endl;
+
+    // Sum the two files together.
+    for(unsigned int i = 0; i < rates_base.size(); i++)
     {
-      rates_base[i][j]->Add(rates_base[i][j], rates_fierz[i][j], 1, 1);
+      for(unsigned int j = 0; j < rates_base[i].size(); j++)
+      {
+        rates_base[i][j]->Add(rates_base[i][j], rates_fierz[i][j], 1, 1);
+      }
+    }
+
+  }
+  else if(flag == -1)
+  {
+    rates_base = CreateRateHistograms(runFiles_base, 1 - seed);
+    vector < vector < TH1D* > > rates_n1 = CreateRateHistograms(runFiles_n1, seed);
+
+    cout << "Created vectors of rate histograms" << endl;
+
+    // Sum the two files together.
+    for(unsigned int i = 0; i < rates_base.size(); i++)
+    {
+      for(unsigned int j = 0; j < rates_base[i].size(); j++)
+      {
+        rates_base[i][j]->Add(rates_base[i][j], rates_n1[i][j], 1, 1);
+      }
     }
 
   }
 
   cout << "Finished mixing rate histograms." << endl;
 
+
 //  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
-  TFile f(Form("BLIND_MC_A_0_b_0_Octet_%i_type0.root", octNb), "RECREATE");
+  TFile f(Form("FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_type0.root", octNb), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();

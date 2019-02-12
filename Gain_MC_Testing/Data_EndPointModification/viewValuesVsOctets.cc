@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -108,8 +108,8 @@ int main(int argc, char* argv[])
   TH1D *h2 = new TH1D("end point corrected fierz", "fierz 2011-2013", 50, -0.5, 0.5);
 //  h1->SetStats(0);
 
-  FillArrays(Form("CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("endpointCorr_CorrectBlindingOct2018_newXuanFitter_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
+  FillArrays(Form("FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
+  FillArrays(Form("endpointCorr_FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
 
   vector <double> chisquaredError(chisquared.size(), 0.01);
 
@@ -129,8 +129,8 @@ int main(int argc, char* argv[])
 //  leg1->Draw();
 
 
-  double xPrint = 45;
-  double yPrint = -0.25;
+  double xPrint = 105;
+  double yPrint = -0.1;
 
   TLatex t2;
   t2.SetTextSize(0.03);

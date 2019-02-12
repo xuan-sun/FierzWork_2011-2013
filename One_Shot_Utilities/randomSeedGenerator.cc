@@ -50,19 +50,17 @@ int main(int argc, char* argv[])
 
   double flagCheck = engine->Rndm();
 
-  cout << flagCheck << endl;
-
   if(flagCheck < 0.5)
   {
     outfile << 1000 << "\t";
-    outfile << 0.06 << "\n";	// 0.06 -> b = -0.1
-//    outfile << 0.06*engine->Rndm() << "\n";
+//    outfile << 0.06 << "\n";	// 0.06 -> b = -0.1
+    outfile << 0.0453*engine->Rndm() << "\n";	// b minimum -0.075
   }
   else if(flagCheck >= 0.5)
   {
     outfile << -1 << "\t";
-    outfile << 0.04 << "\n";	// 0.04 -> b = 0.1
-//    outfile << 0.04*engine->Rndm() << "\n";
+//    outfile << 0.04 << "\n";	// 0.04 -> b = 0.1
+    outfile << 0.0297*engine->Rndm() << "\n";	// b maximum 0.075
   }
 
   outfile.close();
