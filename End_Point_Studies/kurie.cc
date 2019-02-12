@@ -44,13 +44,13 @@
 
 using            namespace std;
 
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
 //required later for plot_program
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
   }
 
   int index = atoi(argv[1]);
-
+/*
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
   TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
 //  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
@@ -87,17 +87,19 @@ int main(int argc, char* argv[])
   dataHist = (TH1D*)f.Get("Super sum");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
+*/
 
 
-/*
   // this bit reads in twiddle files
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
-  TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, twiddleIndex));
-  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+  TChain* dataChain = new TChain("Evts");
+//  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, twiddleIndex));
+//  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+  dataChain->AddFile("Evts_A_0_b_0_v2.root");
+  dataChain->Draw("KEstep >> dataHist", "PID == 11 && KE > 0");
 
-  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << twiddleIndex << endl;
-*/
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
+
 /*
   // this bit reads in baseline monte carlos
   int numFilesIndexMin = 0;
@@ -159,24 +161,24 @@ int main(int argc, char* argv[])
   TLatex t0;
   t0.SetTextSize(0.03);
   t0.SetTextAlign(13);
-  t0.DrawLatex(700, 1.75, Form("fit = [0]+[1]*x"));
+//  t0.DrawLatex(700, 1.75, Form("fit = [0]+[1]*x"));
   TLatex t1;
   t1.SetTextSize(0.03);
   t1.SetTextAlign(13);
-  t1.DrawLatex(700, 1.5, Form("Range #in [%f, %f]", energy[FITMINBIN], energy[FITMAXBIN]));
+//  t1.DrawLatex(700, 1.5, Form("Range #in [%f, %f]", energy[FITMINBIN], energy[FITMAXBIN]));
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(700, 1.25, Form("[0] = %f #pm %f", fit1->GetParameter(0), fit1->GetParError(0)));
+//  t2.DrawLatex(700, 1.25, Form("[0] = %f #pm %f", fit1->GetParameter(0), fit1->GetParError(0)));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(700, 1, Form("[1] = %f #pm %f", fit1->GetParameter(1), fit1->GetParError(1)));
+//  t3.DrawLatex(700, 1, Form("[1] = %f #pm %f", fit1->GetParameter(1), fit1->GetParError(1)));
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(700, 0.75, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
-
+  t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
+/*
   ofstream outfile;
   outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << index << "\t"
@@ -193,13 +195,13 @@ int main(int argc, char* argv[])
 	  << energy[FITMINBIN] << "\t"
 	  << energy[FITMAXBIN] << "\n";
   outfile.close();
-
+*/
 
 
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
@@ -208,7 +210,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
-  hPlot -> GetXaxis() -> SetTitle("Energy (keV)");
+  hPlot -> GetXaxis() -> SetTitle("Initial K Energy (keV)");
   hPlot -> GetXaxis() -> CenterTitle();
   hPlot -> GetYaxis() -> SetTitle("Counts (N)");
   hPlot -> GetYaxis() -> CenterTitle();
@@ -241,7 +243,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot,
 {
   C -> cd(canvasIndex);
   gPlot -> SetTitle(title);
-  gPlot -> GetXaxis() -> SetTitle("KE (keV)"/*"Total Energy W (units of m_{e})"*/);
+  gPlot -> GetXaxis() -> SetTitle("KE with step-wise gain (keV)"/*"Total Energy W (units of m_{e})"*/);
   gPlot -> GetXaxis() -> SetRangeUser(0, 1000);
   gPlot -> GetXaxis() -> CenterTitle();
   gPlot -> GetYaxis() -> SetTitle("Hits (N)");
