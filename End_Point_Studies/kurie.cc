@@ -50,7 +50,7 @@ using            namespace std;
 #define		FITMAXBIN	65
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -79,17 +79,17 @@ int main(int argc, char* argv[])
   }
 
   int index = atoi(argv[1]);
-/*
+
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
   TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
-//  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
-  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
+  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
+//  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
   dataHist = (TH1D*)f.Get("Super sum");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
-*/
 
 
+/*
   // this bit reads in twiddle files
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("Evts");
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
   dataChain->Draw("KEstep >> dataHist", "PID == 11 && KE > 0");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
-
+*/
 /*
   // this bit reads in baseline monte carlos
   int numFilesIndexMin = 0;
@@ -178,30 +178,32 @@ int main(int argc, char* argv[])
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
   t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
-/*
+
   ofstream outfile;
-  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open("gainCorrectionApplied_endpoints_allOctets.txt", ios::app);
   outfile << index << "\t"
-          << fit1->GetChisquare() << "\t"
-          << fit1->GetNDF() << "\t"
-          << fit1->GetChisquare() / fit1->GetNDF() << "\t"
-          << fit1->GetParameter(0) << "\t"
-          << fit1->GetParError(0) << "\t"
-          << fit1->GetParameter(1) << "\t"
-          << fit1->GetParError(1) << "\t"         // these -1's are placeholders so the format is same as combinedAbFitter.cc
+//          << fit1->GetChisquare() << "\t"
+//          << fit1->GetNDF() << "\t"
+//          << fit1->GetChisquare() / fit1->GetNDF() << "\t"
+//          << fit1->GetParameter(0) << "\t"
+//          << fit1->GetParError(0) << "\t"
+//          << fit1->GetParameter(1) << "\t"
+//          << fit1->GetParError(1) << "\t"         // these -1's are placeholders so the format is same as combinedAbFitter.cc
           << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
-          << FITMINBIN << "\t"
-	  << FITMAXBIN << "\t"
-	  << energy[FITMINBIN] << "\t"
-	  << energy[FITMAXBIN] << "\n";
+//          << FITMINBIN << "\t"
+//	  << FITMAXBIN << "\t"
+//	  << energy[FITMINBIN] << "\t"
+//	  << energy[FITMAXBIN] << "\n";
+	  << 782.0 / ( -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ) << "\n";
   outfile.close();
-*/
+
 
 
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
