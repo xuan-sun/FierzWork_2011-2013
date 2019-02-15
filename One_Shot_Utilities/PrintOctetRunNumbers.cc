@@ -44,8 +44,7 @@ using		 namespace std;
 
 // forward declarations for useful functions
 vector < pair <string,int> >  LoadOctetList(TString fileName);
-vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath);
-vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains);
+void PrintListOfRuns(vector < pair <string,int> > octetList, TString dataPath, int octNb);
 
 
 // these are actual beta run indices
@@ -94,8 +93,7 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("../OctetLists/octet_list_%i.dat", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/");
-
+  PrintListOfRuns(octetIndices, "/mnt/Data/xuansun/replay_pass3_FINALCAL/", octNb);
 
 
   cout << "-------------- End of Program ---------------" << endl;
@@ -197,17 +195,26 @@ vector < pair <string,int> >  LoadOctetList(TString fileName)
   return pairs;
 }
 
-vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TString dataPath)
+void PrintListOfRuns(vector < pair <string,int> > octetList, TString dataPath, int octNb)
 {
-  vector < TChain* > runs;
-
+/*
   for(unsigned int i = 0; i < 16; i++)
   {
     runs.push_back(new TChain("pass3"));
   }
+*/
+
+  ofstream outfile;
+  outfile.open("bFits_OctetsUsed_RunNumbers.txt", ios::app);
 
   for(unsigned int l = 0; l < octetList.size(); l++)
   {
+
+    outfile << octNb << "\t"
+	    << octetList[l].second << "\t"
+	    << octetList[l].first << "\n";
+
+/*
     if(octetList[l].first == "A2")
     {
       runs[index_A2] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
@@ -272,8 +279,9 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
     {
       runs[index_B12] -> Add(TString::Format("%s/replay_pass3_%i.root", dataPath.Data(), octetList[l].second));
     }
+*/
   }
 
-  return runs;
+  outfile.close();
 }
 
