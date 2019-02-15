@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = ssDataHist.o
-SOURCE = ssDataHist
+OBJECTS = PrintOctetRunNumbers.o
+SOURCE = PrintOctetRunNumbers
 
 .PHONY: all
 all: $(SOURCE)
