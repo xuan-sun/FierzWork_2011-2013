@@ -38,7 +38,7 @@
 #include	 <math.h>
 
 #define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	100
+#define		RADIALCUTHIGH	15
 #define		TYPE	"type0"
 #define		GEOM	"2011-2012"
 

@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = randomSeedGenerator.o
-SOURCE = randomSeedGenerator
+OBJECTS = ssDataHist.o
+SOURCE = ssDataHist
 
 .PHONY: all
 all: $(SOURCE)

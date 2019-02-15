@@ -19,16 +19,14 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o newXuanFitter.o
-SOURCE = newXuanFitter
+OBJECTS = ssDataHist_radialCuts.o
+SOURCE = ssDataHist_radialCuts
 
 .PHONY: all
 all: $(SOURCE)
 
 $(SOURCE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(SOURCE) $(OBJECTS) $(LIBS)
-
-BetaSpectrum.o: BetaSpectrum.hh
 
 # -------------------------------------------------------------------------------
 #  Generic compilation and linking step to make an executable from
