@@ -41,23 +41,6 @@ using		 namespace std;
 
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
 
-struct Event
-{
-  double primKE;
-  double Erecon;
-  int side;
-  int type;
-  int eventNum;
-  double time[2];
-  double tE;
-  double tW;
-  int pid;
-  double xEastPos;
-  double yEastPos;
-  double xWestPos;
-  double yWestPos;
-};
-
 // forward declarations for useful functions
 double CalculatebFromPercentageMixing(TString fileName);
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
@@ -98,7 +81,7 @@ int main(int argc, char* argv[])
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
-  int octNb = 81;
+  int octNb = 47;
   double xMin = atof(argv[1]);
   double xMax = atof(argv[2]);
 
@@ -113,7 +96,7 @@ int main(int argc, char* argv[])
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
 //  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
-  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+  TString asymmFile = Form("MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
@@ -291,7 +274,7 @@ double CalculatebFromPercentageMixing(TString fileName)
   double b = 0;
 
   // read in our random mixing seed so I stay pretty blind.
-  double s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+  double flag, seed;
 
   string buf1;
   ifstream infile1;
@@ -309,7 +292,7 @@ double CalculatebFromPercentageMixing(TString fileName)
 
     if(!infile1.eof())
     {
-      bufstream1 >> s0 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+      bufstream1 >> flag >> seed;
     }
 
     if(infile1.eof() == true)
@@ -318,7 +301,14 @@ double CalculatebFromPercentageMixing(TString fileName)
     }
   }
 
-  b = -s0 / avg_mE ;
+  if(flag == 1000)
+  {
+    b = -seed / avg_mE ;
+  }
+  else if(flag == -1)
+  {
+    b = seed / (1 - avg_mE);
+  }
 
   return b;
 }

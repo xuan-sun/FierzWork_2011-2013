@@ -550,10 +550,20 @@ double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TR
 
   // these are the UNSHIFTED values of the calibration source points
   // no longer using absolute values since we do NOT assume symmetric
+  // these numbers are for the global 2011-2012 error envelope
+/*
   chi2 = (convertedTwiddle[Ce_index] + 1.43306)*(convertedTwiddle[Ce_index] + 1.43306) / (1.81023*1.81023)
 	+ (convertedTwiddle[Sn_index] - 0.906305)*(convertedTwiddle[Sn_index] - 0.906305) / (2.5161*2.5161)
 	+ (convertedTwiddle[Bi1_index] + 1.35907)*(convertedTwiddle[Bi1_index] + 1.35907) / (3.80851*3.80851)
 	+ (convertedTwiddle[Bi2_index] + 1.55156)*(convertedTwiddle[Bi2_index] + 1.55156) / (5.76559*5.76559);
+*/
+  // these numbers are for calibration period 8, which exists in 2011-2012 data set
+  chi2 = pow(convertedTwiddle[Ce_index] + 2.23493, 2.0) / pow(1.59867, 2.0)
+	+ pow(convertedTwiddle[Sn_index] - 0.752, 2.0) / pow(1.6105, 2.0)
+	+ pow(convertedTwiddle[Bi1_index] + 0.889417, 2.0) / pow(1.41915, 2.0)
+	+ pow(convertedTwiddle[Bi2_index] + 1.31875, 2.0) / pow(1.79787, 2.0);
+
+
   chi2 = chi2 / 4.0;	// dividing by DOF
 
   return chi2;

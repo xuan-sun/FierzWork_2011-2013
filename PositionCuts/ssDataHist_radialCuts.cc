@@ -37,8 +37,8 @@
 #include	 <TLeaf.h>
 #include	 <math.h>
 
-#define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	15
+#define		RADIALCUTLOW	30
+#define		RADIALCUTHIGH	49
 #define		TYPE	"type0"
 #define		GEOM	"2011-2012"
 
@@ -417,22 +417,28 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
       runsChains[j]->GetEntry(i); /* THIS NEEDS TO GET CHANGED FOR DIFFERNT TYPE! */
 
       if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0
-	&& (pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) <= pow(radialCutHigh, 2.0))
+	&& (((pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) <= pow(radialCutHigh, 2.0))
 	&& (pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) >= pow(radialCutLow, 2.0))
-	&& (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) <= pow(radialCutHigh, 2.0))
-	&& (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) >= pow(radialCutLow, 2.0)) )
+	&& (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) == 0)
+	&& (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) == 0) )
+        || ((pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) == 0)
+        && (pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) == 0)
+        && (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) <= pow(radialCutHigh, 2.0))
+        && (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) >= pow(radialCutLow, 2.0)))) )
       {
         if(evt[j]->side == 0)
         {
           rateHistsEast[j]->Fill(evt[j]->Erecon);
 	  lastEventNumPerChain = i;
+	  totalEventNum++;
         }
         else if(evt[j]->side == 1)
         {
           rateHistsWest[j]->Fill(evt[j]->Erecon);
 	  lastEventNumPerChain = i;
+	  totalEventNum++;
         }
-	totalEventNum++;
+
       }
     }
     lastEventNum.push_back(lastEventNumPerChain);
