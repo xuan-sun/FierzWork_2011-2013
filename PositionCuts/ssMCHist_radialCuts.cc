@@ -1,4 +1,3 @@
-
 #include	 <iostream>
 #include	 <fstream>
 #include	 <TGaxis.h>
@@ -36,6 +35,12 @@
 #include	 <vector>
 #include	 <utility>
 #include	 <TLeaf.h>
+
+#define         RADIALCUTLOW    0.030
+#define         RADIALCUTHIGH   0.049	//these need to be done in m for simulations
+#define         TYPE    "type0"
+#define         GEOM    "2011-2012"
+
 using		 namespace std;
 
 struct Event
@@ -63,6 +68,8 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates);
 // plotting functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
 
+// global event number to be saved to super sum hist
+double numberOfEventsInOctet;
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -99,11 +106,11 @@ int main(int argc, char* argv[])
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("../%s/octet_list_%i.dat", "OctetLists", octNb));
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, "/mnt/Data/xuansun/fromSept2017Onwards/2011-2012_geom/A_0_b_inf");
+  vector < TChain* > runFiles = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_inf", GEOM));
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
+  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%f-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -230,6 +237,9 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
 vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 {
+  double radialCutLow = RADIALCUTLOW;	// measured in m
+  double radialCutHigh = RADIALCUTHIGH;	// measured in m
+
   // reminder: each evt[i] index corresponds to the indices noted at global scope.
   vector <Event*> evt;
 
@@ -257,24 +267,39 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 
   }
 
+  int totalEventNum = 0;
+
   for(unsigned int j = 0; j < runsChains.size(); j++)
   {
     for(unsigned int i = 0; i < runsChains[j]->GetEntriesFast(); i++)
     {
       runsChains[j]->GetEntry(i);
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0
+        && (((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) <= pow(radialCutHigh, 2.0))
+        && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) >= pow(radialCutLow, 2.0))
+        && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) == 0)
+        && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) == 0) )
+        || ((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) == 0)
+        && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) == 0)
+        && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) <= pow(radialCutHigh, 2.0))
+        && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) >= pow(radialCutLow, 2.0)))) )
       {
         if(evt[j]->side == 0)
         {
           rateHistsEast[j]->Fill(evt[j]->Erecon);
+          totalEventNum++;
         }
         else if(evt[j]->side == 1)
         {
           rateHistsWest[j]->Fill(evt[j]->Erecon);
+          totalEventNum++;
         }
       }
     }
   }
+
+  cout << "The total number of events for this octet is " << totalEventNum << endl;
+  numberOfEventsInOctet = totalEventNum;
 
 
   rateHists.push_back(rateHistsEast);
@@ -367,6 +392,7 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   }
 
   hist->SetError(&(mySetErrors[0]));
+  hist->SetEntries(numberOfEventsInOctet);
 
   return hist;
 }
