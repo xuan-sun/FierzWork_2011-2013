@@ -105,21 +105,21 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 50, -0.5, 0.5);
-  TH1D *h2 = new TH1D("end point corrected fierz", "fierz 2011-2013", 50, -0.5, 0.5);
+  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 50, -0.5, 0.5);
 //  h1->SetStats(0);
 
   FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_0-49mm_FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
+  FillArrays(Form("positionCuts_0-30mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
 
   vector <double> chisquaredError(chisquared.size(), 0.01);
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
   TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
 
-  g1->GetYaxis()->SetRangeUser(-0.5, 0.4);
+  g1->GetYaxis()->SetRangeUser(-0.4, 0.5);
 
-  PlotGraph(C, 2, 1, g1, Form("b for %s: 0-49mm radius", GEOM), "Octet Number", "b", "AP");
-  PlotGraph(C, 4, 1, g2, Form("b for %s: 0-49mm radius", GEOM), "Octet Number", "b", "PSAME");
+  PlotGraph(C, 2, 1, g1, Form("b for %s: 0-30mm radius", GEOM), "Octet Number", "b", "AP");
+  PlotGraph(C, 4, 1, g2, Form("b for %s: 0-30mm radius", GEOM), "Octet Number", "b", "PSAME");
 
 //  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
 
