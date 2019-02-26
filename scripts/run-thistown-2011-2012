@@ -25,7 +25,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./dataFitting_blindingMCOctetSpectra_radialCuts $x
+./newXuanFitter_positionCuts $x
 make clean
 
 done

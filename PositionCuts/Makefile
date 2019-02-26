@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = dataFitting_blindingMCOctetSpectra_radialCuts.o
-SOURCE = dataFitting_blindingMCOctetSpectra_radialCuts
+OBJECTS = newXuanFitter_positionCuts.o
+SOURCE = newXuanFitter_positionCuts
 
 .PHONY: all
 all: $(SOURCE)
