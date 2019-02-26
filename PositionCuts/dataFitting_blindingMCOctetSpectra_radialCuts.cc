@@ -37,7 +37,10 @@
 #include	 <TLeaf.h>
 #include	 <TRandom3.h>
 
-#define		 GEOM		"2012-2013"
+#define         RADIALCUTLOW    0.030
+#define         RADIALCUTHIGH   0.049   //these need to be done in m for simulations
+#define         TYPE    "type0"
+#define         GEOM    "2011-2012"
 
 using		 namespace std;
 
@@ -66,6 +69,8 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates);
 // plotting functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString command);
 
+// global event number to be saved to super sum hist
+double numberOfEventsInOctet;
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -113,7 +118,7 @@ int main(int argc, char* argv[])
   string buf1;
   ifstream infile1;
   cout << "The file being opened is: " << "randomMixingSeeds.txt" << endl;
-  infile1.open("NewWFlag_randomMixingSeeds_forFullBlind/randomMixingSeeds.txt");
+  infile1.open("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/BlindingSpectrum/NewWFlag_randomMixingSeeds_forFullBlind/randomMixingSeeds.txt");
 
   //a check to make sure the file is open
   if(!infile1.is_open())
@@ -179,7 +184,7 @@ int main(int argc, char* argv[])
 
 
 //  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
-  TFile f(Form("FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_type0.root", octNb), "RECREATE");
+  TFile f(Form("FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%f-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();
@@ -355,10 +360,12 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
           if(evt[j]->side == 0)
           {
             rateHistsEast[j]->Fill(evt[j]->Erecon);
+	    numberOfEventsInOctet++;
           }
           else if(evt[j]->side == 1)
           {
             rateHistsWest[j]->Fill(evt[j]->Erecon);
+	    numberOfEventsInOctet++;
           }
         }
       }
@@ -369,6 +376,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
     }
   }
 
+  cout << "The total number of events for this octet is " << numberOfEventsInOctet << endl;
 
   rateHists.push_back(rateHistsEast);
   rateHists.push_back(rateHistsWest);
@@ -503,6 +511,8 @@ TH1D* CreateSuperSum(vector < vector < TH1D* > > sideRates)
   }
 
   hist->SetError(&(mySetErrors[0]));
+
+  hist->SetEntries(numberOfEventsInOctet);
 
   return hist;
 }
