@@ -264,7 +264,6 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 
     runsChains[i]->GetBranch("MWPCPos")->GetLeaf("MWPCPosE")->SetAddress(&evt[i]->mwpcPosE);
     runsChains[i]->GetBranch("MWPCPos")->GetLeaf("MWPCPosW")->SetAddress(&evt[i]->mwpcPosW);
-
   }
 
   int totalEventNum = 0;

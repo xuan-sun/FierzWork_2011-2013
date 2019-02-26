@@ -54,10 +54,10 @@ struct Event
   double tE;
   double tW;
   int pid;
-  double xEastPos;
-  double yEastPos;
-  double xWestPos;
-  double yWestPos;
+
+  double mwpcPosE[3];
+  double mwpcPosW[3];
+
 };
 
 // forward declarations for useful functions
@@ -311,6 +311,9 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
 vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, double percentMix)
 {
+  double radialCutLow = RADIALCUTLOW;   // measured in m
+  double radialCutHigh = RADIALCUTHIGH; // measured in m
+
   vector < vector <TH1D*> > rateHists;
   TRandom3 *engine = new TRandom3(0);
 
@@ -346,6 +349,9 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
 
     runsChains[i]->SetBranchAddress("time", &evt[i]->time);
+
+    runsChains[i]->GetBranch("MWPCPos")->GetLeaf("MWPCPosE")->SetAddress(&evt[i]->mwpcPosE);
+    runsChains[i]->GetBranch("MWPCPos")->GetLeaf("MWPCPosW")->SetAddress(&evt[i]->mwpcPosW);
   }
 
   for(unsigned int j = 0; j < runsChains.size(); j++)
@@ -355,7 +361,15 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
       if(engine -> Rndm() <= percentMix)
       {
         runsChains[j]->GetEntry(i);
-        if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0)
+        if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0
+          && (((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) <= pow(radialCutHigh, 2.0))
+          && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) >= pow(radialCutLow, 2.0))
+          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) == 0)
+          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) == 0) )
+          || ((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) == 0)
+          && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) == 0)
+          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) <= pow(radialCutHigh, 2.0))
+          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) >= pow(radialCutLow, 2.0)))) )
         {
           if(evt[j]->side == 0)
           {
