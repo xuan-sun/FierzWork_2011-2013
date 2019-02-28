@@ -314,6 +314,9 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
   double radialCutLow = RADIALCUTLOW;   // measured in m
   double radialCutHigh = RADIALCUTHIGH; // measured in m
 
+  radialCutLow = radialCutLow * sqrt(1.0 / 0.6);      // accounts for field expansion region at MWPC
+  radialCutHigh = radialCutHigh * sqrt(1.0 / 0.6);    // only applies to simulations because we use MWPCPos
+
   vector < vector <TH1D*> > rateHists;
   TRandom3 *engine = new TRandom3(0);
 

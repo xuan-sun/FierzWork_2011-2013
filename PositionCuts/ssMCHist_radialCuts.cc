@@ -36,8 +36,8 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 
-#define         RADIALCUTLOW    0.049
-#define         RADIALCUTHIGH   0.150	//these need to be done in m for simulations
+#define         RADIALCUTLOW    0
+#define         RADIALCUTHIGH   0.049	//these need to be done in m for simulations
 #define         TYPE    "type0"
 #define         GEOM    "2011-2012"
 
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%f-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
+  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%i-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -239,6 +239,9 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
 {
   double radialCutLow = RADIALCUTLOW;	// measured in m
   double radialCutHigh = RADIALCUTHIGH;	// measured in m
+
+  radialCutLow = radialCutLow * sqrt(1.0 / 0.6);	// accounts for field expansion region at MWPC
+  radialCutHigh = radialCutHigh * sqrt(1.0 / 0.6);	// only applies to simulations because we use MWPCPos
 
   // reminder: each evt[i] index corresponds to the indices noted at global scope.
   vector <Event*> evt;
