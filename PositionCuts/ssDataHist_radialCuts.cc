@@ -37,8 +37,8 @@
 #include	 <TLeaf.h>
 #include	 <math.h>
 
-#define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	30
+#define		RADIALCUTLOW	49
+#define		RADIALCUTHIGH	150
 #define		TYPE	"type0"
 #define		GEOM	"2011-2012"
 

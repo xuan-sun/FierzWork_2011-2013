@@ -36,8 +36,8 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 
-#define         RADIALCUTLOW    0.030
-#define         RADIALCUTHIGH   0.049	//these need to be done in m for simulations
+#define         RADIALCUTLOW    0.049
+#define         RADIALCUTHIGH   0.150	//these need to be done in m for simulations
 #define         TYPE    "type0"
 #define         GEOM    "2011-2012"
 

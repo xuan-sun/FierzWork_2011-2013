@@ -48,7 +48,7 @@ using            namespace std;
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
-#define		CUTDIRECTORY	"radialCut_30-49"
+#define		CUTDIRECTORY	"radialCut_49-150"
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -87,9 +87,9 @@ int main(int argc, char* argv[])
 
 
   // this little bit loads the octets once they have already been separated into super sum histograms
-  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/%s/Octet_%i_ssDataHist_%s_radialCut_30-49mm.root", CUTDIRECTORY, octNb, TYPE));
-  TFile fMC0(TString::Format("%s/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_0.030000-0.049000m.root", CUTDIRECTORY, octNb, TYPE));
-  TFile fMCinf(TString::Format("%s/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_0.030000-0.049000m.root", CUTDIRECTORY, octNb, TYPE));
+  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/%s/Octet_%i_ssDataHist_%s_radialCut_49-150mm.root", CUTDIRECTORY, octNb, TYPE));
+  TFile fMC0(TString::Format("%s/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_0.049000-0.150000m.root", CUTDIRECTORY, octNb, TYPE));
+  TFile fMCinf(TString::Format("%s/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_0.049000-0.150000m.root", CUTDIRECTORY, octNb, TYPE));
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");

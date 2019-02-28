@@ -105,21 +105,21 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 50, -0.5, 0.5);
-  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 50, -0.5, 0.5);
+  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 50, 0, 6);
 //  h1->SetStats(0);
 
   FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_0-30mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
+  FillArrays(Form("positionCuts_49-150mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
 
   vector <double> chisquaredError(chisquared.size(), 0.01);
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
   TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
 
-  g1->GetYaxis()->SetRangeUser(-0.4, 0.5);
+  g1->GetYaxis()->SetRangeUser(-0.5, 6);
 
-  PlotGraph(C, 2, 1, g1, Form("b for %s: 0-30mm radius", GEOM), "Octet Number", "b", "AP");
-  PlotGraph(C, 4, 1, g2, Form("b for %s: 0-30mm radius", GEOM), "Octet Number", "b", "PSAME");
+  PlotGraph(C, 2, 1, g1, Form("b for %s: 49-150mm radius", GEOM), "Octet Number", "b", "AP");
+  PlotGraph(C, 4, 1, g2, Form("b for %s: 49-150mm radius", GEOM), "Octet Number", "b", "PSAME");
 
 //  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
 
@@ -131,12 +131,12 @@ int main(int argc, char* argv[])
 
 
   double xPrint = 45;
-  double yPrint = -0.1;
+  double yPrint = 1.5;
 
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(xPrint, yPrint+0.05, Form("red #mu = %f", h1->GetMean()));
+  t2.DrawLatex(xPrint, yPrint+0.5, Form("red #mu = %f", h1->GetMean()));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
@@ -145,11 +145,11 @@ int main(int argc, char* argv[])
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(xPrint, yPrint-0.05, Form("blue #mu = %f", h2->GetMean()));
+  t4.DrawLatex(xPrint, yPrint-0.5, Form("blue #mu = %f", h2->GetMean()));
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(xPrint, yPrint-0.1, Form("blue RMS = %f", h2->GetRMS()));
+  t5.DrawLatex(xPrint, yPrint-1, Form("blue RMS = %f", h2->GetRMS()));
 
 
 
