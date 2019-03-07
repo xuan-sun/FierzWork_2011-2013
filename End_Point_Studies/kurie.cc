@@ -80,9 +80,13 @@ int main(int argc, char* argv[])
 
   int index = atoi(argv[1]);
 
+  int radialCutLow = 49;
+  int radialCutHigh = 150;
+
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
   TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
-  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
+  TFile f(Form("../PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", radialCutLow, radialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
+//  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
 //  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
   dataHist = (TH1D*)f.Get("Super sum");
 
@@ -181,7 +185,7 @@ int main(int argc, char* argv[])
 
   ofstream outfile;
 //  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile.open("gainCorrectionApplied_endpoints_allOctets.txt", ios::app);
+  outfile.open(Form("endPointFits_noGainCorrection_ssDataHists_2011-2012_radialCut_%i-%imm.txt", radialCutLow, radialCutHigh), ios::app);
   outfile << index << "\t"
 //          << fit1->GetChisquare() << "\t"
 //          << fit1->GetNDF() << "\t"
@@ -191,6 +195,8 @@ int main(int argc, char* argv[])
 //          << fit1->GetParameter(1) << "\t"
 //          << fit1->GetParError(1) << "\t"         // these -1's are placeholders so the format is same as combinedAbFitter.cc
           << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
+	  << abs(fit1->GetParameter(0)/fit1->GetParameter(1))
+	     * sqrt( pow(fit1->GetParError(0) / fit1->GetParameter(0), 2.0) + pow(fit1->GetParError(1) / fit1->GetParameter(1), 2.0) ) << "\t"
 //          << FITMINBIN << "\t"
 //	  << FITMAXBIN << "\t"
 //	  << energy[FITMINBIN] << "\t"
