@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = ssMCHist_radialCuts.o
-SOURCE = ssMCHist_radialCuts
+OBJECTS = newXuanFitter_positionCuts.o
+SOURCE = newXuanFitter_positionCuts
 
 .PHONY: all
 all: $(SOURCE)

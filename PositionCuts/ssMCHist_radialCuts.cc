@@ -36,7 +36,7 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 
-#define         RADIALCUTLOW    0
+#define         RADIALCUTLOW    0.030
 #define         RADIALCUTHIGH   0.049	//these need to be done in m for simulations
 #define         TYPE    "type0"
 #define         GEOM    "2011-2012"
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%i-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
+  TFile f(TString::Format("MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%f-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();

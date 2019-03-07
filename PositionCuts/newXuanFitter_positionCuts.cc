@@ -48,7 +48,7 @@ using            namespace std;
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
-#define		CUTDIRECTORY	"radialCut_49-150"
+#define		CUTDIRECTORY	"radialCut_30-49"
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -87,62 +87,12 @@ int main(int argc, char* argv[])
 
 
   // this little bit loads the octets once they have already been separated into super sum histograms
-  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/%s/Octet_%i_ssDataHist_%s_radialCut_49-150mm.root", CUTDIRECTORY, octNb, TYPE));
-  TFile fMC0(TString::Format("%s/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_0.049000-0.150000m.root", CUTDIRECTORY, octNb, TYPE));
-  TFile fMCinf(TString::Format("%s/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_0.049000-0.150000m.root", CUTDIRECTORY, octNb, TYPE));
+  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/%s/Octet_%i_ssDataHist_%s_radialCut_30-49mm.root", CUTDIRECTORY, octNb, TYPE));
+  TFile fMC0(TString::Format("%s/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_0.030000-0.049000m.root", CUTDIRECTORY, octNb, TYPE));
+  TFile fMCinf(TString::Format("%s/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_0.030000-0.049000m.root", CUTDIRECTORY, octNb, TYPE));
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
-
-  // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
-/*  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
-  TChain* dataChain = new TChain("SimAnalyzed");
-  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, octNb));
-  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-
-  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << octNb << endl;
-
-
-  int numFilesIndexMin = 0;
-  int numFilesIndexMax = 100;
-  // using unblinded base beta spectrum
-  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
-  TChain* betaChain = new TChain("SimAnalyzed");
-  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
-  {
-    betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
-  }
-  betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-*/
-  // using properly blinded beta spectrum
-/*  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
-  int totalEntries = 0;
-  for(int j = numFilesIndexMin; j < numFilesIndexMax; j++)
-  {	// note that .c_str() converts a std::string into a useable %s in Form(), must like .Data() for TString
-    TFile f(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/BLIND_SimAnalyzed_%s_Beta_paramSet_100_%i_type0.root", GEOM, GEOM, j));
-    TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
-    for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
-    {
-      mcTheoryHistBeta->SetBinContent(i, mcTheoryHistBeta->GetBinContent(i) + hTemp->GetBinContent(i));
-    }
-    totalEntries = totalEntries + hTemp->GetEntries();
-    f.Close();
-  }
-  mcTheoryHistBeta->SetEntries(totalEntries);
-*/
-/*
-  cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
-
-  TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
-  TChain* fierzChain = new TChain("SimAnalyzed");
-  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
-  {
-    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
-  }
-  fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-
-  cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
-*/
 
   // the work beyond here is unrelated to which data structure you chose
   for(int i = 0; i < dataHist->GetNbinsX(); i++)
