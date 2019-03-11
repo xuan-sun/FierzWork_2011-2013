@@ -37,7 +37,7 @@
 #include	 <TLeaf.h>
 #include	 <TRandom3.h>
 
-#define         RADIALCUTLOW    0.049
+#define         RADIALCUTLOW    0
 #define         RADIALCUTHIGH   0.150   //these need to be done in m for simulations
 #define         TYPE    "type0"
 #define         GEOM    "2011-2012"
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 
 
 //  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
-  TFile f(Form("FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%f-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
+  TFile f(Form("FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%i-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();

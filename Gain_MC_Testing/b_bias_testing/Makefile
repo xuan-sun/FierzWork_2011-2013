@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = dataFitting_blindingMCOctetSpectra_radialCuts.o
-SOURCE = dataFitting_blindingMCOctetSpectra_radialCuts
+OBJECTS = scaleEnergyPlugIn.o
+SOURCE = scaleEnergyPlugIn
 
 .PHONY: all
 all: $(SOURCE)
@@ -38,4 +38,3 @@ $(SOURCE): $(OBJECTS)
 
 clean:
 		@rm -f *.o *~  core $(SOURCE)
-

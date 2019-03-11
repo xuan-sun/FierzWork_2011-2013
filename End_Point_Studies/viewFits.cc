@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -62,18 +62,21 @@ void FillArrays(TString fileName, TH1D *h, int hFillOption);
 struct entry
 {
   int indexNb;
-  double chi2;
+/*  double chi2;
   double ndf;
   double chi2_ndf;
   double par0;
   double par0Err;
   double par1;
   double par1Err;
-  double endpoint;
-  double fitbinmin;
+*/  double endpoint;
+  double endpointErr;
+  double gainFactor;
+/*  double fitbinmin;
   double fitbinmax;
   double lowE;
   double highE;
+*/
 };
 
 int main(int argc, char* argv[])
@@ -91,12 +94,12 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "end points", 40, 770, 790);
-  FillArrays(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h, 1);
+  TH1D* h = new TH1D("endpoints", "end points", 100, 0.95, 1.05);
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_0-30mm.txt", GEOM), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("endpoints, %s, %s", TYPE, GEOM), "chisquared/ndf", "N", "", max);
+  PlotHist(C, 2, 1, h, Form("endpoints, %s, %s, radial: 0-30mm", TYPE, GEOM), "gain correction factor", "N", "", max);
 
 /*
   TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);
@@ -150,20 +153,23 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
     if(!infile1.eof())
     {
       bufstream >> evt.indexNb
-		>> evt.chi2
+/*		>> evt.chi2
 		>> evt.ndf
 		>> evt.chi2_ndf
 		>> evt.par0
 		>> evt.par0Err
 		>> evt.par1
 		>> evt.par1Err
-		>> evt.endpoint
-		>> evt.fitbinmin
+*/		>> evt.endpoint
+		>> evt.endpointErr
+		>> evt.gainFactor;
+
+/*		>> evt.fitbinmin
 		>> evt.fitbinmax
 		>> evt.lowE
 		>> evt.highE;
-
-      h->Fill(evt.endpoint);
+*/
+      h->Fill(evt.gainFactor);
     }
 
     if(infile1.eof() == true)
