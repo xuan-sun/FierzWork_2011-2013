@@ -53,22 +53,30 @@ double ChooseGainFactor();
 
 int main(int argc, char* argv[])
 {
-  if(argc < 1)
+  if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable)" << endl;
+    cout << "(executable) (index)" << endl;
     return 0;
   }
+
+  cout << "good" << endl;
+
+  // read in arguments.
+  Int_t octNb = atoi(argv[1]);
+
+  cout << "good" << endl;
 
   // creating canvas for plotting
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
-  // read in arguments.
-//  Int_t octNb = atoi(argv[1]);
+  cout << "good" << endl;
 
-  TString fileName = "Evts_A_0_b_0_index5.root";
+  TString fileName = Form("../A_0_b_0/Evts_%i.root", octNb);
   AddBranchToTreeInFile(fileName);
   cout << "Done updating runNumber = " << fileName.Data() << endl;
+
+  cout << "good" << endl;
 
 //  C -> Print("fierz.pdf");
   cout << "-------------- End of Program ---------------" << endl;

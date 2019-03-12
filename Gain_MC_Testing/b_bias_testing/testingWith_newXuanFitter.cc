@@ -44,11 +44,11 @@
 
 using            namespace std;
 
-#define		FITMINBIN	1
-#define		FITMAXBIN	70
+#define		FITMINBIN	17
+#define		FITMAXBIN	65
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -71,17 +71,20 @@ double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 1)
+  if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable)" << endl;
+    cout << "(executable) (index)" << endl;
     return 0;
   }
 
+  // read in arguments.
+  Int_t octNb = atoi(argv[1]);
+
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("Evts");
-  dataChain->AddFile("Statistical_Fitting_Test/Evts_A_0_b_0_statTest_9.root");
-  dataChain->Draw("KE >> dataHist");
+  dataChain->AddFile(Form("../A_0_b_0/Evts_%i.root", octNb));
+  dataChain->Draw("KEgainCorr >> dataHist");
 
   cout << "Total data events: " << dataChain->GetEntries() << endl;
 
@@ -90,7 +93,7 @@ int main(int argc, char* argv[])
   TChain* betaChain = new TChain("Evts");
   for(int i = 0; i < 100; i++)
   {
-    betaChain->AddFile(Form("A_0_b_0/Evts_%i.root", i));
+    betaChain->AddFile(Form("../A_0_b_0/Evts_%i.root", i));
   }
   betaChain->Draw("KE >> mcTheoryHistBeta");
 
@@ -100,7 +103,7 @@ int main(int argc, char* argv[])
   TChain* fierzChain = new TChain("Evts");
   for(int i = 0; i < 100; i++)
   {
-    fierzChain->AddFile(Form("A_0_b_inf/Evts_%i.root", i));
+    fierzChain->AddFile(Form("../A_0_b_inf/Evts_%i.root", i));
   }
   fierzChain->Draw("KE >> mcTheoryHistFierz");
 
@@ -192,9 +195,9 @@ int main(int argc, char* argv[])
   cout << "Highest number of parameters defined by user: " << nUserParams << endl;
   cout << "Status of covariance matrix: " << covMatrixStatus << endl;
 
-/*
+
   ofstream outfile;
-  outfile.open(Form("ReReReBLINDED_newXuanFitter_bFit_A_1_b_0_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("gainTestingStatistically_b_bias_newXuanFitter_bFit_A_1_b_0_FitBins_%i-%i.txt", FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
@@ -206,7 +209,7 @@ int main(int argc, char* argv[])
 	  << -1 << "\t"
 	  << covMatrixStatus << "\n";
   outfile.close();
-*/
+
 
 
   // plot everything and visualize
@@ -248,7 +251,7 @@ int main(int argc, char* argv[])
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
