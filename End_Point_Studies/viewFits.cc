@@ -46,6 +46,8 @@
 #define		GEOM	"2011-2012"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
+#define		RADIALCUTLOW	0
+#define		RADIALCUTHIGH	150
 
 using            namespace std;
 
@@ -94,12 +96,12 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "end points", 100, 0.95, 1.05);
-  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_0-30mm.txt", GEOM), h, 1);
+  TH1D* h = new TH1D("endpoints", "end points", 100, 760, 810);
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, RADIALCUTLOW, RADIALCUTHIGH), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("endpoints, %s, %s, radial: 0-30mm", TYPE, GEOM), "gain correction factor", "N", "", max);
+  PlotHist(C, 2, 1, h, Form("endpoints, %s, %s, radial: %i-%imm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "fitted end point (keV)", "N", "", max);
 
 /*
   TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);
@@ -169,7 +171,7 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.lowE
 		>> evt.highE;
 */
-      h->Fill(evt.gainFactor);
+      h->Fill(evt.endpoint);
     }
 
     if(infile1.eof() == true)

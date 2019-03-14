@@ -37,10 +37,10 @@
 #include	 <TLeaf.h>
 #include	 <TRandom3.h>
 
-#define         RADIALCUTLOW    0
-#define         RADIALCUTHIGH   0.049   //these need to be done in m for simulations
+//#define         RADIALCUTLOW    0
+//#define         RADIALCUTHIGH   0.049   //these need to be done in m for simulations
 #define         TYPE    "type0"
-#define         GEOM    "2011-2012"
+//#define         GEOM    "2011-2012"
 
 using		 namespace std;
 
@@ -71,6 +71,10 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
 
 // global event number to be saved to super sum hist
 double numberOfEventsInOctet;
+int radialCutLow = 0;
+double radialCutHigh = 0.0;
+TString Year;
+int mixingFlag = 0;
 
 // these are actual beta run indices
 const int index_A2 = 0;
@@ -91,10 +95,10 @@ const int index_B10 = 7;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if(argc < 6)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (octet #)" << endl;
+    cout << "(executable) (octet #) (radial cut low) (radial cut high) (year index) (mixing flag)" << endl;
     return 0;
   }
 
@@ -103,14 +107,39 @@ int main(int argc, char* argv[])
 
   // read in arguments.
   Int_t octNb = atoi(argv[1]);
+  radialCutLow = atoi(argv[2]);
+  radialCutHigh = atof(argv[3]);
+  int yearIndex = atoi(argv[4]);
+  mixingFlag = atoi(argv[5]);
+
+  if(yearIndex == 2011)
+  {
+    Year = Form("2011-2012");
+  }
+  else if(yearIndex == 2012)
+  {
+    Year = Form("2012-2013");
+  }
+  else
+  {
+    cout << "Year index doesn't make sense." << endl;
+    return 0;
+  }
+
+  if(mixingFlag != -1 && mixingFlag != 1000)
+  {
+    cout << "Wrong mixing flag. " << endl;
+    return 0;
+  }
+
 
   // Reads in the octet list and saves the run files indices corresponding to an octet number
   vector < pair <string,int> > octetIndices = LoadOctetList(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/%s/octet_list_%i.dat", "OctetLists", octNb));
 
   // Points TChains at the run files idenified in the octet lists above
-  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_0", GEOM));
-  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_inf", GEOM));
-  vector < TChain* > runFiles_n1 = GetChainsOfRuns(octetIndices, Form("/mnt/data2/xuansun/revCalSim/A_0_b_-1_baselineSimulations/%s_geom", GEOM));
+  vector < TChain* > runFiles_base = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_0", Year.Data()));
+  vector < TChain* > runFiles_fierz = GetChainsOfRuns(octetIndices, Form("/mnt/Data/xuansun/fromSept2017Onwards/%s_geom/A_0_b_inf", Year.Data()));
+  vector < TChain* > runFiles_n1 = GetChainsOfRuns(octetIndices, Form("/mnt/data2/xuansun/revCalSim/A_0_b_-1_baselineSimulations/%s_geom", Year.Data()));
 
   // read in our random mixing seed so I stay pretty blind.
   double flag, seed;
@@ -145,10 +174,10 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates_base;
 
-  if(flag == 1000)
+  if(mixingFlag == 1000)
   {
-    rates_base = CreateRateHistograms(runFiles_base, 1/* - seed*/);
-    vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0/*seed*/);
+    rates_base = CreateRateHistograms(runFiles_base, 1 - 0.06/* - seed*/);
+    vector < vector < TH1D* > > rates_fierz = CreateRateHistograms(runFiles_fierz, 0 + 0.06/*seed*/);
 
     cout << "Created vectors of rate histograms" << endl;
 
@@ -162,10 +191,10 @@ int main(int argc, char* argv[])
     }
 
   }
-  else if(flag == -1)
+  else if(mixingFlag == -1)
   {
-    rates_base = CreateRateHistograms(runFiles_base, 1/* - seed*/);
-    vector < vector < TH1D* > > rates_n1 = CreateRateHistograms(runFiles_n1, 0/*seed*/);
+    rates_base = CreateRateHistograms(runFiles_base, 1 - 0.04/* - seed*/);
+    vector < vector < TH1D* > > rates_n1 = CreateRateHistograms(runFiles_n1, 0 + 0.04/*seed*/);
 
     cout << "Created vectors of rate histograms" << endl;
 
@@ -182,10 +211,19 @@ int main(int argc, char* argv[])
 
   cout << "Finished mixing rate histograms." << endl;
 
+  TString outputFileName;
 
-//  TFile f(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/ReReblinded_June2018/BLIND_MC_A_0_b_0_Octet_%i_ssHist_type0.root", octNb), "RECREATE");
-//  TFile f(Form("FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%f-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
-  TFile f(Form("MC_A_0_b_0_Octet_%i_ssHist_%s_posCut_%i-%fm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
+  if(mixingFlag == 1000)
+  {
+    outputFileName = Form("MC_A_0_b_-0.1_Octet_%i_ssHist_%s_posCut_%i-%fm.root", octNb, TYPE, radialCutLow, radialCutHigh);
+  }
+  else if(mixingFlag == -1)
+  {
+    outputFileName = Form("MC_A_0_b_0.1_Octet_%i_ssHist_%s_posCut_%i-%fm.root", octNb, TYPE, radialCutLow, radialCutHigh);
+  }
+
+  TFile f(outputFileName, "RECREATE");
+
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates_base);
   SS_Erecon->Write();
@@ -311,11 +349,8 @@ vector < TChain* > GetChainsOfRuns(vector < pair <string,int> > octetList, TStri
 
 vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, double percentMix)
 {
-  double radialCutLow = RADIALCUTLOW;   // measured in m
-  double radialCutHigh = RADIALCUTHIGH; // measured in m
-
-  radialCutLow = radialCutLow * sqrt(1.0 / 0.6);      // accounts for field expansion region at MWPC
-  radialCutHigh = radialCutHigh * sqrt(1.0 / 0.6);    // only applies to simulations because we use MWPCPos
+  double newRadialCutLow = radialCutLow * sqrt(1.0 / 0.6);      // accounts for field expansion region at MWPC
+  double newRadialCutHigh = radialCutHigh * sqrt(1.0 / 0.6);    // only applies to simulations because we use MWPCPos
 
   vector < vector <TH1D*> > rateHists;
   TRandom3 *engine = new TRandom3(0);
@@ -365,14 +400,14 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains, do
       {
         runsChains[j]->GetEntry(i);
         if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0
-          && (((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) <= pow(radialCutHigh, 2.0))
-          && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) >= pow(radialCutLow, 2.0))
+          && (((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) <= pow(newRadialCutHigh, 2.0))
+          && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) >= pow(newRadialCutLow, 2.0))
           && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) == 0)
           && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) == 0) )
           || ((pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) == 0)
           && (pow(evt[j]->mwpcPosE[0], 2.0) + pow(evt[j]->mwpcPosE[1], 2.0) == 0)
-          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) <= pow(radialCutHigh, 2.0))
-          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) >= pow(radialCutLow, 2.0)))) )
+          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) <= pow(newRadialCutHigh, 2.0))
+          && (pow(evt[j]->mwpcPosW[0], 2.0) + pow(evt[j]->mwpcPosW[1], 2.0) >= pow(newRadialCutLow, 2.0)))) )
         {
           if(evt[j]->side == 0)
           {

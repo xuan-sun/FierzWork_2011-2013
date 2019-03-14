@@ -1,0 +1,258 @@
+#!/bin/bash
+# Linux/UNIX box with ssh key based login enabled
+# SSH User name
+
+# in this loop, set the number of .mac files you want to generate
+# this loop variable also counts the Evts_#.root trees you read in. Only used for betas
+
+cd ../PositionCuts/
+
+
+for ((x = 0; x < 60; x = x + 1))
+do
+if ((x == 9))
+then
+continue
+fi
+if ((x == 59))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.030 2011 -1
+make clean
+done
+
+echo "Done running first bash script iteration"
+
+for ((x = 0; x < 60; x = x + 1))
+do
+if ((x == 9))
+then
+continue
+fi
+if ((x == 59))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.030 2011 1000
+make clean
+done
+
+echo "Done running second bash script iteration"
+
+
+
+for ((x = 0; x < 60; x = x + 1))
+do
+if ((x == 9))
+then
+continue
+fi
+if ((x == 59))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.049 2011 -1
+make clean
+done
+
+echo "Done running third bash script iteration"
+
+for ((x = 0; x < 60; x = x + 1))
+do
+if ((x == 9))
+then
+continue
+fi
+if ((x == 59))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.049 2011 1000
+make clean
+done
+
+echo "Done running fourth bash script iteration"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for ((x = 80; x < 122; x = x + 1))
+do
+if ((x == 60))
+then
+continue
+fi
+if ((x == 67))
+then
+continue
+fi
+if ((x == 69))
+then
+continue
+fi
+if ((x == 91))
+then
+continue
+fi
+if ((x == 93))
+then
+continue
+fi
+if ((x == 101))
+then
+continue
+fi
+if ((x == 107))
+then
+continue
+fi
+if ((x == 121))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.030 2012 -1
+make clean
+done
+
+echo "Done running fifth bash script iteration"
+
+for ((x = 80; x < 122; x = x + 1))
+do
+if ((x == 60))
+then
+continue
+fi
+if ((x == 67))
+then
+continue
+fi
+if ((x == 69))
+then
+continue
+fi
+if ((x == 91))
+then
+continue
+fi
+if ((x == 93))
+then
+continue
+fi
+if ((x == 101))
+then
+continue
+fi
+if ((x == 107))
+then
+continue
+fi
+if ((x == 121))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.030 2012 1000
+make clean
+done
+
+echo "Done running sixth bash script iteration"
+
+for ((x = 80; x < 122; x = x + 1))
+do
+if ((x == 60))
+then
+continue
+fi
+if ((x == 67))
+then
+continue
+fi
+if ((x == 69))
+then
+continue
+fi
+if ((x == 91))
+then
+continue
+fi
+if ((x == 93))
+then
+continue
+fi
+if ((x == 101))
+then
+continue
+fi
+if ((x == 107))
+then
+continue
+fi
+if ((x == 121))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.049 2012 -1
+make clean
+done
+
+echo "Done running seventh bash script iteration"
+
+for ((x = 80; x < 122; x = x + 1))
+do
+if ((x == 60))
+then
+continue
+fi
+if ((x == 67))
+then
+continue
+fi
+if ((x == 69))
+then
+continue
+fi
+if ((x == 91))
+then
+continue
+fi
+if ((x == 93))
+then
+continue
+fi
+if ((x == 101))
+then
+continue
+fi
+if ((x == 107))
+then
+continue
+fi
+if ((x == 121))
+then
+continue
+fi
+make
+./dataFitting_blindingMCOctetSpectra_radialCuts_script $x 0 0.049 2012 1000
+make clean
+done
+
+echo "Done running eighth bash script iteration"
+

@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = viewValuesVsOctets.o
-SOURCE = viewValuesVsOctets
+OBJECTS = dataFitting_blindingMCOctetSpectra_radialCuts_script.o
+SOURCE = dataFitting_blindingMCOctetSpectra_radialCuts_script
 
 .PHONY: all
 all: $(SOURCE)

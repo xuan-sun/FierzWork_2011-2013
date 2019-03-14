@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -59,37 +59,24 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
-void FillArrays(TString fileName, TH1D *hist1, int flag);
+void FillArrays(TString fileName);
 void ConvertOctetsToDate(int octNb);
 
 struct entry
 {
   int octNb;
-  double avg_mE;
-  double chisquared;
-  double ndf;
-  double chisquaredperndf;
-  double b_minuitFit;
-  double bErr_minuitFit;
-  double A_minuitFit;
-  double AErr_minuitFit;
-  int fitMatrixStatus;
+  double endpoint;
+  double endpointErr;
+  double gainFactor;
 };
 
 // global vectors for creating TGraphs.
 vector < vector <double> > octets;
 vector < vector <double> > octetsErr;
-vector < vector <double> > chisquared;
-vector < vector <double> > bMinuitValues;
-vector < vector <double> > bErrMinuitValues;
+vector < vector <double> > endpoints;
+vector < vector <double> > endpointsErr;
+vector < vector <double> > gainFactors;
 
-/*
-vector <double> octets2;
-vector <double> octetsErr2;
-vector <double> chisquared2;
-vector <double> bMinuitValues2;
-vector <double> bErrMinuitValues2;
-*/
 
 int main(int argc, char* argv[])
 {
@@ -106,58 +93,34 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 100, -1, 1);
-  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 100, -1, 1);
-//  h1->SetStats(0);
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, 0, 30));
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, 30, 49));
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, 0, 49));
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, 49, 150));
+  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, 0, 150));
 
-//  FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1);
-  FillArrays(Form("positionCuts_0-150mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 0);
-//  FillArrays(Form("positionCuts_0-150mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2);
-//  FillArrays(Form("positionCuts_0-150mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2);
+  TGraphErrors *g1 = new TGraphErrors(octets[0].size(), &(octets[0][0]), &(endpoints[0][0]), &(octetsErr[0][0]), &(endpointsErr[0][0]));
+  TGraphErrors *g2 = new TGraphErrors(octets[1].size(), &(octets[1][0]), &(endpoints[1][0]), &(octetsErr[1][0]), &(endpointsErr[1][0]));
+  TGraphErrors *g3 = new TGraphErrors(octets[2].size(), &(octets[2][0]), &(endpoints[2][0]), &(octetsErr[2][0]), &(endpointsErr[2][0]));
+  TGraphErrors *g4 = new TGraphErrors(octets[3].size(), &(octets[3][0]), &(endpoints[3][0]), &(octetsErr[3][0]), &(endpointsErr[3][0]));
+  TGraphErrors *g5 = new TGraphErrors(octets[4].size(), &(octets[4][0]), &(endpoints[4][0]), &(octetsErr[4][0]), &(endpointsErr[4][0]));
 
-  vector <double> chisquaredError(chisquared.size(), 0.01);
+  g1->GetYaxis()->SetRangeUser(710, 810);
 
-//  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
-//  TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
-
-//  g1->GetYaxis()->SetRangeUser(-0.5, 6);
-
-//  PlotGraph(C, 2, 1, g1, Form("b for %s: 49-150mm radius", GEOM), "Octet Number", "b", "AP");
-//  PlotGraph(C, 4, 1, g2, Form("b for %s: 49-150mm radius", GEOM), "Octet Number", "b", "PSAME");
-
-//  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
+  PlotGraph(C, 1, 1, g1, Form("endpoints for %s with radial cuts", GEOM), "Octet Number", "endpoints (keV)", "AP");
+  PlotGraph(C, 2, 1, g2, "", "", "", "PSAME");
+  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
+  PlotGraph(C, 4, 1, g4, "", "", "", "PSAME");
+  PlotGraph(C, 6, 1, g5, "", "", "", "PSAME");
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
-  leg1->AddEntry(h1,"b data","p");
-  leg1->AddEntry(h2,"b endpoint corr","p");
-//  leg1->Draw();
-
-
-  double xPrint = 45;
-  double yPrint = 0.1;
-
-/*
-  TLatex t2;
-  t2.SetTextSize(0.03);
-  t2.SetTextAlign(13);
-  t2.DrawLatex(xPrint, yPrint+0.15, Form("red #mu = %f", h1->GetMean()));
-  TLatex t3;
-  t3.SetTextSize(0.03);
-  t3.SetTextAlign(13);
-  t3.DrawLatex(xPrint, yPrint, Form("red RMS = %f", h1->GetRMS()));
-
-  TLatex t4;
-  t4.SetTextSize(0.03);
-  t4.SetTextAlign(13);
-  t4.DrawLatex(xPrint, yPrint-0.15, Form("blue #mu = %f", h2->GetMean()));
-  TLatex t5;
-  t5.SetTextSize(0.03);
-  t5.SetTextAlign(13);
-  t5.DrawLatex(xPrint, yPrint-0.30, Form("blue RMS = %f", h2->GetRMS()));
-*/
-
-
+  TLegend* leg1 = new TLegend(0.7,0.1,0.9,0.3);
+  leg1->AddEntry(g1,"0-30mm","p");
+  leg1->AddEntry(g2,"30-49mm","p");
+  leg1->AddEntry(g3,"0-49mm","p");
+  leg1->AddEntry(g4,"49-150mm","p");
+  leg1->AddEntry(g5,"0-150mm","p");
+  leg1->Draw();
 
   //prints the canvas with a dynamic TString name of the name of the file
   cout << "-------------- End of Program ---------------" << endl;
@@ -218,8 +181,13 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   C->Update();
 }
 
-void FillArrays(TString fileName, TH1D* hist1, int flag)
+void FillArrays(TString fileName)
 {
+  vector <double> octetsTemp;
+  vector <double> octetsErrTemp;
+  vector <double> endpointsTemp;
+  vector <double> endpointsErrTemp;
+  vector <double> gainFactorsTemp;
 
   entry evt;
   int counter = 0;
@@ -243,23 +211,16 @@ void FillArrays(TString fileName, TH1D* hist1, int flag)
     if(!infile1.eof())
     {
       bufstream1 >> evt.octNb
-		>> evt.avg_mE
-		>> evt.chisquared
-		>> evt.ndf
-		>> evt.chisquaredperndf
-		>> evt.b_minuitFit
-		>> evt.bErr_minuitFit
-		>> evt.A_minuitFit
-		>> evt.AErr_minuitFit
-		>> evt.fitMatrixStatus;
+		>> evt.endpoint
+		>> evt.endpointErr
+		>> evt.gainFactor;
       counter++;
 
-      octets[flag].push_back(evt.octNb);
-      octetsErr[flag].push_back(0.5);
-      chisquared[flag].push_back(evt.chisquaredperndf);
-      bMinuitValues[flag].push_back(evt.b_minuitFit);
-      bErrMinuitValues[flag].push_back(evt.bErr_minuitFit);
-
+      octetsTemp.push_back(evt.octNb);
+      octetsErrTemp.push_back(0.5);
+      endpointsTemp.push_back(evt.endpoint);
+      endpointsErrTemp.push_back(evt.endpointErr);
+      gainFactorsTemp.push_back(evt.gainFactor);
     }
 
 
@@ -268,6 +229,18 @@ void FillArrays(TString fileName, TH1D* hist1, int flag)
       break;
     }
   }
+
+  octets.push_back(octetsTemp);
+  octetsErr.push_back(octetsErrTemp);
+  endpoints.push_back(endpointsTemp);
+  endpointsErr.push_back(endpointsErrTemp);
+  gainFactors.push_back(gainFactorsTemp);
+
+  octetsTemp.clear();
+  octetsErrTemp.clear();
+  endpointsTemp.clear();
+  endpointsErrTemp.clear();
+  gainFactorsTemp.clear();
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }

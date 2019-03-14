@@ -44,7 +44,7 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
 
   ofstream outfile;
 //  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile.open(Form("endPointFits_noGainCorrection_ssDataHists_2011-2012_radialCut_%i-%imm.txt", radialCutLow, radialCutHigh), ios::app);
+  outfile.open(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
   outfile << index << "\t"
 //          << fit1->GetChisquare() << "\t"
 //          << fit1->GetNDF() << "\t"

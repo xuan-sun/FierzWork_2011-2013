@@ -43,9 +43,11 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
+#define		RADIALCUTLOW	49
+#define		RADIALCUTHIGH	150
 
 using            namespace std;
 
@@ -108,30 +110,29 @@ int main(int argc, char* argv[])
   TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 100, -1, 1);
 //  h1->SetStats(0);
 
-  FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_0-150mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
-
-  vector <double> chisquaredError(chisquared.size(), 0.01);
+//  FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
+  FillArrays(Form("positionCuts_0-150mm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
+  FillArrays(Form("positionCuts_%i-%imm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
 
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
   TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
 
-//  g1->GetYaxis()->SetRangeUser(-0.5, 6);
+  g1->GetYaxis()->SetRangeUser(-0.5, 1);
 
-  PlotGraph(C, 2, 1, g1, Form("b for %s: 49-150mm radius", GEOM), "Octet Number", "b", "AP");
-  PlotGraph(C, 4, 1, g2, Form("b for %s: 49-150mm radius", GEOM), "Octet Number", "b", "PSAME");
+  PlotGraph(C, 2, 1, g1, Form("b for %s: %i-%imm radius", GEOM, RADIALCUTLOW, RADIALCUTHIGH), "Octet Number", "b", "AP");
+  PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
 
 //  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.6,0.6,0.9,0.8);
-  leg1->AddEntry(h1,"b data","p");
-  leg1->AddEntry(h2,"b endpoint corr","p");
-//  leg1->Draw();
+  TLegend* leg1 = new TLegend(0.7,0.8,0.9,0.9);
+  leg1->AddEntry(g1,"0<r<150mm","p");
+  leg1->AddEntry(g2,Form("%i<r<%imm", RADIALCUTLOW, RADIALCUTHIGH),"p");
+  leg1->Draw();
 
 
-  double xPrint = 45;
-  double yPrint = 0.1;
+  double xPrint = 110;
+  double yPrint = -0.1;
 
   TLatex t2;
   t2.SetTextSize(0.03);
@@ -201,9 +202,6 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->SetTitle(title);
   gPlot->GetXaxis()->SetTitle(xAxis);
   gPlot->GetXaxis()->CenterTitle();
-//  gPlot->GetXaxis()->SetTimeDisplay(1);
-//  gPlot->GetXaxis()->SetTimeFormat("%d-%m");
-//  gPlot->GetXaxis()->SetTimeFormat("%d-%m-%y%F2011-10-23 00:00:01");
   gPlot->GetYaxis()->SetTitle(yAxis);
   gPlot->GetYaxis()->CenterTitle();
 
@@ -215,6 +213,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
 
   C->Update();
 
+/*
 //  if(GEOM == "2011-2012")
   {
     // all the TLine's needed for 2011-2012 calibration periods
@@ -229,7 +228,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     TLine *t9 = new TLine(50.5, gPad->GetUymin(), 50.5, gPad->GetUymax());   // Octet 47-50 inclusive
     TLine *t11 = new TLine(59.5, gPad->GetUymin(), 59.5, gPad->GetUymax());  // Octet 51-59 inclusive
 
-/*
+
     t1->SetLineStyle(7);
     t1->Draw("SAME");
     t2->SetLineStyle(7);
@@ -250,7 +249,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     t9->Draw("SAME");
     t11->SetLineStyle(7);
     t11->Draw("SAME");
-*/
+
   }
 
 //  if(GEOM == "2012-2013")
@@ -262,7 +261,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     TLine *t15 = new TLine(95.5, gPad->GetUymin(), 95.5, gPad->GetUymax());   // Octet 96-105 inclusive
     TLine *t16 = new TLine(105.5, gPad->GetUymin(), 105.5, gPad->GetUymax());   // Octet 105-120 inclusive
 
-/*
+
     t12->SetLineStyle(7);
     t12->Draw("SAME");
     t13->SetLineStyle(7);
@@ -273,43 +272,10 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
     t15->Draw("SAME");
     t16->SetLineStyle(7);
     t16->Draw("SAME");
+  }
 */
-  }
+
 }
-
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command)
-{
-  C->cd(canvasIndex);
-  gPlot->SetTitle(title);
-  gPlot->GetXaxis()->SetTitle(xAxis);
-  gPlot->GetXaxis()->CenterTitle();
-  gPlot->GetYaxis()->SetTitle(yAxis);
-  gPlot->GetYaxis()->CenterTitle();
-
-  if(styleIndex == 1)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(2);
-  }
-  if(styleIndex == 2)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(4);
-  }
-  if(styleIndex == 3)
-  {
-    gPlot->SetMarkerStyle(21);
-    gPlot->SetMarkerSize(0.5);
-    gPlot->SetMarkerColor(3);
-  }
-
-  gPlot->Draw(command);
-
-  C->Update();
-}
-
 
 void FillArrays(TString fileName, TH1D* hist1, int flag)
 {
