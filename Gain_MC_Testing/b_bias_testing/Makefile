@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = testingWith_newXuanFitter.o
-SOURCE = testingWith_newXuanFitter
+OBJECTS = ssDataHist_radialCuts_energyPlugIn_script.o
+SOURCE = ssDataHist_radialCuts_energyPlugIn_script
 
 .PHONY: all
 all: $(SOURCE)
