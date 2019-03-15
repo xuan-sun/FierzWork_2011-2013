@@ -43,11 +43,11 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	150
+#define		RADIALCUTHIGH	0.030000
 
 using            namespace std;
 
@@ -96,12 +96,12 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "end points", 100, 760, 810);
-  FillArrays(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, RADIALCUTLOW, RADIALCUTHIGH), h, 1);
+  TH1D* h = new TH1D("endpoints", "end points", 100, 780, 790);
+  FillArrays(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, RADIALCUTLOW, RADIALCUTHIGH), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("endpoints, %s, %s, radial: %i-%imm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "fitted end point (keV)", "N", "", max);
+  PlotHist(C, 2, 1, h, Form("endpoints MC, b_{input}=-0.1, %s, %s, radial: %i-%fm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "fitted end point (keV)", "N", "", max);
 
 /*
   TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);

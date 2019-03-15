@@ -80,12 +80,14 @@ int main(int argc, char* argv[])
 
   int index = atoi(argv[1]);
 
-  int radialCutLow = 49;
-  int radialCutHigh = 150;
+  int radialCutLow = 0;
+  int directoryRadialCutHigh = 30;
+  double radialCutHigh = 0.030000;
 
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
   TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
-  TFile f(Form("../PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", radialCutLow, radialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
+  TFile f(Form("../PositionCuts/radialCut_%i-%i/MC_A_0_b_-0.1_Octet_%i_ssHist_%s_posCut_%i-%fm.root", radialCutLow, directoryRadialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
+//  TFile f(Form("../PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", radialCutLow, radialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
 //  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
 //  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
   dataHist = (TH1D*)f.Get("Super sum");
@@ -185,7 +187,7 @@ int main(int argc, char* argv[])
 
   ofstream outfile;
 //  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile.open(Form("endPointFits_noGainCorrection_ssDataHists_%s_radialCut_%i-%imm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
+  outfile.open(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
   outfile << index << "\t"
 //          << fit1->GetChisquare() << "\t"
 //          << fit1->GetNDF() << "\t"
