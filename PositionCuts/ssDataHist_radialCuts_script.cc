@@ -37,16 +37,17 @@
 #include	 <TLeaf.h>
 #include	 <math.h>
 
-#define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	150
+//#define		RADIALCUTLOW	0
+//#define		RADIALCUTHIGH	150
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 
 using		 namespace std;
 
 struct Event
 {
   double Erecon;
+  double Erecon_corr_r49mm;
   int side;
   int type;
   int eventNum;
@@ -127,7 +128,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", octNb, TYPE, radialCutLow, radialCutHigh), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", octNb, TYPE, radialCutLow, radialCutHigh), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -395,6 +396,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     runsChains[i]->SetBranchAddress("Side", &evt[i]->side);
     runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
     runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
+    runsChains[i]->SetBranchAddress("Erecon_corr_r49mm", &evt[i]->Erecon_corr_r49mm);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
     runsChains[i]->SetBranchAddress("badTimeFlag", &evt[i]->timeFlag);
 
@@ -420,7 +422,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     {
       runsChains[j]->GetEntry(i); /* THIS NEEDS TO GET CHANGED FOR DIFFERNT TYPE! */
 
-      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon >= 0 && evt[j]->timeFlag == 0
+      if(evt[j]->pid == 1 && evt[j]->type == 0 && evt[j]->Erecon_corr_r49mm >= 0 && evt[j]->timeFlag == 0
 	&& (((pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) <= pow(radialCutHigh, 2.0))
 	&& (pow(evt[j]->xEastPos, 2.0) + pow(evt[j]->yEastPos, 2.0) >= pow(radialCutLow, 2.0))
 	&& (pow(evt[j]->xWestPos, 2.0) + pow(evt[j]->yWestPos, 2.0) == 0)
@@ -432,13 +434,13 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
       {
         if(evt[j]->side == 0)
         {
-          rateHistsEast[j]->Fill(evt[j]->Erecon);
+          rateHistsEast[j]->Fill(evt[j]->Erecon_corr_r49mm);
 	  lastEventNumPerChain = i;
 	  totalEventNum++;
         }
         else if(evt[j]->side == 1)
         {
-          rateHistsWest[j]->Fill(evt[j]->Erecon);
+          rateHistsWest[j]->Fill(evt[j]->Erecon_corr_r49mm);
 	  lastEventNumPerChain = i;
 	  totalEventNum++;
         }

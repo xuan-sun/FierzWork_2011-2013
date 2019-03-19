@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
   vector < pair <int, int> > runNumbers = ReadInFileOfRunNumbers(Form("bFits_OctetsUsed_RunNumbers.txt"));
 
   vector < pair <int, double> > fittedEndpointsForOctets;
-  fittedEndpointsForOctets = ReadInOctetEndpoints(Form("endPointFits_noGainCorrection_ssDataHists_2011-2012_radialCut_0-30mm.txt"), fittedEndpointsForOctets);
-  fittedEndpointsForOctets = ReadInOctetEndpoints(Form("endPointFits_noGainCorrection_ssDataHists_2012-2013_radialCut_0-30mm.txt"), fittedEndpointsForOctets);
+  fittedEndpointsForOctets = ReadInOctetEndpoints(Form("endPointFits_noGainCorrection_ssDataHists_2011-2012_radialCut_0-49mm.txt"), fittedEndpointsForOctets);
+  fittedEndpointsForOctets = ReadInOctetEndpoints(Form("endPointFits_noGainCorrection_ssDataHists_2012-2013_radialCut_0-49mm.txt"), fittedEndpointsForOctets);
 
   cout << "runNumbers.size() = " << runNumbers.size() << endl;
 
@@ -76,14 +76,14 @@ int main(int argc, char* argv[])
   double octetEndpoint = -1;
   for(unsigned int i = 0; i < runNumbers.size(); i++)
   {
-    // use 2011-2012 octet fitted endpoints; 0 < r < 30mm radial cut.
+    // use 2011-2012 octet fitted endpoints; 0 < r < 49mm radial cut.
     if(runNumbers[i].first >= 0 && runNumbers[i].first <= 59)
     {
-      meanEndpoint = 788.8;
+      meanEndpoint = 785.6;
     }
     else if(runNumbers[i].first >= 80 && runNumbers[i].first <= 121)
     {
-      meanEndpoint = 785.8;
+      meanEndpoint = 782.4;
     }
 
     for(unsigned int j = 0; j < fittedEndpointsForOctets.size(); j++)
@@ -116,13 +116,13 @@ void AddBranchToTreeInFile(TString fName, double fittedOctetEndpoint, double mea
   double erecon;
   t->SetBranchAddress("Erecon", &erecon);
 
-  double ereconCorr_r30mm;
-  TBranch *b = t->Branch("Erecon_corr_r30mm", &ereconCorr_r30mm, "ereconCorr_r30mm/D");
+  double ereconCorr_r49mm;
+  TBranch *b = t->Branch("Erecon_corr_r49mm", &ereconCorr_r49mm, "ereconCorr_r49mm/D");
 
   for(long int i = 0; i < t->GetEntries(); i++)
   {
     t->GetEntry(i);
-    ereconCorr_r30mm = erecon*(meanEndpoint / fittedOctetEndpoint);
+    ereconCorr_r49mm = erecon*(meanEndpoint / fittedOctetEndpoint);
     b->Fill();
   }
 

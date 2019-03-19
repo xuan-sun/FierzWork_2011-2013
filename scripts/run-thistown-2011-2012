@@ -5,7 +5,7 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ../End_Point_Studies/
+cd ../PositionCuts/
 
 for ((x = 0; x < 60; x = x + 1))
 
@@ -25,7 +25,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./kurie $x
+./newXuanFitter_positionCuts $x
 make clean
 
 done
