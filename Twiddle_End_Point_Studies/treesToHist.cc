@@ -38,9 +38,9 @@
 #include	 <TRandom3.h>
 
 #define         RADIALCUTLOW    0
-#define         RADIALCUTHIGH   0.030   //these need to be done in m for simulations
+#define         RADIALCUTHIGH   0.049   //these need to be done in m for simulations
 #define         RADIALCUTLOW_NAME	0
-#define         RADIALCUTHIGH_NAME	30   //these can be whatever, just using it for file name
+#define         RADIALCUTHIGH_NAME	49   //these can be whatever, just using it for file name
 
 using		 namespace std;
 

@@ -5,20 +5,18 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ../Fast_NewXuanFitter/
+cd ../Twiddle_End_Point_Studies/
 
-for ((x = 0; x < 100; x = x + 1))
+make
+
+for ((x = 0; x < 7750; x = x + 1))
 
 do
 
-#sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
-# this -i seems to suppress printing out the file to screen. Use it.
-#sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
-
-make
-./treesToHist $x
-make clean
+./fast_newXuanFitter $x
 
 done
+
+make clean
 
 echo "Done running bash script"

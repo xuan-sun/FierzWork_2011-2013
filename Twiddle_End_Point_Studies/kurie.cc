@@ -41,10 +41,11 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 #include	 <TMinuit.h>
+#include	 <TCut.h>
 
 using            namespace std;
 
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
@@ -80,46 +81,38 @@ int main(int argc, char* argv[])
 
   int index = atoi(argv[1]);
 
-  int radialCutLow = 0;
-  int directoryRadialCutHigh = 30;
-  double radialCutHigh = 0.030000;
+  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_0_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_%s_radialCut_0-49mm.root", GEOM, GEOM, index, TYPE);
+//  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index);
 
-  // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
-  TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
-  TFile f(Form("../PositionCuts/radialCut_%i-%i/MC_A_0_b_-0.1_Octet_%i_ssHist_%s_posCut_%i-%fm.root", radialCutLow, directoryRadialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
-//  TFile f(Form("../PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", radialCutLow, radialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
-//  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
-//  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
-  dataHist = (TH1D*)f.Get("Super sum");
+  // checks if the file exists because we threw out a bunch of twiddles
+  if(gSystem->AccessPathName(dataFilePath))
+  {
+    cout << "File does not exist. Exiting program." << endl;
+    return 0;
+  }
+  else
+  {
+    cout << "File exists. Continuing..." << endl;
+  }
 
-  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
 
+  int radialCutLow_input = 0;
+  int radialCutHigh_input = 49;
 
-/*
+  double radialCutLow = 0 * sqrt(1.0 / 0.6);
+  double radialCutHigh = 0.049 * sqrt(1.0 / 0.6);
+
+  TCut positionCut = Form("(MWPCPos.MWPCPosE[0]*MWPCPos.MWPCPosE[0] + MWPCPos.MWPCPosE[1]*MWPCPos.MWPCPosE[1] <= %f && MWPCPos.MWPCPosE[0]MWPCPos.MWPCPosE[0] + MWPCPos.MWPCPosE[1]*MWPCPos.MWPCPosE[1] >= %f && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] == 0 ) || (MWPCPos.MWPCPosE[0]*MWPCPos.MWPCPosE[0] + MWPCPos.MWPCPosE[1]*MWPCPos.MWPCPosE[1] == 0 && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] <= %f && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] >= %f )", radialCutHigh*radialCutHigh, radialCutLow*radialCutLow, radialCutHigh*radialCutHigh, radialCutLow*radialCutLow);
+
   // this bit reads in twiddle files
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
-  TChain* dataChain = new TChain("Evts");
-//  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, twiddleIndex));
-//  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-  dataChain->AddFile("Evts_A_0_b_0_v2.root");
-  dataChain->Draw("KEstep >> dataHist", "PID == 11 && KE > 0");
+//  TChain* dataChain = new TChain("SimAnalyzed");
+  TFile f(dataFilePath);
+//  dataChain->AddFile(dataFilePath);
+  dataHist = (TH1D*)f.Get("Erecon blinded hist");
+//  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
-*/
-/*
-  // this bit reads in baseline monte carlos
-  int numFilesIndexMin = 0;
-  int numFilesIndexMax = 100;
-  // using unblinded base beta spectrum i.e. no twiddles, no input b
-  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
-  TChain* betaChain = new TChain("SimAnalyzed");
-  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
-  {
-    betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
-  }
-  betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
-  cout << "Completed loading betaChain with events equal to " << mcTheoryHistBeta->GetEntries() << endl;
-*/
 
 
   // create vectors of the basic, loaded in histogram.
@@ -186,27 +179,12 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-//  outfile.open(Form("endPointFits_endPointCorrected_ssDataHists_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile.open(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
+  outfile.open(Form("endPointFits_noGainCorrection_baselineHistogramsForFitting_%s_radialCut_%i-%imm.txt", GEOM, radialCutLow_input, radialCutHigh_input), ios::app);
   outfile << index << "\t"
-//          << fit1->GetChisquare() << "\t"
-//          << fit1->GetNDF() << "\t"
-//          << fit1->GetChisquare() / fit1->GetNDF() << "\t"
-//          << fit1->GetParameter(0) << "\t"
-//          << fit1->GetParError(0) << "\t"
-//          << fit1->GetParameter(1) << "\t"
-//          << fit1->GetParError(1) << "\t"         // these -1's are placeholders so the format is same as combinedAbFitter.cc
           << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
 	  << abs(fit1->GetParameter(0)/fit1->GetParameter(1))
-	     * sqrt( pow(fit1->GetParError(0) / fit1->GetParameter(0), 2.0) + pow(fit1->GetParError(1) / fit1->GetParameter(1), 2.0) ) << "\t"
-//          << FITMINBIN << "\t"
-//	  << FITMAXBIN << "\t"
-//	  << energy[FITMINBIN] << "\t"
-//	  << energy[FITMAXBIN] << "\n";
-	  << 782.0 / ( -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ) << "\n";
+	     * sqrt( pow(fit1->GetParError(0) / fit1->GetParameter(0), 2.0) + pow(fit1->GetParError(1) / fit1->GetParameter(1), 2.0) ) << "\n";
   outfile.close();
-
-
 
   // prints the canvas with a dynamic TString name of the name of the file
 //  C -> Print("output_newXuanFitter.png");
