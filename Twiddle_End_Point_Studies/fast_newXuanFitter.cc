@@ -51,8 +51,6 @@ using            namespace std;
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		SAVE_INDEX	"index19"
-#define		RADIALCUTLOW 	0
-#define		RADIALCUTHIGH	30
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -103,10 +101,10 @@ int main(int argc, char* argv[])
   }
 
   int radialCutLow_input = 0;
-  int radialCutHigh_input = 30;
+  int radialCutHigh_input = 49;
 
   double radialCutLow = 0.0 * sqrt(1.0 / 0.6);
-  double radialCutHigh = 0.030 * sqrt(1.0 / 0.6);
+  double radialCutHigh = 0.049 * sqrt(1.0 / 0.6);
 
   TCut positionCut = Form("((MWPCPos.MWPCPosE[0]*MWPCPos.MWPCPosE[0] + MWPCPos.MWPCPosE[1]*MWPCPos.MWPCPosE[1] <= %f && MWPCPos.MWPCPosE[0]MWPCPos.MWPCPosE[0] + MWPCPos.MWPCPosE[1]*MWPCPos.MWPCPosE[1] >= %f && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] == 0 ) || (MWPCPos.MWPCPosE[0]*MWPCPos.MWPCPosE[0] + MWPCPos.MWPCPosE[1]*MWPCPos.MWPCPosE[1] == 0 && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] <= %f && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] >= %f ))",
 			radialCutHigh*radialCutHigh, radialCutLow*radialCutLow, radialCutHigh*radialCutHigh, radialCutLow*radialCutLow);
@@ -115,7 +113,7 @@ int main(int argc, char* argv[])
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
   TChain* dataChain = new TChain("SimAnalyzed");
   dataChain->AddFile(dataFilePath);
-  dataChain->Draw("Erecon_corr_r30mm_take2 >> dataHist", "PID == 1 && Erecon_corr_r30mm_take2 > 0 && type == 0 && side < 2");
+  dataChain->Draw("Erecon_corr_r49mm >> dataHist", "PID == 1 && Erecon_corr_r49mm > 0 && type == 0 && side < 2");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
 
@@ -128,7 +126,7 @@ int main(int argc, char* argv[])
   int totalEntries = 0;
   for(int j = numFilesIndexMin; j < numFilesIndexMax; j++)
   {	// note that .c_str() converts a std::string into a useable %s in Form(), must like .Data() for TString
-    TFile f(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_0_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_0-30mm.root", GEOM, GEOM, j));
+    TFile f(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_0_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm.root", GEOM, GEOM, j, radialCutLow_input, radialCutHigh_input));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
@@ -145,7 +143,7 @@ int main(int argc, char* argv[])
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
   for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
   {
-    TFile f(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_0-30mm.root", GEOM, GEOM, i));
+    TFile f(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm.root", GEOM, GEOM, i, radialCutLow_input, radialCutHigh_input));
     TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistFierz->GetNbinsX(); i++)
     {
@@ -248,7 +246,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("asymmetric_gaussianTwiddles_noBlinding_endpointCorr_fast-newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_%s_radialCut_%i-%imm_take2_refit.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN, SAVE_INDEX, RADIALCUTLOW, RADIALCUTHIGH), ios::app);
+  outfile.open(Form("asymmetric_gaussianTwiddles_noBlinding_endpointCorr_fast-newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_%s_radialCut_%i-%imm.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN, SAVE_INDEX, radialCutLow_input, radialCutHigh_input), ios::app);
 //  outfile.open(Form("CorrectBlindingOct2018_newXuanFitter_bFitsFromData_endpointCorr_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);

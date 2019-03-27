@@ -13,7 +13,7 @@ for ((x = 0; x < 7750; x = x + 1))
 
 do
 
-./fast_newXuanFitter $x
+./kurie $x
 
 done
 

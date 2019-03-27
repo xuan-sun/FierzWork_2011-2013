@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   vector < pair <int, double> > fittedEndpoints;
-  fittedEndpoints = ReadInEndpoints(Form("endPointFits_noGainCorrection_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-30mm_take3.txt"), fittedEndpoints);
+  fittedEndpoints = ReadInEndpoints(Form("endPointFits_noGainCorrection_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-49mm.txt"), fittedEndpoints);
 
   cout << "Done reading in endpoints... " << endl;
 
@@ -94,13 +94,13 @@ void AddBranchToTreeInFile(TString fName, double fittedEndpoint, double meanEndp
   double erecon;
   t->SetBranchAddress("Erecon", &erecon);
 
-  double ereconCorr_r30mm_take3;
-  TBranch *b = t->Branch("Erecon_corr_r30mm_take3", &ereconCorr_r30mm_take3, "ereconCorr_r30mm_take3/D");
+  double ereconCorr_r49mm;
+  TBranch *b = t->Branch("Erecon_corr_r49mm", &ereconCorr_r49mm, "ereconCorr_r49mm/D");
 
   for(long int i = 0; i < t->GetEntries(); i++)
   {
     t->GetEntry(i);
-    ereconCorr_r30mm_take3 = erecon*(meanEndpoint / fittedEndpoint);
+    ereconCorr_r49mm = erecon*(meanEndpoint / fittedEndpoint);
     b->Fill();
   }
 

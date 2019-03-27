@@ -47,7 +47,7 @@
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	150
+#define		RADIALCUTHIGH	49
 
 using            namespace std;
 
@@ -96,14 +96,15 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "twiddled b fits", 100, 750, 800);
+  TH1D* h = new TH1D("endpoints", "twiddles", 100, 780, 800);
   FillArrays(Form("endPointFits_noGainCorrection_baselineHistogramsForFitting_2011-2012_radialCut_0-49mm.txt"), h, 1);
-//  FillArrays(Form("asymmetric_gaussianTwiddles_noBlinding_endpointCorr_fast-newXuanFitter_bFitsForSyst_type0_2011-2012_Bins_17-65_index19_noRadialCut.txt"), h, 1);
+//  FillArrays(Form("asymmetric_gaussianTwiddles_noBlinding_endpointCorr_fast-newXuanFitter_bFitsForSyst_type0_2011-2012_Bins_17-65_index19_radialCut_0-49mm.txt"), h, 1);
+//  FillArrays(Form("endPointFits_gainAlreadyApplied_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-49mm.txt"), h, 1);
 //  FillArrays(Form("endPointFits_noGainCorrection_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-30mm_take2.txt"), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("b fits, twiddles, index 19: %s, %s, %i-%imm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "endpoints (keV)", "N", "", max);
+  PlotHist(C, 2, 1, h, Form("endpoints, twiddles, index 19: %s, %s, %i-%imm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "endpoints (keV)", "N", "", max);
 
   //prints the canvas with a dynamic TString name of the name of the file
 //  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
