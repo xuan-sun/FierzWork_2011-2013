@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
@@ -117,6 +117,13 @@ int main(int argc, char* argv[])
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
   TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
 
+  TF1 *fit1 = new TF1("fit1", "[0]", 79, 122);
+  g1->Fit(fit1, "R");
+
+  TF1 *fit2 = new TF1("fit2", "[0]", 79, 122);
+  g2->Fit(fit2, "R");
+
+
   g1->GetYaxis()->SetRangeUser(-0.5, 1);
 
   PlotGraph(C, 2, 1, g1, Form("b for %s: %i-%imm radius", GEOM, RADIALCUTLOW, RADIALCUTHIGH), "Octet Number", "b", "AP");
@@ -131,26 +138,26 @@ int main(int argc, char* argv[])
   leg1->Draw();
 
 
-  double xPrint = 45;
+  double xPrint = 105;
   double yPrint = -0.25;
 
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(xPrint, yPrint+0.1, Form("red #mu = %f", h1->GetMean()));
+  t2.DrawLatex(xPrint, yPrint+0.1, Form("red: %f #pm %f", h1->GetMean(), h1->GetRMS()));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(xPrint, yPrint, Form("red RMS = %f", h1->GetRMS()));
+  t3.DrawLatex(xPrint, yPrint, Form("red fit: #chi^{2}/ndf = %f", (fit1->GetChisquare() / fit1->GetNDF())));
 
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(xPrint, yPrint-0.1, Form("blue #mu = %f", h2->GetMean()));
+  t4.DrawLatex(xPrint, yPrint-0.1, Form("blue: %f #pm %f", h2->GetMean(), h2->GetRMS()));
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(xPrint, yPrint-0.20, Form("blue RMS = %f", h2->GetRMS()));
+  t5.DrawLatex(xPrint, yPrint-0.20, Form("blue fit: #chi^{2}/ndf = %f", (fit2->GetChisquare() / fit2->GetNDF())));
 
 
 
