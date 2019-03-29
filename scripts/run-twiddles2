@@ -9,11 +9,11 @@ cd ../Twiddle_End_Point_Studies/
 
 make
 
-for ((x = 0; x < 7750; x = x + 1))
+for ((x = 1; x < 7750; x = x + 1))
 
 do
 
-./kurie $x
+./newXuanFitter $x
 
 done
 

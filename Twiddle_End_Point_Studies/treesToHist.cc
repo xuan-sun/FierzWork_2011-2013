@@ -36,6 +36,7 @@
 #include	 <utility>
 #include	 <TLeaf.h>
 #include	 <TRandom3.h>
+#include	 <TCut.h>
 
 #define         RADIALCUTLOW    0
 #define         RADIALCUTHIGH   0.049   //these need to be done in m for simulations
@@ -97,31 +98,31 @@ int main(int argc, char* argv[])
 
   // read in arguments.
   Int_t indexNb = atoi(argv[1]);
+  cout << "Input index: " << indexNb << endl;
 
   TString geom = "2011-2012";
 
-  // Points TChains at the run files idenified in the octet lists above
-  TChain* runFiles_base = new TChain("SimAnalyzed");
-  runFiles_base->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
+  TCut positionCut = Form("(MWPCPosE[0]*MWPCPosE[0] + MWPCPosE[1]*MWPCPosE[1] < 0.063*0.063 && MWPCPosW[0]==0 && MWPCPosW[1]==0 || MWPCPosW[0]*MWPCPosW[0] + MWPCPosW[1]*MWPCPosW[1] < 0.063*0.063 && MWPCPosE[0]==0 && MWPCPosE[1]==0)");
 
-  TChain* runFiles_fierz = new TChain("SimAnalyzed");;
-  runFiles_fierz->Add(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
+  TFile fBase(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
+  TTree *tBase = (TTree*)fBase.Get("SimAnalyzed");
 
-  // only using this code to process the trees into histograms for faster fitting
-  TH1D* rates_base = CreateRateHistograms(runFiles_fierz, 1);
-//  TH1D* rates_fierz = CreateRateHistograms(runFiles_fierz, 0);
+  TFile fFierz(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
+  TTree *tFierz = (TTree*)fFierz.Get("SimAnalyzed");
 
-  cout << "Finished mixing rate histograms." << endl;
+  TH1D *h = new TH1D("Erecon_blinded_hist", "Erecon_blinded_hist", 120, 0, 1200);
 
-  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
+  tFierz->Draw("Erecon >> Erecon_blinded_hist", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
+
+  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm_try3.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
   // Begin processing the read in data now
-  rates_base->Write();
+  h->Write();
 
   cout << "About to plot the histogram now..." << endl;
 
   // YOU NEED THIS PLOT FUNCTION.
   // Or else ROOT doesn't seem to write the histogram at all..
-  PlotHist(C, 1, 1, rates_base, "", "");
+  PlotHist(C, 1, 1, h, "", "");
 
   // Save our plot and print it out as a pdf.
 //  C -> Print("fierz.pdf");

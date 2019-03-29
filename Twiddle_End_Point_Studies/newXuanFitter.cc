@@ -41,7 +41,6 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 #include	 <TMinuit.h>
-#include	 <TSystem.h>
 #include	 <TCut.h>
 
 using            namespace std;
@@ -50,7 +49,6 @@ using            namespace std;
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
-#define		SAVE_INDEX	"index19"
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -85,9 +83,9 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  int index = atoi(argv[1]);
+  int octNb = atoi(argv[1]);
 
-  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index);
+  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, octNb);
 
   // checks if the file exists because we threw out a bunch of twiddles
   if(gSystem->AccessPathName(dataFilePath))
@@ -100,13 +98,21 @@ int main(int argc, char* argv[])
     cout << "File exists. Continuing..." << endl;
   }
 
-  int radialCutLow_input = 0;
-  int radialCutHigh_input = 49;
 
-  double radialCutLow = 0.0 * sqrt(1.0 / 0.6);
-  double radialCutHigh = 0.049 * sqrt(1.0 / 0.6);
+  TCut positionCut = Form("(MWPCPosE[0]*MWPCPosE[0] + MWPCPosE[1]*MWPCPosE[1] < 0.063*0.063 && MWPCPosW[0]==0 && MWPCPosW[1]==0 || MWPCPosW[0]*MWPCPosW[0] + MWPCPosW[1]*MWPCPosW[1] < 0.063*0.063 && MWPCPosE[0]==0 && MWPCPosE[1]==0)");
 
-  TCut positionCut = Form("((MWPCPosE[0]*MWPCPosE[0] + MWPCPosE[1]*MWPCPosE[1] <= 0.063*0.063 && MWPCPosW[0]==0 && MWPCPosW[1] == 0) || (MWPCPosE[0]==0 + MWPCPosE[1]==0 && MWPCPos.MWPCPosW[0]*MWPCPos.MWPCPosW[0] + MWPCPos.MWPCPosW[1]*MWPCPos.MWPCPosW[1] <= 0.063*0.063))");
+
+  // this little bit loads the octets once they have already been separated into super sum histograms
+//  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", octNb, TYPE));
+//  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_0-15/Octet_%i_ssDataHist_%s_radialCut_0-15mm.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/FullBlind_Feb2019_unknownBlinding/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Oct2018_unknownBlinding/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, TYPE));
+//  TFile fMC0(TString::Format("ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_inf/MC_A_0_b_inf_Octet_%i_ssHist_%s.root", octNb, TYPE));
+//  TH1D* dataHist = (TH1D*)fData.Get("Super sum");
+//  TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
+//  TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
 
   // this much longer code loads trees and extracts the histograms that we're interested in for fitting. Done for simulation.
   TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
@@ -114,19 +120,27 @@ int main(int argc, char* argv[])
   dataChain->AddFile(dataFilePath);
   dataChain->Draw("Erecon_corr_r49mm >> dataHist", "PID == 1 && Erecon_corr_r49mm > 0 && type == 0 && side < 2" && positionCut);
 
-  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << octNb << endl;
 
 
   int numFilesIndexMin = 0;
   int numFilesIndexMax = 100;
-
-  // using base beta spectrum, histogram files
+  // using unblinded base beta spectrum
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
+  TChain* betaChain = new TChain("SimAnalyzed");
+  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
+  {
+    betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
+  }
+  betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
+
+  // using properly blinded beta spectrum
+/*  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   int totalEntries = 0;
   for(int j = numFilesIndexMin; j < numFilesIndexMax; j++)
   {	// note that .c_str() converts a std::string into a useable %s in Form(), must like .Data() for TString
-    TFile f(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_0_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm_try3.root", GEOM, GEOM, j, radialCutLow_input, radialCutHigh_input));
-    TH1D* hTemp = (TH1D*)f.Get("Erecon_blinded_hist");
+    TFile f(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/BLIND_SimAnalyzed_%s_Beta_paramSet_100_%i_type0.root", GEOM, GEOM, j));
+    TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
     for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
     {
       mcTheoryHistBeta->SetBinContent(i, mcTheoryHistBeta->GetBinContent(i) + hTemp->GetBinContent(i));
@@ -135,25 +149,19 @@ int main(int argc, char* argv[])
     f.Close();
   }
   mcTheoryHistBeta->SetEntries(totalEntries);
+*/
+
   cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
 
-  // using fierz beta spectrum, histogram files
-  totalEntries = 0;
   TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
+  TChain* fierzChain = new TChain("SimAnalyzed");
   for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
   {
-    TFile f(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm_try3.root", GEOM, GEOM, i, radialCutLow_input, radialCutHigh_input));
-    TH1D* hTemp = (TH1D*)f.Get("Erecon_blinded_hist");
-    for(int i = 0; i <= mcTheoryHistFierz->GetNbinsX(); i++)
-    {
-      mcTheoryHistFierz->SetBinContent(i, mcTheoryHistFierz->GetBinContent(i) + hTemp->GetBinContent(i));
-    }
-    totalEntries = totalEntries + hTemp->GetEntries();
-    f.Close();
+    fierzChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
   }
-  mcTheoryHistFierz->SetEntries(totalEntries);
+  fierzChain->Draw("Erecon >> mcTheoryHistFierz", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
 
-  cout << "Loaded fierzChain with nEvents = " << mcTheoryHistFierz->GetEntries() << endl;
+  cout << "Loaded fierzChain with nEvents = " << fierzChain->GetEntries() << endl;
 
 
   // the work beyond here is unrelated to which data structure you chose
@@ -245,11 +253,12 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("asymmetric_gaussianTwiddles_noBlinding_endpointCorr_fast-newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i_%s_radialCut_%i-%imm_try3.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN, SAVE_INDEX, radialCutLow_input, radialCutHigh_input), ios::app);
-//  outfile.open(Form("CorrectBlindingOct2018_newXuanFitter_bFitsFromData_endpointCorr_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("endpointCorr_FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("Twiddles_CorrectBlindingOct2018_newXuanFitter_bFitForSystError_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile << index << "\t"
+  outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
 	  << ndf << "\t"
