@@ -1,16 +1,20 @@
 Residuals()
 {
+  int octetLow = 80;
+  int octetHigh = 122;
+
   // load the sum of all the data octets, with proper error propagation (if ROOT isn't broken).
   TH1D *hTotalData = new TH1D("totalData", "totalData", 120, 0, 1200);
   hTotalData->Sumw2();
 
-  for(int i = 0; i < 60; i++)
+  for(int i = octetLow; i < octetHigh; i++)
   {
-    if(i == 9 || i == 59)
+    if(i == 9 || i == 59 || i == 91 || i == 93 || i == 101 || i == 107 || i == 121)
     {
       continue;
     }
-    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
+    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
+//    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
     TH1D *hTemp = (TH1D*)f.Get("Super sum");
     hTotalData->Add(hTemp);
     f.Close();
@@ -25,9 +29,9 @@ Residuals()
   TH1D *hTotalBeta = new TH1D("totalBeta", "totalBeta", 120, 0, 1200);
   hTotalBeta->Sumw2();
 
-  for(int i = 0; i < 60; i++)
+  for(int i = octetLow; i < octetHigh; i++)
   {
-    if(i == 9 || i == 59)
+    if(i == 9 || i == 59 || i == 91 || i == 93 || i == 101 || i == 107 || i == 121)
     {
       continue;
     }
@@ -39,66 +43,46 @@ Residuals()
 
   hTotalBeta->Draw();
 
-  // create a new canvas and save all the b=inf MC octets
-  TCanvas *c3 = new TCanvas("c3", "c3");
-  c3->cd();
+  // normalize all the histograms using the fit ranges
+  TCanvas *c2011 = new TCanvas("c2011", "c2011");
+  c2011->cd();
 
-  TH1D *hTotalFierz = new TH1D("totalFierz", "totalFierz", 120, 0, 1200);
-  hTotalFierz->Sumw2();
+  int fitBinMin = 17;
+  int fitBinMax = 65;
 
-  for(int i = 0; i < 60; i++)
+  double yAxisMin = -0.1;
+  double yAxisMax = 0.1;
+
+  double N_data = 0;
+  double N_beta = 0;
+
+  for(int i = fitBinMin; i <= fitBinMax; i++)
   {
-    if(i == 9 || i == 59)
-    {
-      continue;
-    }
-    TFile f(Form("../PositionCuts/radialCut_0-49/MC_A_0_b_inf_Octet_%i_ssHist_type0_posCut_0-0.049000m.root", i));
-    TH1D *hTemp = (TH1D*)f.Get("Super sum");
-    hTotalFierz->Add(hTemp);
-    f.Close();
+    N_data = N_data + hTotalData->GetBinContent(i);
+    N_beta = N_beta + hTotalBeta->GetBinContent(i);
   }
 
-  hTotalFierz->Draw();
+  hTotalBeta->Scale(N_data / N_beta);
 
+  // draw the 2011-2012 residual histogram
+  TH1D *hResidual = new TH1D("residual", "residual", 120, 0, 1200);
+  hResidual->Sumw2();
+  hResidual->Add(hTotalData, hTotalBeta, 1.0, -1.0);
 
+  hResidual->Divide(hTotalData);
 
-/*
-  int numFilesIndexMin = 0;
-  int numFilesIndexMax = 100;
+  hResidual->SetTitle("2012-2013, data octets, (S_{data}-S_{MC}) / S_{Data}");
+  hResidual->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
+  hResidual->GetXaxis()->SetTitle("Reconstructed Energy (keV)");
+  hResidual->GetYaxis()->SetTitle("Fractional residual");
 
-  TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
-  int totalEntries = 0;
-  for(int j = numFilesIndexMin; j < numFilesIndexMax; j++)
-  {     // note that .c_str() converts a std::string into a useable %s in Form(), must like .Data() for TString
-    TFile f(Form("/mnt/data2/xuansun/analyzed_files/2011-2012_geom_twiddles/A_0_b_0_baselineHistograms/Hist_noBlind_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0_radialCut_0-49mm.root", j));
-    TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
-    for(int i = 0; i <= mcTheoryHistBeta->GetNbinsX(); i++)
-    {
-      mcTheoryHistBeta->SetBinContent(i, mcTheoryHistBeta->GetBinContent(i) + hTemp->GetBinContent(i));
-    }
-    totalEntries = totalEntries + hTemp->GetEntries();
-    f.Close();
-  }
-  mcTheoryHistBeta->SetEntries(totalEntries);
-  cout << "Loaded mcTheoryHistBeta with, after cuts, nEvents = " << mcTheoryHistBeta->GetEntries() << endl;
+  hResidual->Draw();
 
-  // using fierz beta spectrum, histogram files
-  totalEntries = 0;
-  TH1D* mcTheoryHistFierz = new TH1D("mcTheoryHistFierz", "Fierz", 100, 0, 1000);
-  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
-  {
-    TFile f(Form("/mnt/data2/xuansun/analyzed_files/2011-2012_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_2011-2012_Beta_paramSet_100_%i_type0_radialCut_0-49mm.root", i));
-    TH1D* hTemp = (TH1D*)f.Get("Erecon blinded hist");
-    for(int i = 0; i <= mcTheoryHistFierz->GetNbinsX(); i++)
-    {
-      mcTheoryHistFierz->SetBinContent(i, mcTheoryHistFierz->GetBinContent(i) + hTemp->GetBinContent(i));
-    }
-    totalEntries = totalEntries + hTemp->GetEntries();
-    f.Close();
-  }
-  mcTheoryHistFierz->SetEntries(totalEntries);
+  TLine *y0 = new TLine(0, 0, 1200, 0);
+  y0->Draw();
 
-  cout << "Loaded mcTheoryHistFierz with nEvents = " << mcTheoryHistFierz->GetEntries() << endl;
-*/
-
+  TLine *xMin = new TLine(hResidual->GetBinCenter(fitBinMin), yAxisMin, hResidual->GetBinCenter(fitBinMin), yAxisMax);
+  xMin->Draw();
+  TLine *xMax = new TLine(hResidual->GetBinCenter(fitBinMax), yAxisMin, hResidual->GetBinCenter(fitBinMax), yAxisMax);
+  xMax->Draw();
 }
