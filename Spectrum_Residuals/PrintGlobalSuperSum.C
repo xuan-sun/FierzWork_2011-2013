@@ -1,4 +1,4 @@
-Residuals()
+PrintGlobalSuperSum()
 {
   int octetLow = 0;
   int octetHigh = 60;

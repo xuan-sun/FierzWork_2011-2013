@@ -1,4 +1,4 @@
-Residuals()
+Fit_Residuals()
 {
   int octetLow = 0;
   int octetHigh = 60;
@@ -50,8 +50,8 @@ Residuals()
   int fitBinMin = 17;
   int fitBinMax = 65;
 
-  double yAxisMin = -0.1;
-  double yAxisMax = 0.1;
+  double yAxisMin = -5;
+  double yAxisMax = 5;
 
   double N_data = 0;
   double N_beta = 0;
@@ -69,12 +69,12 @@ Residuals()
   hResidual->Sumw2();
   hResidual->Add(hTotalData, hTotalBeta, 1.0, -1.0);
 
-  hResidual->Divide(hTotalBeta);
+//  hResidual->Divide(hTotalData);
 
-  hResidual->SetTitle("2011-2012, data octets, (S_{data}-S_{MC}) / S_{MC}");
+  hResidual->SetTitle("2011-2012, data octets, (S_{data}-S_{MC}) / S_{Data}");
   hResidual->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
   hResidual->GetXaxis()->SetTitle("Reconstructed Energy (keV)");
-  hResidual->GetYaxis()->SetTitle("Fractional residual");
+  hResidual->GetYaxis()->SetTitle("Energy residual (keV)");
 
   hResidual->Draw();
 
@@ -85,4 +85,7 @@ Residuals()
   xMin->Draw();
   TLine *xMax = new TLine(hResidual->GetBinCenter(fitBinMax), yAxisMin, hResidual->GetBinCenter(fitBinMax), yAxisMax);
   xMax->Draw();
+
+  hResidual->Fit("pol2", "", "", hResidual->GetBinCenter(fitBinMin), hResidual->GetBinCenter(fitBinMax));
+
 }
