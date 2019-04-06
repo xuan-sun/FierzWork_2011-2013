@@ -5,19 +5,19 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ../Asymmetry_Data_Fitting/
+cd ../SuperSum_Data_EnergyWindow/
 
-for ((wLow = 165; wLow <= 190; wLow = wLow + 5))
+for ((wLow = 17; wLow <= 41; wLow = wLow + 1))
 
 do
 
-for ((wHigh = 660; wHigh <= 740; wHigh = wHigh + 10))
+for ((wHigh = 65; wHigh <= 65; wHigh = wHigh + 1))
 
 do
 
 
 make
-./blinded_postMBProcessed_asymm $wLow $wHigh
+./newXuanFitter_binWindowVariation $wLow $wHigh
 make clean
 
 done

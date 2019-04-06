@@ -46,12 +46,15 @@ using            namespace std;
 
 #define		GEOM	"2011-2012"
 #define		TYPE	"type0"
-#define		FITMINBIN	27
-#define		FITMAXBIN	65
+//#define		FITMINBIN	27
+//#define		FITMAXBIN	65
 #define		RADLOW		0
 #define		RADHIGH		49
 #define		RADLOWFLOAT	0
 #define		RADHIGHFLOAT	0.049000
+
+int global_fitMinBin = 0;
+int global_fitMaxBin = 0;
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -79,14 +82,15 @@ double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if(argc < 3)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (data file index)" << endl;
+    cout << "(executable) (fit bin min) (fit bin max)" << endl;
     return 0;
   }
 
-  int octNb = atoi(argv[1]);
+  global_fitMinBin = atoi(argv[1]);
+  global_fitMaxBin = atoi(argv[2]);
 
 /*
   // this little bit loads the octets once they have already been separated into super sum histograms
@@ -121,7 +125,7 @@ int main(int argc, char* argv[])
   double totalMCinf = 0;
   double totalData = 0;
   double counter_ndf = 0;
-  for(int i = FITMINBIN; i < FITMAXBIN; i++)
+  for(int i = global_fitMinBin; i < global_fitMaxBin; i++)
   {
     totalMC0 = totalMC0 + binContentsMC0[i];
     totalMCinf = totalMCinf + binContentsMCinf[i];
@@ -129,7 +133,7 @@ int main(int argc, char* argv[])
     counter_ndf = counter_ndf + 1;
   }
   ndf = counter_ndf - 1;	// -1 is the single parameter in the fit.
-  for(int i = FITMINBIN; i < FITMAXBIN; i++)
+  for(int i = global_fitMinBin; i < global_fitMaxBin; i++)
   {
     binContentsMC0[i] = binContentsMC0[i] / totalMC0;
     binContentsMCinf[i] = binContentsMCinf[i] / totalMCinf;
@@ -137,10 +141,10 @@ int main(int argc, char* argv[])
 
   cout << "Finished loading the bin contents and errors into vectors..." << endl;
 
-  avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, FITMINBIN, FITMAXBIN);
+  avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, global_fitMinBin, global_fitMaxBin);
 
-  cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(FITMINBIN)
-	<< " and " << dataHist->GetBinCenter(FITMAXBIN)
+  cout << "Set average m/E value between fit range " << dataHist->GetBinCenter(global_fitMinBin)
+	<< " and " << dataHist->GetBinCenter(global_fitMaxBin)
 	<< " at: " << avg_mE << endl;
 
   TMinuit *gMinuit = new TMinuit(1);
@@ -197,17 +201,20 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-//  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
+//  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, global_fitMinBin, global_fitMaxBin), ios::app);
   outfile << "ALL" << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
 	  << ndf << "\t"
 	  << functionMin/ndf << "\t"
+	  << TMath::Prob(functionMin, ndf) << "\t"
           << fitVal << "\t"
           << fitErr << "\t"
-	  << -1 << "\t"		// these -1's are placeholders so the format is same as combinedAbFitter.cc
-	  << -1 << "\t"
+	  << global_fitMinBin << "\t"
+	  << dataHist->GetBinCenter(global_fitMinBin) << "\t"
+	  << global_fitMaxBin << "\t"
+	  << dataHist->GetBinCenter(global_fitMaxBin) << "\t"
 	  << covMatrixStatus << "\n";
   outfile.close();
 
@@ -260,12 +267,12 @@ void chi2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
   double fit = 0;
 
   double totContentsData = 0;
-  for(unsigned int i = FITMINBIN; i < FITMAXBIN; i++)
+  for(unsigned int i = global_fitMinBin; i < global_fitMaxBin; i++)
   {
     totContentsData = totContentsData + binContentsData[i];
   }
 
-  for(unsigned int i = FITMINBIN; i < FITMAXBIN; i++)
+  for(unsigned int i = global_fitMinBin; i < global_fitMaxBin; i++)
   {
     fit = ((binContentsMC0[i] + b*avg_mE*binContentsMCinf[i])*totContentsData) / (1 + b*avg_mE);
 
