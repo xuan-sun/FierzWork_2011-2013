@@ -43,8 +43,8 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
-#define		FITMINBIN	17
+#define		GEOM	"2012-2013"
+#define		FITMINBIN	35
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
 #define		RADIALCUTHIGH	49
@@ -108,22 +108,22 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 200, 0, 4);
-  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 200, 0, 4);
+  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 200, -1, 1);
+  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 200, -1, 1);
 //  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 200, -1, 1);
 //  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 200, -1, 1);
 //  h1->SetStats(0);
 
 //  FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_%i-%imm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
+  FillArrays(Form("positionCuts_%i-%imm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h1, 1);
   FillArrays(Form("positionCuts_%i-%imm_endpointCorrected_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
 
-  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chi2err[0]));
-  TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(chisquared2[0]), &(octetsErr2[0]), &(chi2err[0]));
-/*
+//  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chi2err[0]));
+//  TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(chisquared2[0]), &(octetsErr2[0]), &(chi2err[0]));
+
   TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
   TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
-
+/*
   TF1 *fit1 = new TF1("fit1", "[0]", 79, 122);
   g1->Fit(fit1, "R");
 
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   g2->Fit(fit2, "R");
 */
 
-  g1->GetYaxis()->SetRangeUser(0, 4);
+  g1->GetYaxis()->SetRangeUser(-1, 1);
 
   PlotGraph(C, 2, 1, g1, Form("#Chi^2/ndf for %s: %i-%imm radius", GEOM, RADIALCUTLOW, RADIALCUTHIGH), "Octet Number", "#Chi^2/ndf", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
@@ -140,12 +140,12 @@ int main(int argc, char* argv[])
 
   C->cd(1);
   TLegend* leg1 = new TLegend(0.6,0.7,0.9,0.9);
-  leg1->AddEntry(g1,Form("%i<r<%imm, uncorrected", RADIALCUTLOW, RADIALCUTHIGH),"p");
+//  leg1->AddEntry(g1,Form("%i<r<%imm, uncorrected", RADIALCUTLOW, RADIALCUTHIGH),"p");
   leg1->AddEntry(g2,Form("%i<r<%imm, endpt. corrected", RADIALCUTLOW, RADIALCUTHIGH),"p");
   leg1->Draw();
 
 
-  double xPrint = 45;
+  double xPrint = 105;
   double yPrint = 0.5;
 
   TLatex t2;
@@ -327,8 +327,8 @@ void FillArrays(TString fileName, TH1D* hist1, int flag)
 		>> evt.fitMatrixStatus;
       counter++;
 
-      hist1->Fill(evt.chisquaredperndf);
-//      hist1->Fill(evt.b_minuitFit);
+//      hist1->Fill(evt.chisquaredperndf);
+      hist1->Fill(evt.b_minuitFit);
 
 
       if(flag == 1)

@@ -15,10 +15,49 @@ for ((wHigh = 65; wHigh <= 65; wHigh = wHigh + 1))
 
 do
 
+for ((x = 80; x < 122; x = x + 1))
+
+do
+
+if ((x == 60))
+then
+continue
+fi
+if ((x == 67))
+then
+continue
+fi
+if ((x == 69))
+then
+continue
+fi
+if ((x == 91))
+then
+continue
+fi
+if ((x == 93))
+then
+continue
+fi
+if ((x == 101))
+then
+continue
+fi
+if ((x == 107))
+then
+continue
+fi
+if ((x == 121))
+then
+continue
+fi
 
 make
-./newXuanFitter_binWindowVariation $wLow $wHigh
+./newXuanFitter_binWindowVariation $x $wLow $wHigh
 make clean
+
+
+done
 
 done
 

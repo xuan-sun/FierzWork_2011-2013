@@ -44,9 +44,9 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
-#define		FITMINBIN	27
+#define		FITMINBIN	35
 #define		FITMAXBIN	65
 #define		RADLOW		0
 #define		RADHIGH		49
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
   int octNb = atoi(argv[1]);
 
-/*
+
   // this little bit loads the octets once they have already been separated into super sum histograms
   TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", RADLOW, RADHIGH, octNb, TYPE, RADLOW, RADHIGH));
   TFile fMC0(TString::Format("radialCut_%i-%i/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
@@ -96,8 +96,8 @@ int main(int argc, char* argv[])
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
-*/
 
+/*
   // this loads all the histograms that have all the beta events already summed into one histogram
   TFile fData(TString::Format("All_Octets_Summed_Histograms/Octets_0-59_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", TYPE, RADLOW, RADHIGH));
   TFile fMC0(TString::Format("All_Octets_Summed_Histograms/FullBlind_Feb2019_MC_A_0_b_0_Octets_0-59_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
   TH1D* dataHist = (TH1D*)fData.Get("totalData");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("totalBeta");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("totalFierz");
-
+*/
 
 
   // the work beyond here is unrelated to which data structure you chose
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
   ofstream outfile;
   outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-  outfile << "ALL" << "\t"
+  outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
 	  << ndf << "\t"

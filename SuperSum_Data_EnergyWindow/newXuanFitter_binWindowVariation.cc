@@ -44,10 +44,8 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
-//#define		FITMINBIN	27
-//#define		FITMAXBIN	65
 #define		RADLOW		0
 #define		RADHIGH		49
 #define		RADLOWFLOAT	0
@@ -67,7 +65,6 @@ double ndf = -1;		// value set in code by fitMax - fitMin - 1 (for the 1 paramet
 void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString title, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot, TString title, TString command);
 
-
 // Perform a few useful, simple calculations
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 
@@ -82,26 +79,26 @@ double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 3)
+  if(argc < 4)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (fit bin min) (fit bin max)" << endl;
+    cout << "(executable) (octet number) (fit bin min) (fit bin max)" << endl;
     return 0;
   }
 
-  global_fitMinBin = atoi(argv[1]);
-  global_fitMaxBin = atoi(argv[2]);
+  int octNb = atoi(argv[1]);
+  global_fitMinBin = atoi(argv[2]);
+  global_fitMaxBin = atoi(argv[3]);
 
-/*
   // this little bit loads the octets once they have already been separated into super sum histograms
   TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", RADLOW, RADHIGH, octNb, TYPE, RADLOW, RADHIGH));
-  TFile fMC0(TString::Format("radialCut_%i-%i/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
-  TFile fMCinf(TString::Format("radialCut_%i-%i/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
+  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
+  TFile fMCinf(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
-*/
 
+/*
   // this loads all the histograms that have all the beta events already summed into one histogram
   TFile fData(TString::Format("All_Octets_Summed_Histograms/Octets_0-59_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", TYPE, RADLOW, RADHIGH));
   TFile fMC0(TString::Format("All_Octets_Summed_Histograms/FullBlind_Feb2019_MC_A_0_b_0_Octets_0-59_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
@@ -109,7 +106,7 @@ int main(int argc, char* argv[])
   TH1D* dataHist = (TH1D*)fData.Get("totalData");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("totalBeta");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("totalFierz");
-
+*/
 
 
   // the work beyond here is unrelated to which data structure you chose
@@ -201,9 +198,9 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
+  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_binWindowVariations_individualOctets.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
 //  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, global_fitMinBin, global_fitMaxBin), ios::app);
-  outfile << "ALL" << "\t"
+  outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"
 	  << ndf << "\t"
