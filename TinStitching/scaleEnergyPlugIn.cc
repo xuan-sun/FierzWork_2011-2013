@@ -89,7 +89,7 @@ void AddBranchToTreeInFile(TString fName)
   t->SetBranchAddress("Erecon_corr_r49mm", &erecon);
 
   double erecon_tinStitch;
-  TBranch *b = t->Branch("Erecon_corr_r49mm_Sn113Stitch_try2", &erecon_tinStitch, "erecon_tinStitch/D");
+  TBranch *b = t->Branch("Erecon_corr_r49mm_Sn113Stitch_try3", &erecon_tinStitch, "erecon_tinStitch/D");
 
   for(long int i = 0; i < t->GetEntries(); i++)
   {
@@ -99,7 +99,7 @@ void AddBranchToTreeInFile(TString fName)
     {   // scaling pre-Sn energies to the shifted (miscalibrated) Sn energy
       erecon_tinStitch = erecon*(371.6 / 368.5);
     }
-    else if(erecon > 388.5 && erecon < 1000)
+    else if(erecon > 368.5 && erecon < 1000)
     {   // scales all values post-Sn to stretch to new-Sn and endpoint (787keV, with resolution effects)
       erecon_tinStitch = erecon*(787.0 / 792.9) + 5.8;
     }

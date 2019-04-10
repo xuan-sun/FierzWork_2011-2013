@@ -1,7 +1,7 @@
 Residuals()
 {
-  int octetLow = 0;
-  int octetHigh = 60;
+  int octetLow = 80;
+  int octetHigh = 122;
 
   // load the sum of all the data octets, with proper error propagation (if ROOT isn't broken).
   TH1D *hTotalData = new TH1D("totalData", "totalData", 120, 0, 1200);
@@ -43,8 +43,20 @@ Residuals()
 
   hTotalBeta->Draw();
 
+  double entries = 0;
+
+  int fitBinMin = 65;
+  int fitBinMax = 100;
+
+  for(int i = fitBinMin; i <= fitBinMax; i++)
+  {
+    entries = entries + hTotalBeta->GetBinContent(i);
+  }
+
+  cout << "Bins " << fitBinMin << " - " << fitBinMax << ": " << entries << endl;
+
   // normalize all the histograms using the fit ranges
-  TCanvas *c2011 = new TCanvas("c2011", "c2011");
+/*  TCanvas *c2011 = new TCanvas("c2011", "c2011");
   c2011->cd();
 
   int fitBinMin = 17;
@@ -85,4 +97,5 @@ Residuals()
   xMin->Draw();
   TLine *xMax = new TLine(hResidual->GetBinCenter(fitBinMax), yAxisMin, hResidual->GetBinCenter(fitBinMax), yAxisMax);
   xMax->Draw();
+*/
 }

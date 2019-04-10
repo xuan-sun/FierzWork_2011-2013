@@ -14,7 +14,7 @@ PrintGlobalSuperSum()
       continue;
     }
 //    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
-    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch.root", i));
+    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch_try2.root", i));
     TH1D *hTemp = (TH1D*)f.Get("Super sum");
     hTotalData->Add(hTemp);
     f.Close();
@@ -66,7 +66,7 @@ PrintGlobalSuperSum()
 
   // Making files and printing histograms.
 
-  TFile fData(Form("Octets_80-121_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch.root"), "RECREATE");
+  TFile fData(Form("Octets_80-121_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch_try2.root"), "RECREATE");
   hTotalData->Write();
   fData.Close();
 

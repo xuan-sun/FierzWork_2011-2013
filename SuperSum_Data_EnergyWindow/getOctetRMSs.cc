@@ -42,9 +42,15 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
+#define		FITRANGELOW	0	// fit ranges in octet number for diff. geom's
+#define		FITRANGEHIGH	60
 
 using            namespace std;
+
+vector <double> vecBinMin;
+vector <TH1D*> vecHistOctets;
+vector <TGraphErrors*> vecGraphOctets;
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -60,7 +66,7 @@ void FillArrays(TString fileName, int flag);
 
 struct entry
 {
-  string octNb;
+  double octNb;
   double avg_mE;
   double chisquared;
   double ndf;
@@ -89,6 +95,29 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   FillArrays(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctets.txt", GEOM), 1);
+
+
+  ofstream outfile;
+  outfile.open(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctetsSummary.txt", GEOM), ios::app);
+  for(unsigned int i = 0; i < vecHistOctets.size(); i++)
+  {
+    TF1 *fit1 = new TF1(Form("fit_%i", i), "[0]", FITRANGELOW, FITRANGEHIGH);
+    vecGraphOctets[i]->Fit(fit1, "R");
+
+    outfile << "2011-2012" << "\t"
+            << "ALL" << "\t"
+            << vecBinMin[i] << "\t"
+            << vecHistOctets[i]->GetMean() << "\t"
+            << vecHistOctets[i]->GetRMS() << "\t"
+	    << fit1->GetParameter(0) << "\t"
+	    << fit1->GetParError(0) << "\t"
+	    << fit1->GetChisquare() << "\t"
+	    << fit1->GetNDF() << "\t"
+	    << fit1->GetChisquare() / fit1->GetNDF() << "\t"
+	    << TMath::Prob(fit1->GetChisquare(), fit1->GetNDF()) << "\n";
+  }
+  outfile.close();
+
 
   //prints the canvas with a dynamic TString name of the name of the file
   cout << "-------------- End of Program ---------------" << endl;
@@ -154,10 +183,12 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
 
 void FillArrays(TString fileName, int flag)
 {
-  ofstream outfile;
-  outfile.open(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctetsSummary.txt", GEOM), ios::app);
+  vecHistOctets.push_back(new TH1D(Form("hist_b_bins_%i", 17), Form("hist_b_bins_%i", 17), 200, -1, 1));
 
-  vector <TH1D*> hTemp;
+  vector <double> octNb;
+  vector <double> octNbErr;
+  vector <double> bVal;
+  vector <double> bErr;
 
   entry evt;
   int counter = 0;
@@ -172,7 +203,7 @@ void FillArrays(TString fileName, int flag)
   if(!infile1.is_open())
     cout << "Problem opening " << fileName << endl;
 
-  double variableHold = 0;
+  double variableHold = 165;	// note: this has to match the first input to fix a pesky off-by-1 error
 
   while(true)
   {
@@ -196,32 +227,33 @@ void FillArrays(TString fileName, int flag)
 		>> evt.fitMatrixStatus;
       counter++;
 
-      if(evt.EMin == variableHold)
-      {	// extracts histogram at end of vector
-        hTemp[hTemp.size() - 1]->Fill(evt.b_minuitFit);
-      }
       if(evt.EMin > variableHold)
       {
-	// print out the previous bin's RMS and mean.
-	if(hTemp.size() != 0)
-	{
-	  cout << "Bin = " << evt.binMin << ": mu = " << hTemp[hTemp.size() - 1]->GetMean()
-	       << ", RMS = " << hTemp[hTemp.size() - 1]->GetRMS() << endl;
-	  outfile << "2011-2012" << "\t"
-		  << "ALL" << "\t"
-		  << evt.binMin << "\t"
-	 	  << evt.EMin << "\t"
-		  << evt.binMax << "\t"
-		  << evt.EMax << "\t"
-		  << hTemp[hTemp.size() - 1]->GetMean() << "\t"
-		  << hTemp[hTemp.size() - 1]->GetRMS() << "\n";
-	}
-
 	// create a new histogram to hold this bin's b fit values
-	hTemp.push_back(new TH1D(Form("hist_b_bins_%f", evt.binMin), Form("hist_b_bins_%f", evt.binMin), 200, -1, 1));
+	vecHistOctets.push_back(new TH1D(Form("hist_b_bins_%f", evt.binMin - 1), Form("hist_b_bins_%f", evt.binMin - 1), 200, -1, 1));
 
+	// create a new TGraph so we can do a straight line fit
+        vecGraphOctets.push_back(new TGraphErrors(octNb.size(), &(octNb[0]), &(bVal[0]), &(octNbErr[0]), &(bErr[0])));
+
+	// save the bin values so we can match them in printing later
+        vecBinMin.push_back(evt.binMin - 1);
+
+	// reset all the values for the next iteration.
         variableHold = evt.EMin;
+	octNb.clear();
+	octNbErr.clear();
+	bVal.clear();
+	bErr.clear();
       }
+
+      // extracts histogram at end of vector and fills it
+      vecHistOctets[vecHistOctets.size() - 1]->Fill(evt.b_minuitFit);
+
+      // fill in the vectors that will make the TGraphErrors.
+      octNb.push_back(evt.octNb);
+      octNbErr.push_back(0.5);
+      bVal.push_back(evt.b_minuitFit);
+      bErr.push_back(evt.bErr_minuitFit);
 
     }
     if(infile1.eof() == true)
@@ -230,7 +262,10 @@ void FillArrays(TString fileName, int flag)
     }
   }
 
-  outfile.close();
+  // these are also to address off-by-1 errors cause this method is tricky.
+  vecBinMin.push_back(evt.binMin);
+  vecGraphOctets.push_back(new TGraphErrors(octNb.size(), &(octNb[0]), &(bVal[0]), &(octNbErr[0]), &(bErr[0])));
+
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }

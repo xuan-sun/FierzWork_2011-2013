@@ -7,7 +7,7 @@
 
 cd ../PositionCuts/
 
-for ((x = 81; x < 122; x = x + 1))
+for ((x = 80; x < 122; x = x + 1))
 
 do
 
@@ -43,11 +43,6 @@ if ((x == 121))
 then
 continue
 fi
-
-
-#sed 's/ReplaceWithIndexLow/'$x'/g' master_ssMCHist.cc > ssMCHist.cc
-# this -i seems to suppress printing out the file to screen. Use it.
-#sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
 ./ssDataHist_radialCuts $x
