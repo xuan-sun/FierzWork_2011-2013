@@ -42,12 +42,7 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		TYPE	"type0"
-#define		GEOM	"2011-2012"
-#define		FITMINBIN	17
-#define		FITMAXBIN	65
-#define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	49
+#define		GEOM	"2012-2013"
 
 using            namespace std;
 
@@ -80,28 +75,6 @@ struct entry
   int fitMatrixStatus;
 };
 
-// global vectors for creating TGraphs.
-vector <double> octets;
-vector <double> octetsErr;
-vector <double> chisquared;
-vector <double> chi2err;
-vector <double> bMinuitValues;
-vector <double> bErrMinuitValues;
-
-vector <double> x2011;
-vector <double> xErr2011;
-vector <double> y2011;
-vector <double> yErr2011;
-vector <double> x2012;
-vector <double> xErr2012;
-vector <double> y2012;
-vector <double> yErr2012;
-vector <double> x2013;
-vector <double> xErr2013;
-vector <double> y2013;
-vector <double> yErr2013;
-
-
 int main(int argc, char* argv[])
 {
   if(argc < 1)
@@ -115,57 +88,7 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 2);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_Sn113Stitch.txt", 3);
-
-//  TGraphErrors *g1 = new TGraphErrors(x2011.size(), &(x2011[0]), &(y2011[0]), &(xErr2011[0]), &(yErr2011[0]));
-//  TGraphErrors *g2 = new TGraphErrors(x2012.size(), &(x2012[0]), &(y2012[0]), &(xErr2012[0]), &(yErr2012[0]));
-
-  TGraph *g1 = new TGraph(x2011.size(), &(x2011[0]), &(y2011[0]));
-  TGraph *g2 = new TGraph(x2012.size(), &(x2012[0]), &(y2012[0]));
-  TGraph *g3 = new TGraph(x2013.size(), &(x2013[0]), &(y2013[0]));
-
-//  g1->GetYaxis()->SetRangeUser(-10, 20);
-
-  PlotGraph(C, 2, 1, g1, Form("b fit ratios. Energy window upper end is 645 keV."), "Energy Window Low (keV)", "b fit ratios", "AP");
-  PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
-  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
-
-//  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
-
-
-  C->cd(1);
-  TLegend* leg1 = new TLegend(0.15,0.7,0.35,0.9);
-  leg1->AddEntry(g1,Form("2011-2012"),"p");
-  leg1->AddEntry(g2,Form("2012-2013"),"p");
-  leg1->AddEntry(g3, Form("2012-2013, Sn Corr"), "p");
-  leg1->Draw();
-
-
-  double xPrint = 45;
-  double yPrint = 0.5;
-
-  TLatex t2;
-  t2.SetTextSize(0.03);
-  t2.SetTextAlign(13);
-//  t2.DrawLatex(xPrint, yPrint+0.1, Form("red: %f #pm %f", h1->GetMean(), h1->GetRMS()));
-  TLatex t3;
-  t3.SetTextSize(0.03);
-  t3.SetTextAlign(13);
-//  t3.DrawLatex(xPrint, yPrint, Form("red fit: #chi^{2}/ndf = %f", (fit1->GetChisquare() / fit1->GetNDF())));
-
-  TLatex t4;
-  t4.SetTextSize(0.03);
-  t4.SetTextAlign(13);
-//  t4.DrawLatex(xPrint, yPrint-0.1, Form("blue: %f #pm %f", h2->GetMean(), h2->GetRMS()));
-  TLatex t5;
-  t5.SetTextSize(0.03);
-  t5.SetTextAlign(13);
-//  t5.DrawLatex(xPrint, yPrint-0.20, Form("blue fit: #chi^{2}/ndf = %f", (fit2->GetChisquare() / fit2->GetNDF())));
-
-
-
+  FillArrays(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctets.txt", GEOM), 1);
 
   //prints the canvas with a dynamic TString name of the name of the file
   cout << "-------------- End of Program ---------------" << endl;
@@ -231,6 +154,10 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
 
 void FillArrays(TString fileName, int flag)
 {
+  ofstream outfile;
+  outfile.open(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctetsSummary.txt", GEOM), ios::app);
+
+  vector <TH1D*> hTemp;
 
   entry evt;
   int counter = 0;
@@ -245,6 +172,7 @@ void FillArrays(TString fileName, int flag)
   if(!infile1.is_open())
     cout << "Problem opening " << fileName << endl;
 
+  double variableHold = 0;
 
   while(true)
   {
@@ -268,51 +196,41 @@ void FillArrays(TString fileName, int flag)
 		>> evt.fitMatrixStatus;
       counter++;
 
-      if(evt.EMin < 245)
+      if(evt.EMin == variableHold)
+      {	// extracts histogram at end of vector
+        hTemp[hTemp.size() - 1]->Fill(evt.b_minuitFit);
+      }
+      if(evt.EMin > variableHold)
       {
-//        continue;
+	// print out the previous bin's RMS and mean.
+	if(hTemp.size() != 0)
+	{
+	  cout << "Bin = " << evt.binMin << ": mu = " << hTemp[hTemp.size() - 1]->GetMean()
+	       << ", RMS = " << hTemp[hTemp.size() - 1]->GetRMS() << endl;
+	  outfile << "2011-2012" << "\t"
+		  << "ALL" << "\t"
+		  << evt.binMin << "\t"
+	 	  << evt.EMin << "\t"
+		  << evt.binMax << "\t"
+		  << evt.EMax << "\t"
+		  << hTemp[hTemp.size() - 1]->GetMean() << "\t"
+		  << hTemp[hTemp.size() - 1]->GetRMS() << "\n";
+	}
+
+	// create a new histogram to hold this bin's b fit values
+	hTemp.push_back(new TH1D(Form("hist_b_bins_%f", evt.binMin), Form("hist_b_bins_%f", evt.binMin), 200, -1, 1));
+
+        variableHold = evt.EMin;
       }
 
-      if(flag == 1)
-      {
-/*
-        octets.push_back(evt.octNb);
-        octetsErr.push_back(0.5);
-        chisquared.push_back(evt.chisquaredperndf);
-        chi2err.push_back(0.1);
-        bMinuitValues.push_back(evt.b_minuitFit);
-        bErrMinuitValues.push_back(evt.bErr_minuitFit);
-*/
-        x2011.push_back(evt.EMin);
-	xErr2011.push_back(5);
-//        y2011.push_back(evt.b_minuitFit / 0.00279833);
-        y2011.push_back(evt.prob);
-	yErr2011.push_back(evt.bErr_minuitFit / 0.00279833);
-      }
-      else if(flag == 2)
-      {
-        x2012.push_back(evt.EMin);
-	xErr2012.push_back(5);
-//        y2012.push_back(evt.b_minuitFit / 0.0100813);
-        y2012.push_back(evt.prob);
-	yErr2012.push_back(evt.bErr_minuitFit / 0.0100813);
-      }
-      else if(flag == 3)
-      {
-        x2013.push_back(evt.EMin);
-	xErr2013.push_back(5);
-//        y2013.push_back(evt.b_minuitFit / 0.0100813);
-        y2013.push_back(evt.prob);
-	yErr2013.push_back(evt.bErr_minuitFit / 0.0100813);
-      }
     }
-
-
     if(infile1.eof() == true)
     {
       break;
     }
   }
+
+  outfile.close();
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }

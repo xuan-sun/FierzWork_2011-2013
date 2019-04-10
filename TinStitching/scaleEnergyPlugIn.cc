@@ -40,9 +40,8 @@
 using		 namespace std;
 
 // forward declarations for useful functions
-void AddBranchToTreeInFile(TString fName, double fittedOctetEndpoint, double meanEndpoint);
+void AddBranchToTreeInFile(TString fName);
 vector < pair <int, int> > ReadInFileOfRunNumbers(TString fileName);
-vector < pair <int, double> > ReadInOctetEndpoints(TString fileName, vector < pair <int, double> > updateThis);
 
 // Used for visualization, keeps the graph on screen.
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -64,40 +63,13 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
 
-  vector < pair <int, int> > runNumbers = ReadInFileOfRunNumbers(Form("bFits_OctetsUsed_RunNumbers.txt"));
-
-  vector < pair <int, double> > fittedEndpointsForOctets;
-  fittedEndpointsForOctets = ReadInOctetEndpoints(Form("endPointFits_noGainCorrection_ssDataHists_2011-2012_radialCut_0-49mm.txt"), fittedEndpointsForOctets);
-  fittedEndpointsForOctets = ReadInOctetEndpoints(Form("endPointFits_noGainCorrection_ssDataHists_2012-2013_radialCut_0-49mm.txt"), fittedEndpointsForOctets);
+  vector < pair <int, int> > runNumbers = ReadInFileOfRunNumbers(Form("bFits_OctetsUsed_RunNumbers_2012-2013.txt"));
 
   cout << "runNumbers.size() = " << runNumbers.size() << endl;
 
-  double meanEndpoint = -1;
-  double octetEndpoint = -1;
   for(unsigned int i = 0; i < runNumbers.size(); i++)
   {
-    // use 2011-2012 octet fitted endpoints; 0 < r < 49mm radial cut.
-    if(runNumbers[i].first >= 0 && runNumbers[i].first <= 59)
-    {
-      meanEndpoint = 785.6;
-    }
-    else if(runNumbers[i].first >= 80 && runNumbers[i].first <= 121)
-    {
-      meanEndpoint = 782.4;
-    }
-
-    for(unsigned int j = 0; j < fittedEndpointsForOctets.size(); j++)
-    {
-      if(runNumbers[i].first == fittedEndpointsForOctets[j].first)
-      {
-        octetEndpoint = fittedEndpointsForOctets[j].second;
-        break;
-      }
-    }
-
-    cout << "octetEndpoint = " << octetEndpoint << "; meanEndpoint = " << meanEndpoint << endl;
-
-    AddBranchToTreeInFile(Form("/mnt/Data/xuansun/replay_pass3_FINALCAL/replay_pass3_%i.root", runNumbers[i].second), octetEndpoint, meanEndpoint);
+    AddBranchToTreeInFile(Form("/mnt/Data/xuansun/replay_pass3_FINALCAL/replay_pass3_%i.root", runNumbers[i].second));
   }
 
 
@@ -108,21 +80,30 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-void AddBranchToTreeInFile(TString fName, double fittedOctetEndpoint, double meanEndpoint)
+void AddBranchToTreeInFile(TString fName)
 {
   TFile *f = new TFile(fName.Data(), "UPDATE");
   TTree *t = (TTree*)f->Get("pass3");
 
   double erecon;
-  t->SetBranchAddress("Erecon", &erecon);
+  t->SetBranchAddress("Erecon_corr_r49mm", &erecon);
 
-  double ereconCorr_r49mm;
-  TBranch *b = t->Branch("Erecon_corr_r49mm", &ereconCorr_r49mm, "ereconCorr_r49mm/D");
+  double erecon_tinStitch;
+  TBranch *b = t->Branch("Erecon_corr_r49mm_Sn113Stitch_try2", &erecon_tinStitch, "erecon_tinStitch/D");
 
   for(long int i = 0; i < t->GetEntries(); i++)
   {
     t->GetEntry(i);
-    ereconCorr_r49mm = erecon*(meanEndpoint / fittedOctetEndpoint);
+
+    if(erecon > 0 && erecon < 368.5)
+    {   // scaling pre-Sn energies to the shifted (miscalibrated) Sn energy
+      erecon_tinStitch = erecon*(371.6 / 368.5);
+    }
+    else if(erecon > 388.5 && erecon < 1000)
+    {   // scales all values post-Sn to stretch to new-Sn and endpoint (787keV, with resolution effects)
+      erecon_tinStitch = erecon*(787.0 / 792.9) + 5.8;
+    }
+
     b->Fill();
   }
 
@@ -171,40 +152,3 @@ vector < pair <int, int> > ReadInFileOfRunNumbers(TString fileName)
   return runs;
 }
 
-vector < pair <int, double> > ReadInOctetEndpoints(TString fileName, vector < pair <int, double> > updateThis)
-{
-  int octNb = -1;
-  double endpoint = -1;
-  double endpointErr = -1;
-  double fakeGain = -1;
-
-  //opens the file that I name in DATA_FILE_IN
-  string buf;
-  ifstream infile1;
-  cout << "The file being opened is: " << fileName << endl;
-  infile1.open(fileName);
-
-  //a check to make sure the file is open
-  if(!infile1.is_open())
-    cout << "Problem opening " << fileName << endl;
-
-  while(true)
-  {
-    getline(infile1, buf);
-    istringstream bufstream(buf);
-
-    if(!infile1.eof())
-    {
-      bufstream >> octNb >> endpoint >> endpointErr >> fakeGain;
-
-      updateThis.push_back(make_pair(octNb, endpoint));
-    }
-
-    if(infile1.eof() == true)
-    {
-      break;
-    }
-  }
-
-  return updateThis;
-}

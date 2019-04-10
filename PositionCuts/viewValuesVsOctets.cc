@@ -43,8 +43,8 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2012-2013"
-#define		FITMINBIN	35
+#define		GEOM	"2011-2012"
+#define		FITMINBIN	27
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
 #define		RADIALCUTHIGH	49
@@ -115,7 +115,8 @@ int main(int argc, char* argv[])
 //  h1->SetStats(0);
 
 //  FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_%i-%imm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h1, 1);
+//  FillArrays(Form("positionCuts_%i-%imm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h1, 1);
+  FillArrays(Form("positionCuts_%i-%imm_endpointCorrected_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h1, 1);
   FillArrays(Form("positionCuts_%i-%imm_endpointCorrected_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
 
 //  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chi2err[0]));
@@ -131,9 +132,9 @@ int main(int argc, char* argv[])
   g2->Fit(fit2, "R");
 */
 
-  g1->GetYaxis()->SetRangeUser(-1, 1);
+  g1->GetYaxis()->SetRangeUser(-0.5, 0.5);
 
-  PlotGraph(C, 2, 1, g1, Form("#Chi^2/ndf for %s: %i-%imm radius", GEOM, RADIALCUTLOW, RADIALCUTHIGH), "Octet Number", "#Chi^2/ndf", "AP");
+  PlotGraph(C, 2, 1, g1, Form("#Chi^2/ndf for %s: %i-%imm radius", GEOM, RADIALCUTLOW, RADIALCUTHIGH), "Octet Number", "b", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
 
 //  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
@@ -145,7 +146,7 @@ int main(int argc, char* argv[])
   leg1->Draw();
 
 
-  double xPrint = 105;
+  double xPrint = 45;
   double yPrint = 0.5;
 
   TLatex t2;

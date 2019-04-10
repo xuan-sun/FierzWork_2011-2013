@@ -7,7 +7,7 @@
 
 cd ../PositionCuts/
 
-for ((x = 80; x < 122; x = x + 1))
+for ((x = 81; x < 122; x = x + 1))
 
 do
 
@@ -50,7 +50,7 @@ fi
 #sed -i 's/ReplaceWithIndexHigh/'$((x+1))'/g' ssMCHist.cc
 
 make
-./newXuanFitter_positionCuts $x
+./ssDataHist_radialCuts $x
 make clean
 
 done

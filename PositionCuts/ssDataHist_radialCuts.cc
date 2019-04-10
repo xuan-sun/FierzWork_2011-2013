@@ -38,9 +38,9 @@
 #include	 <math.h>
 
 #define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	150
+#define		RADIALCUTHIGH	49
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 
 using		 namespace std;
 
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
   // load all the histograms of east and west, turn them into rates.
   vector < vector < TH1D* > > rates = CreateRateHistograms(runFiles);
 
-  TFile f(TString::Format("Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
+  TFile f(TString::Format("Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorr_Sn113Stitch.root", octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH), "RECREATE");
   // Begin processing the read in data now
   TH1D* SS_Erecon = CreateSuperSum(rates);
   SS_Erecon->Write();
@@ -390,7 +390,8 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     runsChains[i]->SetBranchAddress("TimeW", &evt[i]->tW);
     runsChains[i]->SetBranchAddress("Side", &evt[i]->side);
     runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
-    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
+    runsChains[i]->SetBranchAddress("Erecon_corr_r49mm_Sn113Stitch", &evt[i]->Erecon);
+//    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
     runsChains[i]->SetBranchAddress("badTimeFlag", &evt[i]->timeFlag);
 
