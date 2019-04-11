@@ -13,7 +13,8 @@ Residuals()
     {
       continue;
     }
-    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
+    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch_try3.root", i));
+//    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
 //    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
     TH1D *hTemp = (TH1D*)f.Get("Super sum");
     hTotalData->Add(hTemp);
@@ -43,6 +44,7 @@ Residuals()
 
   hTotalBeta->Draw();
 
+/*
   double entries = 0;
 
   int fitBinMin = 65;
@@ -54,9 +56,9 @@ Residuals()
   }
 
   cout << "Bins " << fitBinMin << " - " << fitBinMax << ": " << entries << endl;
-
+*/
   // normalize all the histograms using the fit ranges
-/*  TCanvas *c2011 = new TCanvas("c2011", "c2011");
+  TCanvas *c2011 = new TCanvas("c2011", "c2011");
   c2011->cd();
 
   int fitBinMin = 17;
@@ -83,7 +85,7 @@ Residuals()
 
   hResidual->Divide(hTotalBeta);
 
-  hResidual->SetTitle("2011-2012, data octets, (S_{data}-S_{MC}) / S_{MC}");
+  hResidual->SetTitle("2012-2013, data octets, Tin-stitched_try3, (S_{data}-S_{MC}) / S_{MC}");
   hResidual->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
   hResidual->GetXaxis()->SetTitle("Reconstructed Energy (keV)");
   hResidual->GetYaxis()->SetTitle("Fractional residual");
@@ -97,5 +99,5 @@ Residuals()
   xMin->Draw();
   TLine *xMax = new TLine(hResidual->GetBinCenter(fitBinMax), yAxisMin, hResidual->GetBinCenter(fitBinMax), yAxisMax);
   xMax->Draw();
-*/
+
 }

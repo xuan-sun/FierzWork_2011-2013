@@ -65,11 +65,11 @@ PrintGlobalSuperSum()
   hTotalFierz->Draw();
 
   // Making files and printing histograms.
-/*
+
   TFile fData(Form("Octets_80-121_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch_try3.root"), "RECREATE");
   hTotalData->Write();
   fData.Close();
-*/
+
 /*
   TFile fBeta(Form("FullBlind_Feb2019_MC_A_0_b_0_Octets_80-121_ssHist_type0_posCut_0-49mm.root"), "RECREATE");
   hTotalBeta->Write();
