@@ -42,13 +42,6 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		TYPE	"type0"
-#define		GEOM	"2011-2012"
-#define		FITMINBIN	17
-#define		FITMAXBIN	65
-#define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	49
-
 using            namespace std;
 
 // Fundamental constants that get used
@@ -117,7 +110,7 @@ int main(int argc, char* argv[])
 
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 2);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_Sn113Stitch.txt", 3);
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_Sn113Stitch_try3.txt", 3);
 
 //  TGraphErrors *g1 = new TGraphErrors(x2011.size(), &(x2011[0]), &(y2011[0]), &(xErr2011[0]), &(yErr2011[0]));
 //  TGraphErrors *g2 = new TGraphErrors(x2012.size(), &(x2012[0]), &(y2012[0]), &(xErr2012[0]), &(yErr2012[0]));
@@ -126,7 +119,7 @@ int main(int argc, char* argv[])
   TGraph *g2 = new TGraph(x2012.size(), &(x2012[0]), &(y2012[0]));
   TGraph *g3 = new TGraph(x2013.size(), &(x2013[0]), &(y2013[0]));
 
-//  g1->GetYaxis()->SetRangeUser(-10, 20);
+  g1->GetYaxis()->SetRangeUser(1e-8, 1);
 
   PlotGraph(C, 2, 1, g1, Form("b fit ratios. Energy window upper end is 645 keV."), "Energy Window Low (keV)", "b fit ratios", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
@@ -136,7 +129,7 @@ int main(int argc, char* argv[])
 
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.15,0.7,0.35,0.9);
+  TLegend* leg1 = new TLegend(0.7,0.3,0.9,0.5);
   leg1->AddEntry(g1,Form("2011-2012"),"p");
   leg1->AddEntry(g2,Form("2012-2013"),"p");
   leg1->AddEntry(g3, Form("2012-2013, Sn Corr"), "p");

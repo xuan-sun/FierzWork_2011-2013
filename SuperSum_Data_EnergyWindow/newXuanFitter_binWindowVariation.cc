@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
   global_fitMinBin = atoi(argv[2]);
   global_fitMaxBin = atoi(argv[3]);
 
-/*
+
   // this little bit loads the octets once they have already been separated into super sum histograms
   TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", RADLOW, RADHIGH, octNb, TYPE, RADLOW, RADHIGH));
   TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
@@ -98,16 +98,16 @@ int main(int argc, char* argv[])
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("Super sum");
-*/
 
+/*
   // this loads all the histograms that have all the beta events already summed into one histogram
-  TFile fData(TString::Format("All_Octets_Summed_Histograms/Octets_80-121_ssDataHist_%s_radialCut_%i-%imm_endpointCorr_Sn113Stitch.root", TYPE, RADLOW, RADHIGH));
+  TFile fData(TString::Format("All_Octets_Summed_Histograms/Octets_80-121_ssDataHist_%s_radialCut_%i-%imm_endpointCorr_Sn113Stitch_try3.root", TYPE, RADLOW, RADHIGH));
   TFile fMC0(TString::Format("All_Octets_Summed_Histograms/FullBlind_Feb2019_MC_A_0_b_0_Octets_80-121_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
   TFile fMCinf(TString::Format("All_Octets_Summed_Histograms/MC_A_0_b_inf_Octets_80-121_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
   TH1D* dataHist = (TH1D*)fData.Get("totalData");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("totalBeta");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("totalFierz");
-
+*/
 
 
   // the work beyond here is unrelated to which data structure you chose
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_binWindowVariations_Sn113Stitch.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
+  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_Sn113Stitch_try3.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
 //  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, global_fitMinBin, global_fitMaxBin), ios::app);
   outfile << "ALL" << "\t"
           << avg_mE << "\t"
