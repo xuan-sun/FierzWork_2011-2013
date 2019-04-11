@@ -1,0 +1,8 @@
+April 10, 2019
+Xuan Sun
+
+These histograms are 100million total events, baseline histograms.
+Namely, well known b=0 and b=inf.
+
+HENCE, we do not need to endpoint correct. Simply because the endpoint is well defined and stable.
+i.e. we are only interested in endpoint correction twiddles, not the baseline MC that fits them.

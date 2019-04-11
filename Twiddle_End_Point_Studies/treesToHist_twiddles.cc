@@ -1,42 +1,49 @@
-#include	 <iostream>
-#include	 <fstream>
-#include	 <TGaxis.h>
-#include	 <sstream>
-#include	 <TGraph.h>
-#include	 <TGraphErrors.h>
-#include	 <TCanvas.h>
-#include	 <TApplication.h>
-#include	 <stdlib.h>
-#include	 <TF1.h>
-#include	 <TH1.h>
-#include	 <TProfile.h>
-#include	 <TObjArray.h>
-#include	 <TStyle.h>
-#include	 <TMarker.h>
-#include	 <math.h>
-#include	 <TStyle.h>
-#include	 <TPaveStats.h>
-#include	 <TPaveText.h>
-#include	 <vector>
-#include	 <string.h>
-#include	 <fstream>
-#include	 <TROOT.h>
-#include	 <TFile.h>
-#include	 <TLegend.h>
-#include         <TLegendEntry.h>
-#include	 <time.h>
-#include	 <TH2F.h>
+// Standard C and C++ libraries
+#include         <vector>
+#include         <iostream>
+#include         <algorithm>
+#include         <functional>
+#include         <fstream>
+#include         <sstream>
+#include         <stdlib.h>
+#include         <math.h>
+#include         <string.h>
+#include         <time.h>
 #include         <assert.h>
-#include	 <string>
-#include	 <TRandom.h>
-#include 	 <TTree.h>
-#include	 <TChain.h>
-#include	 <TVector.h>
-#include	 <vector>
-#include	 <utility>
+
+// Pretty much all the ROOT libraries I have ever used.
+#include         <TROOT.h>
+#include         <TSystem.h>
+#include         <TMath.h>
+#include         <TF1.h>
+#include         <TGaxis.h>
+#include         <TGraph.h>
+#include         <TGraphErrors.h>
+#include         <TCanvas.h>
+#include         <TApplication.h>
+#include         <TH1.h>
+#include         <TProfile.h>
+#include         <TObjArray.h>
+#include         <TStyle.h>
+#include         <TMarker.h>
+#include         <TPaveStats.h>
+#include         <TPaveText.h>
+#include         <TFile.h>
+#include         <TLegend.h>
+#include         <TLegendEntry.h>
+#include         <TH2F.h>
+#include         <TRandom.h>
+#include         <TTree.h>
+#include         <TChain.h>
+#include         <TObjArray.h>
+#include         <TFractionFitter.h>
+#include         <TLatex.h>
+#include         <TMatrixD.h>
+#include         <TRandom3.h>
+#include         <TMinuit.h>
+#include         <TCut.h>
 #include	 <TLeaf.h>
-#include	 <TRandom3.h>
-#include	 <TCut.h>
+
 
 #define         RADIALCUTLOW    0
 #define         RADIALCUTHIGH   0.049   //these need to be done in m for simulations
@@ -102,19 +109,30 @@ int main(int argc, char* argv[])
 
   TString geom = "2011-2012";
 
+  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", geom.Data(), geom.Data(), indexNb);
+
+  // checks if the file exists because we threw out a bunch of twiddles
+  if(gSystem->AccessPathName(dataFilePath))
+  {
+    cout << "File does not exist. Exiting program." << endl;
+    return 0;
+  }
+  else
+  {
+    cout << "File exists. Continuing..." << endl;
+  }
+
+
   TCut positionCut = Form("(MWPCPosE[0]*MWPCPosE[0] + MWPCPosE[1]*MWPCPosE[1] < 0.063*0.063 && MWPCPosW[0]==0 && MWPCPosW[1]==0 || MWPCPosW[0]*MWPCPosW[0] + MWPCPosW[1]*MWPCPosW[1] < 0.063*0.063 && MWPCPosE[0]==0 && MWPCPosE[1]==0)");
 
-  TFile fBase(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
-  TTree *tBase = (TTree*)fBase.Get("SimAnalyzed");
+  TFile fTwiddle(dataFilePath);
+  TTree *t = (TTree*)fTwiddle.Get("SimAnalyzed");
 
-  TFile fFierz(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_inf/SimAnalyzed_%s_Beta_paramSet_100_%i.root", geom.Data(), geom.Data(), indexNb));
-  TTree *tFierz = (TTree*)fFierz.Get("SimAnalyzed");
+  TH1D *h = new TH1D("Erecon_r49mm_endpointCorr", "Erecon_r49mm_endpointCorr", 120, 0, 1200);
 
-  TH1D *h = new TH1D("Erecon_blinded_hist", "Erecon_blinded_hist", 120, 0, 1200);
+  t->Draw("Erecon_corr_r49mm >> Erecon_r49mm_endpointCorr", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
 
-  tFierz->Draw("Erecon >> Erecon_blinded_hist", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
-
-  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm_try3.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
+  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/Histograms/Hist_SimAnalyzed_%s_Beta_paramSet_%i_0_type0_radialCut_%i-%imm_endpointCorr.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
   // Begin processing the read in data now
   h->Write();
 

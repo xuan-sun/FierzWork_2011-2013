@@ -5,15 +5,31 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ../Twiddle_End_Point_Studies/
+cd ../SuperSum_Twiddle_EnergyWindow/
 
 make
+
+for ((wLow = 17; wLow <= 41; wLow = wLow + 1))
+
+do
+
+for ((wHigh = 65; wHigh <= 65; wHigh = wHigh + 1))
+
+do
 
 for ((x = 1; x < 7750; x = x + 1))
 
 do
 
-./treesToHist_twiddles $x
+
+
+./newXuanFitter_forScripting_binWindows $x $wLow $wHigh
+
+
+
+done
+
+done
 
 done
 

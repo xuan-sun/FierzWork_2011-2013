@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = treesToHist_twiddles.o
-SOURCE = treesToHist_twiddles
+OBJECTS = newXuanFitter_forScripting_binWindows.o
+SOURCE = newXuanFitter_forScripting_binWindows
 
 .PHONY: all
 all: $(SOURCE)

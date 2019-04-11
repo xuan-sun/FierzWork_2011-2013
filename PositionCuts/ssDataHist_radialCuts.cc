@@ -390,7 +390,7 @@ vector < vector < TH1D* > > CreateRateHistograms(vector <TChain*> runsChains)
     runsChains[i]->SetBranchAddress("TimeW", &evt[i]->tW);
     runsChains[i]->SetBranchAddress("Side", &evt[i]->side);
     runsChains[i]->SetBranchAddress("Type", &evt[i]->type);
-    runsChains[i]->SetBranchAddress("Erecon_corr_r49mm_Sn113Stitch_try2", &evt[i]->Erecon);
+    runsChains[i]->SetBranchAddress("Erecon_corr_r49mm_Sn113Stitch_try3", &evt[i]->Erecon);
 //    runsChains[i]->SetBranchAddress("Erecon", &evt[i]->Erecon);
     runsChains[i]->SetBranchAddress("PID", &evt[i]->pid);
     runsChains[i]->SetBranchAddress("badTimeFlag", &evt[i]->timeFlag);
