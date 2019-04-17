@@ -5,7 +5,7 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ../PositionCuts/
+cd ../SuperSum_Data_EnergyWindow/
 
 for ((x = 80; x < 122; x = x + 1))
 
@@ -45,7 +45,7 @@ continue
 fi
 
 make
-./ssDataHist_radialCuts $x
+./newXuanFitter_binWindowVariation $x
 make clean
 
 done

@@ -100,4 +100,15 @@ Residuals()
   TLine *xMax = new TLine(hResidual->GetBinCenter(fitBinMax), yAxisMin, hResidual->GetBinCenter(fitBinMax), yAxisMax);
   xMax->Draw();
 
+  double chi2 = 0;
+  double counter = 0;
+
+  for(int i = 17; i <= 65; i++)
+  {
+    chi2 = chi2 + ((hResidual->GetBinContent(i))*(hResidual->GetBinContent(i))) / ((hResidual->GetBinError(i))*(hResidual->GetBinError(i)));
+    counter++;
+  }
+
+  cout << "Chi2 ~ " << chi2 << "; NDF = " << counter << ". Final chi2/ndf = " << chi2/counter << endl;
+
 }

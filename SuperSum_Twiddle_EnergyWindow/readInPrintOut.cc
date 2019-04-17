@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   for(unsigned int i = 0; i < vecHistTwiddles.size(); i++)
   {
     outfile << "2011-2012" << "\t"
-            << "ALL TWIDDLES" << "\t"
+            << "ALL_TWIDDLES" << "\t"
             << vecBinMins[i] << "\t"
             << vecHistTwiddles[i]->GetMean() << "\t"
             << vecHistTwiddles[i]->GetRMS() << "\n";

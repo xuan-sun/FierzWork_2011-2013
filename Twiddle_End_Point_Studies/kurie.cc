@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
   int index = atoi(argv[1]);
 
 //  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_0_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_%s_radialCut_0-49mm.root", GEOM, GEOM, index, TYPE);
-  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index);
+  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, index);
 
   // checks if the file exists because we threw out a bunch of twiddles
   if(gSystem->AccessPathName(dataFilePath))
@@ -110,7 +110,8 @@ int main(int argc, char* argv[])
 //  TFile f(dataFilePath);
   dataChain->AddFile(dataFilePath);
 //  dataHist = (TH1D*)f.Get("Erecon blinded hist");
-  dataChain->Draw("Erecon_corr_r49mm >> dataHist", "PID == 1 && Erecon_corr_r49mm > 0 && type == 0 && side < 2" && positionCut);
+//  dataChain->Draw("Erecon_corr_r49mm >> dataHist", "PID == 1 && Erecon_corr_r49mm > 0 && type == 0 && side < 2" && positionCut);
+  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
 
@@ -179,7 +180,7 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-  outfile.open(Form("endPointFits_gainAlreadyApplied_asymmTwiddledSpectra_index19_%s_radialCut_%i-%imm.txt", GEOM, radialCutLow_input, radialCutHigh_input), ios::app);
+  outfile.open(Form("endPointFits_noGain_asymmTwiddledSpectra_index19_noStatDependence_%s_radialCut_%i-%imm_fitBin_%i-%i.txt", GEOM, radialCutLow_input, radialCutHigh_input, FITMINBIN, FITMAXBIN), ios::app);
   outfile << index << "\t"
           << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
 	  << abs(fit1->GetParameter(0)/fit1->GetParameter(1))

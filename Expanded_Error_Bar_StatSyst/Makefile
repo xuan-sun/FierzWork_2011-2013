@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = viewScatterPlot.o
-SOURCE = viewScatterPlot
+OBJECTS = plotExpandedError.o
+SOURCE = plotExpandedError
 
 .PHONY: all
 all: $(SOURCE)

@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   fitBinMin = atoi(argv[2]);
   fitBinMax = atoi(argv[3]);
 
-  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/Histograms/Hist_SimAnalyzed_%s_Beta_paramSet_%i_0_%s_radialCut_%i-%imm_endpointCorr.root", GEOM, GEOM, octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH);
+  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/Histograms/Hist_SimAnalyzed_%s_Beta_paramSet_%i_0_%s_radialCut_%i-%imm_endpointCorr.root", GEOM, GEOM, octNb, TYPE, RADIALCUTLOW, RADIALCUTHIGH);
 
   // checks if the file exists because we threw out a bunch of twiddles
   if(gSystem->AccessPathName(dataFilePath))
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_%s_%s_Bins_%i-%i_endpointCorrected.txt", TYPE, GEOM, fitBinMin, fitBinMax), ios::app);
+  outfile.open(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_%s_%s_Bins_%i-%i_endpointCorrected_noStatDependence.txt", TYPE, GEOM, fitBinMin, fitBinMax), ios::app);
 //  outfile.open(Form("endpointCorr_FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, fitBinMin, fitBinMax), ios::app);
 //  outfile.open(Form("gaussianTwiddles_noBlinding_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, fitBinMin, fitBinMax), ios::app);
 //  outfile.open(Form("gaussianTwiddles_CorrectBlindingOct2018_newXuanFitter_bFitsForSyst_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, fitBinMin, fitBinMax), ios::app);

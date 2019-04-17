@@ -44,10 +44,6 @@
 
 using            namespace std;
 
-// Fundamental constants that get used
-const double m_e = 511.00;                                              ///< electron mass, keV/c^2
-double NDF = -1;
-
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
@@ -56,7 +52,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void FillArrays(TString fileName, int flag);
 
-struct entry
+struct entry1
 {
   string octNb;
   double avg_mE;
@@ -73,26 +69,34 @@ struct entry
   int fitMatrixStatus;
 };
 
-// global vectors for creating TGraphs.
-vector <double> octets;
-vector <double> octetsErr;
-vector <double> chisquared;
-vector <double> chi2err;
-vector <double> bMinuitValues;
-vector <double> bErrMinuitValues;
+struct entry2
+{
+  string year;
+  string twiddleIndex;
+  double bin;
+  double bFit;
+  double bErr;
+};
 
-vector <double> x2011;
-vector <double> xErr2011;
-vector <double> y2011;
-vector <double> yErr2011;
-vector <double> x2012;
-vector <double> xErr2012;
-vector <double> y2012;
-vector <double> yErr2012;
-vector <double> x2013;
-vector <double> xErr2013;
-vector <double> y2013;
-vector <double> yErr2013;
+struct entry3
+{
+  string year;
+  string octets;
+  double bin;
+  double bMean;
+  double bRMS;
+  double fitb;
+  double fitbErr;
+  double fitChi2;
+  double fitNDF;
+  double fitchi2perndf;
+  double prob;
+};
+
+vector < vector <double> > x;
+vector < vector <double> > xErr;
+vector < vector <double> > y;
+vector < vector <double> > yErr;
 
 
 int main(int argc, char* argv[])
@@ -109,30 +113,41 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 2);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_Sn113Stitch_try3.txt", 3);
+  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_summary.txt", 2);
+  FillArrays("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_binWindowVariations_individualOctetsSummary.txt", 3);
 
-//  TGraphErrors *g1 = new TGraphErrors(x2011.size(), &(x2011[0]), &(y2011[0]), &(xErr2011[0]), &(yErr2011[0]));
-//  TGraphErrors *g2 = new TGraphErrors(x2012.size(), &(x2012[0]), &(y2012[0]), &(xErr2012[0]), &(yErr2012[0]));
+  vector <double> xTemp;
+  vector <double> yTemp;
+  for(unsigned int i = 0; i < x[0].size(); i++)
+  {
+    xTemp.push_back(x[0][i]);	// pushes back energy values
+    yTemp.push_back(sqrt(y[0][i]*y[0][i] + y[1][i]*y[1][i]));
+  }
 
-  TGraph *g1 = new TGraph(x2011.size(), &(x2011[0]), &(y2011[0]));
-  TGraph *g2 = new TGraph(x2012.size(), &(x2012[0]), &(y2012[0]));
-  TGraph *g3 = new TGraph(x2013.size(), &(x2013[0]), &(y2013[0]));
+  x.push_back(xTemp);
+  y.push_back(yTemp);
+  xTemp.clear();
+  yTemp.clear();
 
-  g1->GetYaxis()->SetRangeUser(1e-8, 1);
+  TGraph *g1 = new TGraph(x[0].size(), &(x[0][0]), &(y[0][0]));
+  TGraph *g2 = new TGraph(x[1].size(), &(x[1][0]), &(y[1][0]));
+  TGraph *g3 = new TGraph(x[2].size(), &(x[2][0]), &(y[2][0]));
+  TGraph *g4 = new TGraph(x[3].size(), &(x[3][0]), &(y[3][0]));
 
-  PlotGraph(C, 2, 1, g1, Form("b fit ratios. Energy window upper end is 645 keV."), "Energy Window Low (keV)", "b fit ratios", "AP");
+
+  g1->GetYaxis()->SetRangeUser(0, 0.13);
+
+  PlotGraph(C, 2, 1, g1, Form("b fit errors. Energy window upper end is 645 keV. Geom is 2011-2012."), "Energy Window Low (keV)", "b fit errors", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
   PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
-
-//  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
-
+  PlotGraph(C, 6, 1, g4, "", "", "", "PSAME");
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.7,0.3,0.9,0.5);
-  leg1->AddEntry(g1,Form("2011-2012"),"p");
-  leg1->AddEntry(g2,Form("2012-2013"),"p");
-  leg1->AddEntry(g3, Form("2012-2013, Sn Corr"), "p");
+  TLegend* leg1 = new TLegend(0.1,0.7,0.4,0.9);
+  leg1->AddEntry(g1, Form("stat error, integrated dataset"),"p");
+  leg1->AddEntry(g2, Form("syst error, twiddles"),"p");
+  leg1->AddEntry(g3, Form("octet RMS"), "p");
+  leg1->AddEntry(g4, Form("total sqrt(stat^2 + syst^2)"), "p");
   leg1->Draw();
 
 
@@ -209,7 +224,7 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
   gPlot->GetXaxis()->CenterTitle();
   gPlot->GetYaxis()->SetTitle(yAxis);
   gPlot->GetYaxis()->CenterTitle();
-  C->SetLogy();
+//  C->SetLogy();
 
   gPlot->SetMarkerStyle(21);
   gPlot->SetMarkerSize(0.75);
@@ -224,8 +239,13 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
 
 void FillArrays(TString fileName, int flag)
 {
+  vector <double> xTemp;
+  vector <double> yTemp;
 
-  entry evt;
+  entry1 evt1;
+  entry2 evt2;
+  entry3 evt3;
+
   int counter = 0;
 
   //opens the file that I name in DATA_FILE_IN
@@ -246,58 +266,56 @@ void FillArrays(TString fileName, int flag)
 
     if(!infile1.eof())
     {
-      bufstream1 >> evt.octNb
-		>> evt.avg_mE
-		>> evt.chisquared
-		>> evt.ndf
-		>> evt.chisquaredperndf
-		>> evt.prob
-		>> evt.b_minuitFit
-		>> evt.bErr_minuitFit
-		>> evt.binMin
-		>> evt.EMin
-		>> evt.binMax
-		>> evt.EMax
-		>> evt.fitMatrixStatus;
-      counter++;
-
-      if(evt.EMin < 245)
-      {
-//        continue;
-      }
-
       if(flag == 1)
       {
-/*
-        octets.push_back(evt.octNb);
-        octetsErr.push_back(0.5);
-        chisquared.push_back(evt.chisquaredperndf);
-        chi2err.push_back(0.1);
-        bMinuitValues.push_back(evt.b_minuitFit);
-        bErrMinuitValues.push_back(evt.bErr_minuitFit);
-*/
-        x2011.push_back(evt.EMin);
-	xErr2011.push_back(5);
-//        y2011.push_back(evt.b_minuitFit / 0.00279833);
-        y2011.push_back(evt.prob);
-	yErr2011.push_back(evt.bErr_minuitFit / 0.00279833);
+        bufstream1 >> evt1.octNb
+		>> evt1.avg_mE
+		>> evt1.chisquared
+		>> evt1.ndf
+		>> evt1.chisquaredperndf
+		>> evt1.prob
+		>> evt1.b_minuitFit
+		>> evt1.bErr_minuitFit
+		>> evt1.binMin
+		>> evt1.EMin
+		>> evt1.binMax
+		>> evt1.EMax
+		>> evt1.fitMatrixStatus;
+
+        xTemp.push_back(evt1.EMin);
+	yTemp.push_back(evt1.bErr_minuitFit);
       }
       else if(flag == 2)
       {
-        x2012.push_back(evt.EMin);
-	xErr2012.push_back(5);
-//        y2012.push_back(evt.b_minuitFit / 0.0100813);
-        y2012.push_back(evt.prob);
-	yErr2012.push_back(evt.bErr_minuitFit / 0.0100813);
+        bufstream1 >> evt2.year
+                >> evt2.twiddleIndex
+                >> evt2.bin
+                >> evt2.bFit
+                >> evt2.bErr;
+
+	xTemp.push_back((evt2.bin)*10 - 5);
+	yTemp.push_back(evt2.bErr);
       }
       else if(flag == 3)
       {
-        x2013.push_back(evt.EMin);
-	xErr2013.push_back(5);
-//        y2013.push_back(evt.b_minuitFit / 0.0100813);
-        y2013.push_back(evt.prob);
-	yErr2013.push_back(evt.bErr_minuitFit / 0.0100813);
+        bufstream1 >> evt3.year
+		>> evt3.octets
+		>> evt3.bin
+		>> evt3.bMean
+		>> evt3.bRMS
+		>> evt3.fitb
+		>> evt3.fitbErr
+		>> evt3.fitChi2
+		>> evt3.fitNDF
+		>> evt3.fitchi2perndf
+		>> evt3.prob;
+
+        xTemp.push_back((evt3.bin)*10 - 5);
+	yTemp.push_back(evt3.bRMS);
       }
+
+
+      counter++;
     }
 
 
@@ -306,6 +324,11 @@ void FillArrays(TString fileName, int flag)
       break;
     }
   }
+
+  x.push_back(xTemp);
+  y.push_back(yTemp);
+  xTemp.clear();
+  yTemp.clear();
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }

@@ -199,15 +199,16 @@ void ErrorEnvelope() {
     xerr2011.push_back(5.);
   }
 
+/*
   TGraphAsymmErrors *finenv2011 = new TGraphAsymmErrors(high2011.size(),&en2011[0],&yenv2011[0],&xerr2011[0],&xerr2011[0],&maxEnv2011[0],&maxEnv2011[0]);
   finenv2011->SetFillColorAlpha(col2011,0.8);
   finenv2011->SetFillStyle(fill2011);
-
-/*  // asymmetric error envelope below
+*/
+  // asymmetric error envelope below
   TGraphAsymmErrors *finenv2011 = new TGraphAsymmErrors(high2011.size(),&en2011[0],&yenv2011[0],&xerr2011[0],&xerr2011[0],&low2011[0],&high2011[0]);
   finenv2011->SetFillColorAlpha(col2011,0.8);
   finenv2011->SetFillStyle(fill2011);
-*/
+
   // This little bit is all my own (Xuan) creation in order to print out the values of the error envelopes.
   TCanvas *c3 = new TCanvas("c3", "c3");
   c3->cd();
@@ -216,7 +217,7 @@ void ErrorEnvelope() {
   double x2011 = -1;
   double y2011 = -1;
   ofstream outfile2011;
-  outfile2011.open("MB_ErrorEnvelope_2011-2012.txt", ios::app);
+  outfile2011.open("MB_ErrorEnvelope_2011-2012_asymmetric.txt", ios::app);
   for(int i = 0; i < finenv2011->GetN(); i++)
   {
     finenv2011->GetPoint(i, x2011, y2011);
@@ -270,15 +271,23 @@ void ErrorEnvelope() {
     xerr2012.push_back(5.);
   }
 
+/*
   TGraphAsymmErrors *finenv2012 = new TGraphAsymmErrors(high2012.size(),&en2012[0],&yenv2012[0],&xerr2012[0],&xerr2012[0],&maxEnv2012[0],&maxEnv2012[0]);
   finenv2012->SetFillColorAlpha(col2012,0.7);
   finenv2012->SetFillStyle(fill2012);
+*/
+  // asymmetric error envelope below
+  TGraphAsymmErrors *finenv2012 = new TGraphAsymmErrors(high2012.size(),&en2012[0],&yenv2012[0],&xerr2012[0],&xerr2012[0],&low2012[0],&high2012[0]);
+  finenv2012->SetFillColorAlpha(col2012,0.8);
+  finenv2012->SetFillStyle(fill2012);
+
+
 
   // This little bit is all my own (Xuan) creation in order to print out the values of the error envelopes.
   double x2012 = -1;
   double y2012 = -1;
   ofstream outfile2012;
-  outfile2012.open("MB_ErrorEnvelope_2012-2013.txt", ios::app);
+  outfile2012.open("MB_ErrorEnvelope_2012-2013_asymmetric.txt", ios::app);
   for(int i = 0; i < finenv2012->GetN(); i++)
   {
     finenv2012->GetPoint(i, x2012, y2012);
@@ -302,13 +311,6 @@ void ErrorEnvelope() {
   mg->Add(gr2011,"P");
   mg->Add(gr2012,"P");
 
-  // Xuan's own addition to get the actual data points in the TGraphs
-  double x, y;
-  for(int i = 0; i < gr2011->GetN(); i++)
-  {
-    gr2011->GetPoint(i, x, y);
-    cout << "At i = " << i << " we have: " << x << ", " << y << endl;
-  }
   gr2011->Print();
   gr2012->Print();
 

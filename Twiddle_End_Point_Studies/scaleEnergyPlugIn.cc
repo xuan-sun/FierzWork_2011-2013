@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   vector < pair <int, double> > fittedEndpoints;
-  fittedEndpoints = ReadInEndpoints(Form("endPointFits_noGainCorrection_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-49mm.txt"), fittedEndpoints);
+  fittedEndpoints = ReadInEndpoints(Form("endPointFits_noGain_asymmTwiddledSpectra_index19_noStatDependence_2011-2012_radialCut_0-49mm_fitBin_17-65.txt"), fittedEndpoints);
 
   cout << "Done reading in endpoints... " << endl;
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
   for(unsigned int i = 0; i < fittedEndpoints.size(); i++)
   {
     twiddleEndpoint = fittedEndpoints[i].second;
-    AddBranchToTreeInFile(Form("/mnt/data2/xuansun/analyzed_files/2011-2012_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", fittedEndpoints[i].first), twiddleEndpoint, meanEndpoint);
+    AddBranchToTreeInFile(Form("/mnt/data2/xuansun/analyzed_files/2011-2012_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", fittedEndpoints[i].first), twiddleEndpoint, meanEndpoint);
   }
 
 

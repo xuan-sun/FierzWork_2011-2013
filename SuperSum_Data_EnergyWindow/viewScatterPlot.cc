@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.7,0.3,0.9,0.5);
+  TLegend* leg1 = new TLegend(0.15,0.7,0.35,0.9);
   leg1->AddEntry(g1,Form("2011-2012"),"p");
   leg1->AddEntry(g2,Form("2012-2013"),"p");
   leg1->AddEntry(g3, Form("2012-2013, Sn Corr"), "p");

@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 
   TString geom = "2011-2012";
 
-  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/SimAnalyzed_%s_Beta_paramSet_%i_0.root", geom.Data(), geom.Data(), indexNb);
+  TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/SimAnalyzed_%s_Beta_paramSet_%i_0.root", geom.Data(), geom.Data(), indexNb);
 
   // checks if the file exists because we threw out a bunch of twiddles
   if(gSystem->AccessPathName(dataFilePath))
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 
   t->Draw("Erecon_corr_r49mm >> Erecon_r49mm_endpointCorr", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
 
-  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19/Histograms/Hist_SimAnalyzed_%s_Beta_paramSet_%i_0_type0_radialCut_%i-%imm_endpointCorr.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
+  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/Histograms/Hist_SimAnalyzed_%s_Beta_paramSet_%i_0_type0_radialCut_%i-%imm_endpointCorr.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
   // Begin processing the read in data now
   h->Write();
 
