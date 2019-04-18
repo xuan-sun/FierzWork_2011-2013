@@ -44,10 +44,8 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
-#define		FITMINBIN	17
-#define		FITMAXBIN	65
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);
@@ -55,6 +53,9 @@ using            namespace std;
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
 double ndf = -1;		// value set in code by fitMax - fitMin - 1 (for the 1 parameter, b).
+
+int fitBinMin;
+int fitBinMax;
 
 // Plot things for visualisation
 void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString title, TString command);
@@ -71,14 +72,16 @@ double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if(argc < 4)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (data file index)" << endl;
+    cout << "(executable) (data file index) (fit bin low) (fit bin high)" << endl;
     return 0;
   }
 
   int index = atoi(argv[1]);
+  fitBinMin = atoi(argv[2]);
+  fitBinMax = atoi(argv[3]);
 
   int radialCutLow = 0;
   int directoryRadialCutHigh = 49;
@@ -153,7 +156,7 @@ int main(int argc, char* argv[])
 
   TGraphErrors *g2 = new TGraphErrors(kurie.size(), &(energy[0]), &(kurie[0]), &(energyErr[0]), &(kurieErr[0]));
 
-  TF1 *fit1 = new TF1("fit1", "[0] + [1]*x", energy[FITMINBIN], energy[FITMAXBIN]);
+  TF1 *fit1 = new TF1("fit1", "[0] + [1]*x", energy[fitBinMin], energy[fitBinMax]);
   g2->Fit(fit1, "R");
 
   // plot everything and visualize
@@ -171,7 +174,7 @@ int main(int argc, char* argv[])
   TLatex t1;
   t1.SetTextSize(0.03);
   t1.SetTextAlign(13);
-//  t1.DrawLatex(700, 1.5, Form("Range #in [%f, %f]", energy[FITMINBIN], energy[FITMAXBIN]));
+//  t1.DrawLatex(700, 1.5, Form("Range #in [%f, %f]", energy[fitBinMin], energy[fitBinMax]));
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
@@ -186,7 +189,7 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-  outfile.open(Form("endPointFits_noCorrection_ssDataHists_%s_%s_radialCut_%i-%imm_Bins_%i-%i.txt", TYPE, GEOM, radialCutLow, directoryRadialCutHigh, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("endPointFits_noCorrection_ssDataHists_%s_%s_radialCut_%i-%imm_Bins_%i-%i.txt", TYPE, GEOM, radialCutLow, directoryRadialCutHigh, fitBinMin, fitBinMax), ios::app);
 //  outfile.open(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
   outfile << index << "\t"
 //          << fit1->GetChisquare() << "\t"
@@ -199,10 +202,10 @@ int main(int argc, char* argv[])
           << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
 	  << abs(fit1->GetParameter(0)/fit1->GetParameter(1))
 	     * sqrt( pow(fit1->GetParError(0) / fit1->GetParameter(0), 2.0) + pow(fit1->GetParError(1) / fit1->GetParameter(1), 2.0) ) << "\t"
-//          << FITMINBIN << "\t"
-//	  << FITMAXBIN << "\t"
-//	  << energy[FITMINBIN] << "\t"
-//	  << energy[FITMAXBIN] << "\n";
+//          << fitBinMin << "\t"
+//	  << fitBinMax << "\t"
+//	  << energy[fitBinMin] << "\t"
+//	  << energy[fitBinMax] << "\n";
 	  << 782.0 / ( -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ) << "\n";
   outfile.close();
 

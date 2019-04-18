@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = viewFits.o
-SOURCE = viewFits
+OBJECTS = kurie_forScripting.o
+SOURCE = kurie_forScripting
 
 .PHONY: all
 all: $(SOURCE)

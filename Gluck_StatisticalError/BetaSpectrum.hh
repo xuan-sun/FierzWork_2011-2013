@@ -20,8 +20,7 @@ const double m_n = m_p+m_e+neutronBetaEp;		///< neutron mass, keV/c^2
 const double fs_alpha = 1./137.036;				///< fine structure constant
 const double lambda = fabs(-1.2694);			///< +/-0.0028, PDG 2010 value, Wilkinson sign convention
 //const double A0_PDG = -0.1173;					///< +/-0.0013, PDG 2010 value
-//const double A0_PDG = -0.1184;                                  ///< +/-0.0010, PDG 2015 value
-const double A0_PDG = -0.12054;                         ///< +/-0.000(44/65) M.Brown value from UCNA 2012-2013 data
+const double A0_PDG = -0.1184;                                  ///< +/-0.0010, PDG 2015 value
 const double beta_W0 = (neutronBetaEp+m_e)/m_e;	///< beta spectrum endpoint, "natural" units
 const double neutron_R0 = 0.0025896*1.2;		///< neutron and proton radius approximation, in "natural" units (1.2fm)/(hbar/m_e*c)
 const double proton_M0 = m_p/m_e;				///< proton mass, "natural" units
@@ -96,8 +95,12 @@ double Behrens_Cs137_C(double W, double W0);
 
 /// combined spectrum correction factor for unpolarized neutron beta decay
 double neutronSpectrumCorrectionFactor(double KE);
+
 /// corrected beta spectrum for unpolarized neutron beta decay
 double neutronCorrectedBetaSpectrum(double KE);
+
+/// corrected beta spectrum for unpolarized neutron beta decay with spectral index for BSM decays
+double neutronCorrectedSpectralBetaSpectrum(double KE, int SI);
 
 /// beta decay spectrum calculating class
 class BetaSpectrumGenerator {

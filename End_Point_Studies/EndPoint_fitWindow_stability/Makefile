@@ -19,16 +19,14 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = BetaSpectrum.o gluckStatError.o
-SOURCE = gluckStatError
+OBJECTS = readInPrintOut.o
+SOURCE = readInPrintOut
 
 .PHONY: all
 all: $(SOURCE)
 
 $(SOURCE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(SOURCE) $(OBJECTS) $(LIBS)
-
-BetaSpectrum.o: BetaSpectrum.hh
 
 # -------------------------------------------------------------------------------
 #  Generic compilation and linking step to make an executable from

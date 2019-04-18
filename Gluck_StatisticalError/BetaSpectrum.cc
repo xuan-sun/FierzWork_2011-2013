@@ -338,12 +338,12 @@ double neutronCorrectedBetaSpectrum(double KE) {
 
 
 /// beta decay with spectral index for BSM decays like Fierz terms (1 for V,A and 0 for S,T)
-/*
+
 double neutronCorrectedSpectralBetaSpectrum(double KE, int SI) {
 	double W = (KE+m_e)/m_e;
 	return spectralIndexPhaseSpace(W,beta_W0,SI)*neutronSpectrumCorrectionFactor(KE);
 }
-*/
+
 
 double Davidson_C1T(double W, double W0, double Z, double R) {
 	double p = sqrt(W*W-1);
