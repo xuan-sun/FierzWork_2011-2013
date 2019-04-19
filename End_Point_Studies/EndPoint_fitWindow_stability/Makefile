@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = readInPrintOut.o
-SOURCE = readInPrintOut
+OBJECTS = viewEndpoints.o
+SOURCE = viewEndpoints
 
 .PHONY: all
 all: $(SOURCE)

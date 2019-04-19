@@ -65,12 +65,12 @@ int main(int argc, char* argv[])
   // endpoint is chosen such that we integrate over the entire beta decay spectrum. DO NOT go over 782 or else divide by 0 error.
   for(double ke = integrationStartpoint; ke <= integrationEndpoint; ke = ke + stepWidth)
   {
-    integratedArea = integratedArea + ( (m_e/(m_e+ke))*(m_e/(m_e+ke))*neutronCorrectedBetaSpectrum(ke) ) * stepWidth;
+    integratedArea = integratedArea + ( (1.0/(m_e+ke))*(1.0/(m_e+ke))*neutronCorrectedBetaSpectrum(ke) ) * stepWidth;
 
     cout << "At ke = " << ke << ", function value is: " << integratedArea << endl;
   }
 
-  integratedArea = integratedArea*tau;
+  integratedArea = integratedArea*tau*m_e*m_e;
 
   cout << "Integrating in steps of " << stepWidth << "keV, final area is: " << integratedArea << endl;
 

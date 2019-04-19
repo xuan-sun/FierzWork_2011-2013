@@ -50,49 +50,19 @@ TApplication plot_program("FADC_readin",0,0,0,0);
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
-void FillArrays(TString fileName, int flag);
+void FillArrays(TString fileName);
+void ConvertOctetsToDate(int octNb);
 
-struct entry1
-{
-  string octNb;
-  double avg_mE;
-  double chisquared;
-  double ndf;
-  double chisquaredperndf;
-  double prob;
-  double b_minuitFit;
-  double bErr_minuitFit;
-  double binMin;
-  double EMin;
-  double binMax;
-  double EMax;
-  int fitMatrixStatus;
-};
-
-struct entry2
-{
-  string year;
-  string twiddleIndex;
-  double bin;
-  double bFit;
-  double bErr;
-};
-
-struct entry3
+struct entry
 {
   string year;
   string octets;
   double bin;
-  double bMean;
-  double bRMS;
-  double fitb;
-  double fitbErr;
-  double fitChi2;
-  double fitNDF;
-  double fitchi2perndf;
-  double prob;
+  double endpoint;
+  double endpointRMS;
 };
 
+// global vectors for creating TGraphs.
 vector < vector <double> > x;
 vector < vector <double> > xErr;
 vector < vector <double> > y;
@@ -112,67 +82,25 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
-  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt", 2);
-  FillArrays("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_binWindowVariations_individualOctetsSummary.txt", 3);
 
-  vector <double> xTemp;
-  vector <double> yTemp;
-  for(unsigned int i = 0; i < x[0].size(); i++)
-  {
-    xTemp.push_back(x[0][i]);	// pushes back energy values
-    yTemp.push_back(sqrt(y[0][i]*y[0][i] + y[1][i]*y[1][i]));
-  }
-
-  x.push_back(xTemp);
-  y.push_back(yTemp);
-  xTemp.clear();
-  yTemp.clear();
-
-  TGraph *g1 = new TGraph(x[0].size(), &(x[0][0]), &(y[0][0]));
-  TGraph *g2 = new TGraph(x[1].size(), &(x[1][0]), &(y[1][0]));
-  TGraph *g3 = new TGraph(x[2].size(), &(x[2][0]), &(y[2][0]));
-  TGraph *g4 = new TGraph(x[3].size(), &(x[3][0]), &(y[3][0]));
+  FillArrays(Form("endPointFits_noCorrection_ssDataHists_type0_2011-2012_radialCut_0-49mm_Bins_summary.txt"));
+  FillArrays(Form("endPointFits_noCorrection_ssDataHists_type0_2012-2013_radialCut_0-49mm_Bins_summary.txt"));
 
 
-  g1->GetYaxis()->SetRangeUser(0, 0.13);
+  TGraphErrors *g1 = new TGraphErrors(x[0].size(), &(x[0][0]), &(y[0][0]), &(xErr[0][0]), &(yErr[0][0]));
+  TGraphErrors *g2 = new TGraphErrors(x[1].size(), &(x[1][0]), &(y[1][0]), &(xErr[1][0]), &(yErr[1][0]));
 
-  PlotGraph(C, 2, 1, g1, Form("b fit errors. Energy window upper end is 645 keV. Geom is 2011-2012."), "Energy Window Low (keV)", "b fit errors", "AP");
-  PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
-  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
-  PlotGraph(C, 6, 1, g4, "", "", "", "PSAME");
+  g1->GetYaxis()->SetRangeUser(770, 800);
+
+
+  PlotGraph(C, 1, 1, g1, Form("endpoints vs fit binwdows"), "Low window bin number", "endpoints (keV)", "AP");
+  PlotGraph(C, 2, 1, g2, "", "", "", "PSAME");
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.1,0.7,0.4,0.9);
-  leg1->AddEntry(g1, Form("stat error, integrated dataset"),"p");
-  leg1->AddEntry(g2, Form("syst error, twiddles (stat dep)"),"p");
-  leg1->AddEntry(g3, Form("octet RMS"), "p");
-  leg1->AddEntry(g4, Form("total sqrt(stat^2 + syst^2)"), "p");
+  TLegend* leg1 = new TLegend(0.7,0.1,0.9,0.3);
+  leg1->AddEntry(g1,"2011-2012, 0<r<49mm","p");
+  leg1->AddEntry(g2,"2012-2013, 0<r<49mm","p");
   leg1->Draw();
-
-
-  double xPrint = 45;
-  double yPrint = 0.5;
-
-  TLatex t2;
-  t2.SetTextSize(0.03);
-  t2.SetTextAlign(13);
-//  t2.DrawLatex(xPrint, yPrint+0.1, Form("red: %f #pm %f", h1->GetMean(), h1->GetRMS()));
-  TLatex t3;
-  t3.SetTextSize(0.03);
-  t3.SetTextAlign(13);
-//  t3.DrawLatex(xPrint, yPrint, Form("red fit: #chi^{2}/ndf = %f", (fit1->GetChisquare() / fit1->GetNDF())));
-
-  TLatex t4;
-  t4.SetTextSize(0.03);
-  t4.SetTextAlign(13);
-//  t4.DrawLatex(xPrint, yPrint-0.1, Form("blue: %f #pm %f", h2->GetMean(), h2->GetRMS()));
-  TLatex t5;
-  t5.SetTextSize(0.03);
-  t5.SetTextAlign(13);
-//  t5.DrawLatex(xPrint, yPrint-0.20, Form("blue fit: #chi^{2}/ndf = %f", (fit2->GetChisquare() / fit2->GetNDF())));
-
-
 
 
   //prints the canvas with a dynamic TString name of the name of the file
@@ -216,7 +144,7 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   C->Update();
 }
 
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command)
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command)
 {
   C->cd(canvasIndex);
   gPlot->SetTitle(title);
@@ -224,7 +152,6 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
   gPlot->GetXaxis()->CenterTitle();
   gPlot->GetYaxis()->SetTitle(yAxis);
   gPlot->GetYaxis()->CenterTitle();
-//  C->SetLogy();
 
   gPlot->SetMarkerStyle(21);
   gPlot->SetMarkerSize(0.75);
@@ -234,18 +161,16 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TStri
   gPlot->Draw(command);
 
   C->Update();
-
 }
 
-void FillArrays(TString fileName, int flag)
+void FillArrays(TString fileName)
 {
   vector <double> xTemp;
+  vector <double> xErrTemp;
   vector <double> yTemp;
+  vector <double> yErrTemp;
 
-  entry1 evt1;
-  entry2 evt2;
-  entry3 evt3;
-
+  entry evt;
   int counter = 0;
 
   //opens the file that I name in DATA_FILE_IN
@@ -266,56 +191,17 @@ void FillArrays(TString fileName, int flag)
 
     if(!infile1.eof())
     {
-      if(flag == 1)
-      {
-        bufstream1 >> evt1.octNb
-		>> evt1.avg_mE
-		>> evt1.chisquared
-		>> evt1.ndf
-		>> evt1.chisquaredperndf
-		>> evt1.prob
-		>> evt1.b_minuitFit
-		>> evt1.bErr_minuitFit
-		>> evt1.binMin
-		>> evt1.EMin
-		>> evt1.binMax
-		>> evt1.EMax
-		>> evt1.fitMatrixStatus;
-
-        xTemp.push_back(evt1.EMin);
-	yTemp.push_back(evt1.bErr_minuitFit);
-      }
-      else if(flag == 2)
-      {
-        bufstream1 >> evt2.year
-                >> evt2.twiddleIndex
-                >> evt2.bin
-                >> evt2.bFit
-                >> evt2.bErr;
-
-	xTemp.push_back((evt2.bin)*10 - 5);
-	yTemp.push_back(evt2.bErr);
-      }
-      else if(flag == 3)
-      {
-        bufstream1 >> evt3.year
-		>> evt3.octets
-		>> evt3.bin
-		>> evt3.bMean
-		>> evt3.bRMS
-		>> evt3.fitb
-		>> evt3.fitbErr
-		>> evt3.fitChi2
-		>> evt3.fitNDF
-		>> evt3.fitchi2perndf
-		>> evt3.prob;
-
-        xTemp.push_back((evt3.bin)*10 - 5);
-	yTemp.push_back(evt3.bRMS);
-      }
-
-
+      bufstream1 >> evt.year
+		>> evt.octets
+		>> evt.bin
+		>> evt.endpoint
+		>> evt.endpointRMS;
       counter++;
+
+      xTemp.push_back(evt.bin);
+      xErrTemp.push_back(0.5);
+      yTemp.push_back(evt.endpoint);
+      yErrTemp.push_back(evt.endpointRMS);
     }
 
 
@@ -326,9 +212,14 @@ void FillArrays(TString fileName, int flag)
   }
 
   x.push_back(xTemp);
+  xErr.push_back(xErrTemp);
   y.push_back(yTemp);
+  yErr.push_back(yErrTemp);
+
   xTemp.clear();
+  xErrTemp.clear();
   yTemp.clear();
+  yErrTemp.clear();
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }
