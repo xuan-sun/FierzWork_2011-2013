@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 
@@ -92,12 +92,12 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   // load the full ch2 histogram first
-  TString fPath = Form("chi2_errEnv2_index19.txt");
-  TH1D* h = new TH1D("twiddles", "twiddles w/ 2011-2012 calibration sources", 100, 0.1, 10);
+  TString fPath = Form("chi2_errEnv2_asymm_2012-2013.txt.txt");
+  TH1D* h = new TH1D("twiddles", "twiddles w/ 2012-2013 calibration sources", 100, 0.1, 10);
   FillArrays(fPath, h, 1);
 
   // use previous histogram to resample according to theory chi2 distribution
-  TH1D* h2 = new TH1D("twiddlesRe", "twiddles w/ 2011-2012 calibration sources, chi2 sampling", 100, 0.1, 10);
+  TH1D* h2 = new TH1D("twiddlesRe", "twiddles w/ 2012-2013 calibration sources, chi2 sampling", 100, 0.1, 10);
   int max = h2->GetMaximum();
   RepopulateHist(fPath, h, h2);
   PlotHist(C, 2, 1, h2, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 200);
@@ -244,7 +244,7 @@ void RepopulateHist(TString fileName, TH1D* hRef, TH1D* hNew)
 void PrintChosenTwiddles(entry cevt)
 {
   ofstream outfile;
-  outfile.open("chosenTwiddles_chi2Checked_1NDF_2011-2012.txt", ios::app);
+  outfile.open("chosenTwiddles_chi2Checked_1NDF_2012-2013_index19.txt", ios::app);
   outfile << cevt.indexNb << "\t"
           << cevt.Ea << "\t"
           << cevt.Eb << "\t"

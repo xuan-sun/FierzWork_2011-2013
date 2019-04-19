@@ -48,8 +48,8 @@ const double m_e = 511.00;                                              ///< ele
 
 // Input and output names and paths used in the code.
 // My pseudo version of environment variables.
-#define		PARAM_FILE_NAME		"twiddles_errEnv2.txt"
-#define		CHI2_FILE_NAME		"chi2_errEnv2.txt"
+#define		PARAM_FILE_NAME		"twiddles_errEnv2_asymm_2012-2013.txt"
+#define		CHI2_FILE_NAME		"chi2_errEnv2_asymm_2012-2013.txt"
 #define		INPUT_EQ2ETRUE_PARAMS_2010	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2011	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2011-2012_EQ2EtrueFitParams.dat"
 #define		INPUT_EQ2ETRUE_PARAMS_2012	"/home/xuansun/Documents/MBrown_Work/ParallelAnalyzer/simulation_comparison/EQ2EtrueConversion/2012-2013_EQ2EtrueFitParams.dat"
@@ -108,11 +108,11 @@ bool PerformVariation(double a, double b, double c, double d, int numPassed,
 // probability weighted on twiddle based on error envelope at source energies
 void ProbTwiddleValidity(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
 bool TwiddleGoodOrBad;
-double wCe;
-double wSn;
-double wEnd;
-double wBi1;
-double wBi2;
+double wCe = 1.0;	// default weights in all the error bars
+double wSn = 1.0;
+double wEnd = 1.0;
+double wBi1 = 1.0;
+double wBi2 = 1.0;
 int printIndex = 0;
 
 double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TRandom3 *randNum);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
   {
     cout << "Error: improper input. Must give:" << endl;
     cout << "(executable) (w1) (w2) (w3) (w4)" << endl;
-n    return 0;
+    return 0;
   }
 /*
   wCe = atof(argv[1]);
@@ -525,7 +525,6 @@ double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TR
   // since both vectors same size, we need to first find index that corresponds to source energies
   int Ce_index = 0;
   int Sn_index = 0;
-  int End_index = 0;
   int Bi1_index = 0;
   int Bi2_index = 0;
   // note these current numbers are the central points used in 2011-2012.
@@ -539,10 +538,6 @@ double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TR
     if(energyAxis[i] > 367.5 && energyAxis[i] < 368.5)
     {
       Sn_index = i;
-    }
-    if(energyAxis[i] > 781.5 && energyAxis[i] < 782.5)
-    {
-      End_index = i;
     }
     if(energyAxis[i] > 497.5 && energyAxis[i] < 498.5)
     {
@@ -559,11 +554,11 @@ double Chi2Calc(vector <double> convertedTwiddle, vector <double> energyAxis, TR
   double chi2 = 0;
 
   // these are the UNSHIFTED values of the calibration source points
-  // no longer using absolute values since we do NOT assume symmetric
-  chi2 = (convertedTwiddle[Ce_index] + 1.43306)*(convertedTwiddle[Ce_index] + 1.43306) / (1.81023*1.81023)
-	+ (convertedTwiddle[Sn_index] - 0.906305)*(convertedTwiddle[Sn_index] - 0.906305) / (2.5161*2.5161)
-	+ (convertedTwiddle[Bi1_index] + 1.35907)*(convertedTwiddle[Bi1_index] + 1.35907) / (3.80851*3.80851)
-	+ (convertedTwiddle[Bi2_index] + 1.55156)*(convertedTwiddle[Bi2_index] + 1.55156) / (5.76559*5.76559);
+  // These are the calibration points for 2012-2013
+  chi2 = (convertedTwiddle[Ce_index] + 0.800056)*(convertedTwiddle[Ce_index] + 0.800056) / (1.9945*1.9945)
+	+ (convertedTwiddle[Sn_index] + 2.23618)*(convertedTwiddle[Sn_index] + 2.23618) / (2.8744*2.8744)
+	+ (convertedTwiddle[Bi1_index] + 0.392048)*(convertedTwiddle[Bi1_index] + 0.392048) / (3.89789*3.89789)
+	+ (convertedTwiddle[Bi2_index] - 0.0102016)*(convertedTwiddle[Bi2_index] - 0.0102016) / (6.39711*6.39711);
   chi2 = chi2 / 4.0;	// dividing by DOF
 
   return chi2;
@@ -876,27 +871,27 @@ double converter2bot2011(double *x, double *par)
 double converter1top2012(double *x, double *par)
 {
   double energy = x[0];
-  return 1*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+  return 1*hEnvelope2012_top->GetBinContent(hEnvelope2012_top->FindBin(energy));
 }
 double converter2top2012(double *x, double *par)
 {
   double energy = x[0];
-  return 2*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+  return 2*hEnvelope2012_top->GetBinContent(hEnvelope2012_top->FindBin(energy));
 }
 double converter1bot2012(double *x, double *par)
 {
   double energy = x[0];
-  return (-1)*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+  return (-1)*hEnvelope2012_bot->GetBinContent(hEnvelope2012_bot->FindBin(energy));
 }
 double converter2bot2012(double *x, double *par)
 {
   double energy = x[0];
-  return (-2)*hEnvelope2012->GetBinContent(hEnvelope2012->FindBin(energy));
+  return (-2)*hEnvelope2012_bot->GetBinContent(hEnvelope2012_bot->FindBin(energy));
 }
 
 void LoadEnvelopeHistogram_2011()
 {
-  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012_asymmetric.txt";
+  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope2/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2011-2012_asymmetric.txt";
 
   int binNum = 0;
   double energy = 0;
@@ -944,7 +939,7 @@ void LoadEnvelopeHistogram_2011()
 
 void LoadEnvelopeHistogram_2012()
 {
-  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2012-2013_asymmetric.txt";
+  TString fileName = "/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/Error_Envelope2/MB_errorEnvelopes_publication/MB_ErrorEnvelope_2012-2013_asymmetric.txt";
 
   int binNum = 0;
   double energy = 0;
