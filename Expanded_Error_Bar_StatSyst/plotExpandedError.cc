@@ -168,9 +168,11 @@ int main(int argc, char* argv[])
 
   // fill in super ratio error bars
   FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 9);
+//  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_justbParam_2011-2012_fitWindowSummary.txt", 9);
 
   // fill in b values for super ratio and super sum
   FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 10);
+//  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_justbParam_2011-2012_fitWindowSummary.txt", 10);
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 11);
 
   for(unsigned int i = 0; i < x[0].size(); i++)

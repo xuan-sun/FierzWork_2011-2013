@@ -38,7 +38,7 @@
 #include	 <TLine.h>
 #include	 <TLatex.h>
 
-#define		 GEOM	"2012-2013"
+#define		 GEOM	"2011-2012"
 
 using		 namespace std;
 
@@ -98,19 +98,19 @@ int main(int argc, char* argv[])
 
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
-//  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
-  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+//  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-//  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.12054, avg_mE, m_e, m_e), xMin, xMax);
-  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
+  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.12054, avg_mE, m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
 //  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + (%f)*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", bMixing, avg_mE, m_e, m_e), xMin, xMax);
 
-  fit->SetParName(0, "asymm");
-  fit->SetParName(1, "b");
+  fit->SetParName(0, "b");
+//  fit->SetParName(1, "b");
   blindedAsymm->Fit("beta fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
   cout << "Chi squared value is " << fitResults->GetChisquare()
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("AsymmetryDataFit_FullBlind_Feb2019_AbParams_%s_fitWindowSummary.txt", GEOM), ios::app);
+  outfile.open(Form("AsymmetryDataFit_FullBlind_Feb2019_justbParam_%s_fitWindowSummary.txt", GEOM), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << xMin << "\t"
@@ -180,10 +180,12 @@ int main(int argc, char* argv[])
           << fitResults->GetChisquare() << "\t"
           << fitResults->GetNDF() << "\t"
           << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
+	  << -0.12054 << "\t"
+	  << 0 << "\t"
+//          << fitResults->GetParameter(0) << "\t"
+//          << fitResults->GetParError(0) << "\t"
           << fitResults->GetParameter(0) << "\t"
-          << fitResults->GetParError(0) << "\t"
-          << fitResults->GetParameter(1) << "\t"
-          << fitResults->GetParError(1) << "\n";
+          << fitResults->GetParError(0) << "\n";
   outfile.close();
 
 
