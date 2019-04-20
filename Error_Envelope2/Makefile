@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = asymm_errEnv2_2012.o
-SOURCE = asymm_errEnv2_2012
+OBJECTS = performChi2Sampling.o
+SOURCE = performChi2Sampling
 
 .PHONY: all
 all: $(SOURCE)

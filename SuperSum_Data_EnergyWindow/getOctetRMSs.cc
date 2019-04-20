@@ -42,9 +42,9 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		GEOM	"2011-2012"
-#define		FITRANGELOW	0	// fit ranges in octet number for diff. geom's
-#define		FITRANGEHIGH	60
+#define		GEOM	"2012-2013"
+#define		FITRANGELOW	80	// fit ranges in octet number for diff. geom's
+#define		FITRANGEHIGH	122
 
 using            namespace std;
 
@@ -94,17 +94,17 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  FillArrays(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctets.txt", GEOM), 1);
+  FillArrays(Form("positionCuts_0-49mm_noGainCorrection_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctets.txt", GEOM), 1);
 
 
   ofstream outfile;
-  outfile.open(Form("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctetsSummary.txt", GEOM), ios::app);
+  outfile.open(Form("positionCuts_0-49mm_noGainCorrection_withFullBlind_Feb2019_type0_%s_binWindowVariations_individualOctetsSummary.txt", GEOM), ios::app);
   for(unsigned int i = 0; i < vecHistOctets.size(); i++)
   {
     TF1 *fit1 = new TF1(Form("fit_%i", i), "[0]", FITRANGELOW, FITRANGEHIGH);
     vecGraphOctets[i]->Fit(fit1, "R");
 
-    outfile << "2011-2012" << "\t"
+    outfile << GEOM << "\t"
             << "ALL" << "\t"
             << vecBinMin[i] << "\t"
             << vecHistOctets[i]->GetMean() << "\t"

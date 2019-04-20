@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = getOctetRMSs.o
-SOURCE = getOctetRMSs
+OBJECTS = blinded_postMBProcessed_asymm_fitWindow.o
+SOURCE = blinded_postMBProcessed_asymm_fitWindow
 
 .PHONY: all
 all: $(SOURCE)
@@ -38,4 +38,3 @@ $(SOURCE): $(OBJECTS)
 
 clean:
 		@rm -f *.o *~  core $(SOURCE)
-

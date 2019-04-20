@@ -92,15 +92,15 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
   // load the full ch2 histogram first
-  TString fPath = Form("chi2_errEnv2_asymm_2012-2013.txt.txt");
+  TString fPath = Form("chi2_errEnv2_asymm_2012-2013.txt");
   TH1D* h = new TH1D("twiddles", "twiddles w/ 2012-2013 calibration sources", 100, 0.1, 10);
   FillArrays(fPath, h, 1);
 
   // use previous histogram to resample according to theory chi2 distribution
   TH1D* h2 = new TH1D("twiddlesRe", "twiddles w/ 2012-2013 calibration sources, chi2 sampling", 100, 0.1, 10);
-  int max = h2->GetMaximum();
   RepopulateHist(fPath, h, h2);
-  PlotHist(C, 2, 1, h2, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", 200);
+  int max = h2->GetMaximum();
+  PlotHist(C, 2, 1, h2, Form("twiddles, %s", GEOM), "chisquared/ndf", "N", "", max);
 
   // overlay a (normalized) plot of the theory chi2 distribution.
   TF1 *theoryChiP = new TF1("theoryPlot", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.1, 10);
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
   }
   theoryChiHistP->Scale(hTot / theoryHTot);
 
-  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", 200);
+  PlotHist(C, 1, 1, theoryChiHistP, "", "", "", "SAME", max);
 
   TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
   leg1->AddEntry(h,"twiddle chi2/ndf","f");
