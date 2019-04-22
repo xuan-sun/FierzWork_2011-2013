@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
   Int_t indexNb = atoi(argv[1]);
   cout << "Input index: " << indexNb << endl;
 
-  TString geom = "2011-2012";
+  TString geom = "2012-2013";
 
   TString dataFilePath = Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/SimAnalyzed_%s_Beta_paramSet_%i_0.root", geom.Data(), geom.Data(), indexNb);
 

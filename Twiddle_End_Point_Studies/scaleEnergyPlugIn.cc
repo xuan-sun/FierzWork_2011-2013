@@ -63,11 +63,12 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   vector < pair <int, double> > fittedEndpoints;
-  fittedEndpoints = ReadInEndpoints(Form("endPointFits_noGain_asymmTwiddledSpectra_index19_noStatDependence_2011-2012_radialCut_0-49mm_fitBin_17-65.txt"), fittedEndpoints);
+  fittedEndpoints = ReadInEndpoints(Form("endPointFits_noGain_asymmTwiddledSpectra_index19_noStatDependence_2012-2013_radialCut_0-49mm_fitBin_17-65.txt"), fittedEndpoints);
 
   cout << "Done reading in endpoints... " << endl;
 
-  double meanEndpoint = 786.7;	// keV. From 2011-2012 baseline fitting histograms, all with b_input = 0. radial cut 49mm.
+  double meanEndpoint = 784;	// keV. From 2012-2013 asymmetric error envelope, twiddle index 19, noStatDep. radial cut 49mm.
+//  double meanEndpoint = 786.7;	// keV. From 2011-2012 baseline fitting histograms, all with b_input = 0. radial cut 49mm.
 //  double meanEndpoint = 787.8;	// keV. From 2011-2012 baseline fitting histograms, all with b_input = 0. radial cut 30mm.
 //  double meanEndpoint = 789.6;	// keV. From 2011-2012 asymmetric error envelope, twiddle index 19, radial cut 30mm. WRONG.
 //  double meanEndpoint = 782.6;	// keV. From 2011-2012 asymmetric error envelope, twiddle index 19. WRONG.
@@ -75,7 +76,7 @@ int main(int argc, char* argv[])
   for(unsigned int i = 0; i < fittedEndpoints.size(); i++)
   {
     twiddleEndpoint = fittedEndpoints[i].second;
-    AddBranchToTreeInFile(Form("/mnt/data2/xuansun/analyzed_files/2011-2012_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/SimAnalyzed_2011-2012_Beta_paramSet_%i_0.root", fittedEndpoints[i].first), twiddleEndpoint, meanEndpoint);
+    AddBranchToTreeInFile(Form("/mnt/data2/xuansun/analyzed_files/2012-2013_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_19_noStatDependence/SimAnalyzed_2012-2013_Beta_paramSet_%i_0.root", fittedEndpoints[i].first), twiddleEndpoint, meanEndpoint);
   }
 
 

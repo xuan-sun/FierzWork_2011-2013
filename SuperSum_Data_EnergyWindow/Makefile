@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = getOctetRMSs.o
-SOURCE = getOctetRMSs
+OBJECTS = viewScatterPlot.o
+SOURCE = viewScatterPlot
 
 .PHONY: all
 all: $(SOURCE)

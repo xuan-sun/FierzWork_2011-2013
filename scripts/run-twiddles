@@ -12,7 +12,7 @@ for ((x = 0; x < 100; x = x + 1))
 do
 
 make
-./treesToHist $x
+./treesToHist_baseline $x
 make clean
 
 done

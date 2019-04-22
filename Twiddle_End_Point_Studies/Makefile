@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = treesToHist_twiddles.o
-SOURCE = treesToHist_twiddles
+OBJECTS = treesToHist_baseline.o
+SOURCE = treesToHist_baseline
 
 .PHONY: all
 all: $(SOURCE)

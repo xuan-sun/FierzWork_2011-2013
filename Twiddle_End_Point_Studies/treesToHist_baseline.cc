@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
   Int_t indexNb = atoi(argv[1]);
   cout << "Input index: " << indexNb << endl;
 
-  TString geom = "2011-2012";
+  TString geom = "2012-2013";
 
   TCut positionCut = Form("(MWPCPosE[0]*MWPCPosE[0] + MWPCPosE[1]*MWPCPosE[1] < 0.063*0.063 && MWPCPosW[0]==0 && MWPCPosW[1]==0 || MWPCPosW[0]*MWPCPosW[0] + MWPCPosW[1]*MWPCPosW[1] < 0.063*0.063 && MWPCPosE[0]==0 && MWPCPosE[1]==0)");
 
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 
   tFierz->Draw("Erecon >> Erecon_blinded_hist", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
 
-  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm_try3.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
+  TFile f(TString::Format("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/A_0_b_inf_baselineHistograms/Hist_noBlind_SimAnalyzed_%s_Beta_paramSet_100_%i_type0_radialCut_%i-%imm.root", geom.Data(), geom.Data(), indexNb, RADIALCUTLOW_NAME, RADIALCUTHIGH_NAME), "RECREATE");
   // Begin processing the read in data now
   h->Write();
 

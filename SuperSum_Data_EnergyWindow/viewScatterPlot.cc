@@ -110,20 +110,20 @@ int main(int argc, char* argv[])
 
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 2);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_Sn113Stitch_try3.txt", 3);
+//  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_Sn113Stitch_try3.txt", 3);
 
 //  TGraphErrors *g1 = new TGraphErrors(x2011.size(), &(x2011[0]), &(y2011[0]), &(xErr2011[0]), &(yErr2011[0]));
 //  TGraphErrors *g2 = new TGraphErrors(x2012.size(), &(x2012[0]), &(y2012[0]), &(xErr2012[0]), &(yErr2012[0]));
 
   TGraph *g1 = new TGraph(x2011.size(), &(x2011[0]), &(y2011[0]));
   TGraph *g2 = new TGraph(x2012.size(), &(x2012[0]), &(y2012[0]));
-  TGraph *g3 = new TGraph(x2013.size(), &(x2013[0]), &(y2013[0]));
+//  TGraph *g3 = new TGraph(x2013.size(), &(x2013[0]), &(y2013[0]));
 
   g1->GetYaxis()->SetRangeUser(1e-8, 1);
 
   PlotGraph(C, 2, 1, g1, Form("b fit ratios. Energy window upper end is 645 keV."), "Energy Window Low (keV)", "b fit ratios", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
-  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
+//  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
 
 //  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
 
@@ -132,31 +132,13 @@ int main(int argc, char* argv[])
   TLegend* leg1 = new TLegend(0.15,0.7,0.35,0.9);
   leg1->AddEntry(g1,Form("2011-2012"),"p");
   leg1->AddEntry(g2,Form("2012-2013"),"p");
-  leg1->AddEntry(g3, Form("2012-2013, Sn Corr"), "p");
+//  leg1->AddEntry(g3, Form("2012-2013, Sn Corr"), "p");
   leg1->Draw();
 
 
-  double xPrint = 45;
-  double yPrint = 0.5;
-
-  TLatex t2;
-  t2.SetTextSize(0.03);
-  t2.SetTextAlign(13);
-//  t2.DrawLatex(xPrint, yPrint+0.1, Form("red: %f #pm %f", h1->GetMean(), h1->GetRMS()));
-  TLatex t3;
-  t3.SetTextSize(0.03);
-  t3.SetTextAlign(13);
-//  t3.DrawLatex(xPrint, yPrint, Form("red fit: #chi^{2}/ndf = %f", (fit1->GetChisquare() / fit1->GetNDF())));
-
-  TLatex t4;
-  t4.SetTextSize(0.03);
-  t4.SetTextAlign(13);
-//  t4.DrawLatex(xPrint, yPrint-0.1, Form("blue: %f #pm %f", h2->GetMean(), h2->GetRMS()));
-  TLatex t5;
-  t5.SetTextSize(0.03);
-  t5.SetTextAlign(13);
-//  t5.DrawLatex(xPrint, yPrint-0.20, Form("blue fit: #chi^{2}/ndf = %f", (fit2->GetChisquare() / fit2->GetNDF())));
-
+  TLine *yLine = new TLine(gPad->GetUxmin(), 0.01, gPad->GetUxmax(), 0.01);
+  yLine->SetLineStyle(10);
+  yLine->Draw();
 
 
 

@@ -43,7 +43,7 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
@@ -67,7 +67,7 @@ struct entry
   double endpoint;
   double endpointErr;
   double gainFactor;
-
+/*
   int index;
   double avg_mE;
   double functionMin;
@@ -78,7 +78,7 @@ struct entry
   int hold1;
   int hold2;
   int status;
-
+*/
 };
 
 int main(int argc, char* argv[])
@@ -96,16 +96,16 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("twiddles", "twiddles", 100, -0.25, 0.25);
-  FillArrays(Form("positionCuts_0-49mm_noBlind_endpointCorrected_newXuanFitter_twiddleHists_bFit_type0_2011-2012_Bins_17-65_hold2.txt"), h, 1);
-//  FillArrays(Form("endPointFits_noGainCorrection_baselineHistogramsForFitting_2011-2012_radialCut_0-49mm.txt"), h, 1);
+  TH1D* h = new TH1D("twiddles", "twiddles", 100, 760, 810);
+//  FillArrays(Form("positionCuts_0-49mm_noBlind_endpointCorrected_newXuanFitter_twiddleHists_bFit_type0_2011-2012_Bins_17-65_hold2.txt"), h, 1);
+//  FillArrays(Form("endPointFits_noGainCorrection_baselineHistogramsForFitting_2012-2013_radialCut_0-49mm.txt"), h, 1);
 //  FillArrays(Form("asymmetric_gaussianTwiddles_noBlinding_endpointCorr_fast-newXuanFitter_bFitsForSyst_type0_2011-2012_Bins_17-65_index19_radialCut_0-49mm.txt"), h, 1);
 //  FillArrays(Form("endPointFits_gainAlreadyApplied_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-49mm.txt"), h, 1);
-//  FillArrays(Form("endPointFits_noGainCorrection_asymmTwiddledSpectra_index19_2011-2012_radialCut_0-30mm_take2.txt"), h, 1);
+  FillArrays(Form("endPointFits_noGain_asymmTwiddledSpectra_index19_noStatDependence_2012-2013_radialCut_0-49mm_fitBin_17-65.txt"), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("b fits, twiddles, index 19: %s, %s, %i-%imm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "b", "N", "", max);
+  PlotHist(C, 2, 1, h, Form("b fits, twiddles, index 19: %s, %s, %i-%imm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "endpoint", "N", "", max);
 
   //prints the canvas with a dynamic TString name of the name of the file
 //  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
@@ -137,13 +137,14 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 
     if(!infile1.eof())
     {
-/*
+
       bufstream >> evt.indexNb
 		>> evt.endpoint
 		>> evt.endpointErr;
-      h->Fill(evt.endpoint);
-*/
 
+      h->Fill(evt.endpoint);
+
+/*
       bufstream >> evt.index
 		>> evt.avg_mE
 		>> evt.functionMin
@@ -154,8 +155,9 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
 		>> evt.hold1
 		>> evt.hold2
 		>> evt.status;
-      h->Fill(evt.b /*, 1/sqrt(evt.reducedchi2)*/);
 
+      h->Fill(evt.b);
+*/
     }
 
     if(infile1.eof() == true)

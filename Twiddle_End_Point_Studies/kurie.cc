@@ -45,7 +45,7 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
 #define		FITMINBIN	17
 #define		FITMAXBIN	65

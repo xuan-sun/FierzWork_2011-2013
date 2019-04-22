@@ -42,7 +42,7 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 
 using            namespace std;
 
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 
   for(int fitBinMin = 17; fitBinMin <= 41; fitBinMin++)
   {
-    FillArrays(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_type0_2011-2012_Bins_%i-65_endpointCorrected_noStatDependence.txt", fitBinMin), fitBinMin);
+    FillArrays(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_type0_%s_Bins_%i-65_endpointCorrected_noStatDependence.txt", GEOM, fitBinMin), fitBinMin);
   }
 
   cout << "Number of histograms filled: " << vecHistTwiddles.size() << endl;
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
   outfile.open(Form("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_%s_noStatDependence_summary.txt", GEOM), ios::app);
   for(unsigned int i = 0; i < vecHistTwiddles.size(); i++)
   {
-    outfile << "2011-2012" << "\t"
+    outfile << GEOM << "\t"
             << "ALL_TWIDDLES" << "\t"
             << vecBinMins[i] << "\t"
             << vecHistTwiddles[i]->GetMean() << "\t"

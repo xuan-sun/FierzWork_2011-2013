@@ -17,7 +17,7 @@ for ((wHigh = 65; wHigh <= 65; wHigh = wHigh + 1))
 
 do
 
-for ((x = 1; x < 7750; x = x + 1))
+for ((x = 1; x < 8900; x = x + 1))
 
 do
 

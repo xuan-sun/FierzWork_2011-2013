@@ -9,7 +9,7 @@ cd ../Twiddle_End_Point_Studies/
 
 make
 
-for ((x = 1; x < 7750; x = x + 1))
+for ((x = 1; x < 8900; x = x + 1))
 
 do
 
