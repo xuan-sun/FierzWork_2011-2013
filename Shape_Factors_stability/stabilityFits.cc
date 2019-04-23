@@ -41,8 +41,10 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 #include         <TLegend.h>
+#include 	 <TFitResult.h>
+#include	 <TMatrixD.h>
 
-#define		 NAMEFLAG	"noEndpointCorrection"
+#define		 NAMEFLAG	"endpointCorrection"
 
 using            namespace std;
 
@@ -101,8 +103,8 @@ int main(int argc, char* argv[])
     {
       continue;
     }
-    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
-//    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
+//    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
+    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
     TH1D *hTempData = (TH1D*)fData.Get("Super sum");
     hTotalData->Add(hTempData);
     fData.Close();
@@ -130,14 +132,29 @@ int main(int argc, char* argv[])
 
     // straight line fit to determine 0 crossing point
     TF1 *fit1 = new TF1("fit1", "[0] + [1]*x", 200, 400);
-    hResidual->Fit(fit1, "R");
+    TFitResultPtr results = hResidual->Fit(fit1, "RS");
+    TMatrixD cor = results->GetCorrelationMatrix();
+    TMatrixD cov = results->GetCovarianceMatrix();
+    cout << "Correlation matrix: " << endl;
+    cor.Print();
+    cout << "Covariance matrix: " << endl;
+    cov.Print();
+
+    cout << "Covariance = " << cov[1][0] << endl;
+
+
+    double a = fit1->GetParameter(0);
+    double ae = fit1->GetParError(0);
+    double b = fit1->GetParameter(1);
+    double be = fit1->GetParError(1);
+    double sigma_ab = cov[1][0];
+    double f = -a/b;
+
+    double sigma_f = abs(f)*sqrt( pow(ae/a, 2.0) + pow(be/b, 2.0) - 2*sigma_ab/(a*b) );
 
     outfile << i << "\t"
-	    << -fit1->GetParameter(0) / fit1->GetParameter(1) << "\t"
-	    << fit1->GetParameter(0) << "\t"
-	    << fit1->GetParError(0) << "\t"
-	    << fit1->GetParameter(1) << "\t"
-	    << fit1->GetParError(1) << "\n";
+	    << f << "\t"
+	    << sigma_f << "\n";
 
 
     hResidual->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
@@ -147,7 +164,7 @@ int main(int argc, char* argv[])
     xMin->Draw();
     xMax->Draw();
 
-    C->Print(Form("octet_%i.pdf", i));
+//    C->Print(Form("octet_%i.pdf", i));
     // reset all the values for next octet
     hTotalData->Reset();
     hTotalBeta->Reset();
