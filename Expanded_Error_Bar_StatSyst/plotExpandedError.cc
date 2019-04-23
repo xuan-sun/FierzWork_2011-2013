@@ -178,7 +178,8 @@ int main(int argc, char* argv[])
   for(unsigned int i = 0; i < x[0].size(); i++)
   {
     xTemp.push_back(x[0][i]);   // pushes back energy values
-    yTemp.push_back(abs(y[9][i] - y[10][i]));     // abs(b_SR - b_SS)
+//    yTemp.push_back(abs(y[9][i] - y[10][i]));     // abs(b_SR - b_SS)
+    yTemp.push_back(abs(y[9][0] - y[10][i]));     // abs(b_SR_fullWindow - b_SS)
   }
   x.push_back(xTemp);
   y.push_back(yTemp);
@@ -211,7 +212,7 @@ int main(int argc, char* argv[])
   PlotGraph(C, 1, 1, g9, "", "", "", "PSAME");
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.1,0.6,0.55,0.9);
+  TLegend* leg1 = new TLegend(0.1,0.55,0.45,0.9);
   leg1->AddEntry(g1, Form("stat error, integrated dataset"),"p");
   leg1->AddEntry(g2, Form("syst error, twiddles (stat dep)"),"p");
   leg1->AddEntry(g3, Form("octet RMS"), "p");

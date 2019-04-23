@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = plotExpandedError.o
-SOURCE = plotExpandedError
+OBJECTS =  calc_weightedAvg_b.o
+SOURCE =  calc_weightedAvg_b
 
 .PHONY: all
 all: $(SOURCE)

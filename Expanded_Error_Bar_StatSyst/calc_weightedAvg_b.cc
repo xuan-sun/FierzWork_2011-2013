@@ -47,10 +47,15 @@ using            namespace std;
 //required later for plot_program
 TApplication plot_program("FADC_readin",0,0,0,0);
 
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH2D *hPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void FillArrays(TString fileName, int flag);
+
+double CalcWeightedAvg(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4);
+double CalcWeightedError(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4);
+double CalcChi2(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4);
+
 
 struct entry1
 {
@@ -76,21 +81,6 @@ struct entry2
   double bin;
   double bFit;
   double bErr;
-};
-
-struct entry3
-{
-  string year;
-  string octets;
-  double bin;
-  double bMean;
-  double bRMS;
-  double fitb;
-  double fitbErr;
-  double fitChi2;
-  double fitNDF;
-  double fitchi2perndf;
-  double prob;
 };
 
 struct entry4
@@ -127,101 +117,137 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 1);
-  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt", 2);
-  FillArrays("positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_binWindowVariations_individualOctetsSummary.txt", 3);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 4);
-  FillArrays("positionCuts_0-49mm_noGainCorrection_withFullBlind_Feb2019_type0_2012-2013_binWindowVariations_individualOctetsSummary.txt", 5);
-
-  // make some of the "math operations" error bars
-  vector <double> xTemp;
-  vector <double> yTemp;
-  for(unsigned int i = 0; i < x[0].size(); i++)
-  {
-    xTemp.push_back(x[0][i]);	// pushes back energy values
-    yTemp.push_back(sqrt(y[0][i]*y[0][i] + y[1][i]*y[1][i]));	// sqrt(stat^2 + twiddle^2)
-  }
-  x.push_back(xTemp);
-  y.push_back(yTemp);
-  xTemp.clear();
-  yTemp.clear();
-
-  for(unsigned int i = 0; i < x[0].size(); i++)
-  {
-    xTemp.push_back(x[0][i]);   // pushes back energy values
-    yTemp.push_back(sqrt(y[3][i])*y[0][i]);	// sqrt(chi2(from all octets))*stat
-  }
-  x.push_back(xTemp);
-  y.push_back(yTemp);
-  xTemp.clear();
-  yTemp.clear();
-
-  for(unsigned int i = 0; i < x[0].size(); i++)
-  {
-    xTemp.push_back(x[0][i]);   // pushes back energy values
-    yTemp.push_back(y[0][i]*sqrt(37));     // stat*sqrt(58 /*37*/) to represent octet RMS 2011-2012 /*2012-2013*/
-  }
-  x.push_back(xTemp);
-  y.push_back(yTemp);
-  xTemp.clear();
-  yTemp.clear();
+  // fill in super sum error bars
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
+  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt", 2);
 
   // fill in super ratio error bars
-  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 9);
-//  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_justbParam_2012-2013_fitWindowSummary.txt", 9);
+  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 9);
 
-  // fill in b values for super ratio and super sum
-  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 10);
-//  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_justbParam_2012-2013_fitWindowSummary.txt", 10);
+
+  // repeat 2012-2013
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 1);
+  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt", 2);
+  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 9);
+
+
+  // fill in super sum fit values
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 11);
+
+  // fill in super ratio fit values
+  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 99);
+
+  // repeat 2012-2013
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 11);
+  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 99);
+
+  vector <double> SSerr_2011;
+  vector <double> SSerr_2012;
+  vector <double> SRerr_2011;
+  vector <double> SRerr_2012;
+
+  vector <double> SSfit_2011;
+  vector <double> SSfit_2012;
+  vector <double> SRfit_2011;
+  vector <double> SRfit_2012;
 
   for(unsigned int i = 0; i < x[0].size(); i++)
   {
-    xTemp.push_back(x[0][i]);   // pushes back energy values
-    yTemp.push_back(abs(y[9][i] - y[10][i]));     // abs(b_SR - b_SS)
+    SSerr_2011.push_back(sqrt(pow(y[0][i], 2.0) + pow(y[1][i], 2.0)));
   }
-  x.push_back(xTemp);
-  y.push_back(yTemp);
-  xTemp.clear();
-  yTemp.clear();
+  for(unsigned int i = 0; i < x[0].size(); i++)
+  {
+    SRerr_2011.push_back(y[2][i]);
+  }
+
+  for(unsigned int i = 0; i < x[3].size(); i++)
+  {
+    SSerr_2012.push_back(sqrt(pow(y[3][i], 2.0) + pow(y[4][i], 2.0)));
+  }
+  for(unsigned int i = 0; i < x[3].size(); i++)
+  {
+    SRerr_2012.push_back(y[5][i]);
+  }
+
+  for(unsigned int i = 0; i < x[6].size(); i++)
+  {
+    SSfit_2011.push_back(y[6][i]);
+  }
+  for(unsigned int i = 0; i < x[7].size(); i++)
+  {
+    SRfit_2011.push_back(y[7][i]);
+  }
+  for(unsigned int i = 0; i < x[8].size(); i++)
+  {
+    SSfit_2012.push_back(y[8][i]);
+  }
+  for(unsigned int i = 0; i < x[9].size(); i++)
+  {
+    SRfit_2012.push_back(y[9][i]);
+  }
+
+  // change the initial energy range of super-ratio from it's currently stored 165-645keV
+  // to Michael Brown's 190-740 keV.
+  SRfit_2011[0] = -0.0180004;
+  SRerr_2011[0] = 0.054527;
+  SRfit_2012[0] = -0.0214752;
+  SRerr_2012[0] = 0.074534;
+  // after running above SR values, the optimum and value of error bar doesn't change. Central value probably does.
+
+  // some sample plotting for visualization
+  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 26, 150, 410, 26, 150, 410);
+  double chi2perndf = 0;
+  double fillValueWeightedError = 0;
+
+  for(unsigned int a = 0; a < SSfit_2011.size(); a++)
+  {
+    for(unsigned int b = 0; b < SRfit_2011.size(); b++)
+    {
+      for(unsigned int c = 0; c < SSfit_2012.size(); c++)
+      {
+        for(unsigned int d = 0; d < SRfit_2012.size(); d++)
+        {
+	  // take only super ratio fit values for full energy range. Scan over the SS fit values.
+          if(b == 0 && d == 0)
+	  {
+            chi2perndf = CalcChi2(SSfit_2011[a], 1.0/pow(SSerr_2011[a], 2.0),
+                                SRfit_2011[b], 1.0/pow(SRerr_2011[b], 2.0),
+                                SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
+                                SRfit_2012[d], 1.0/pow(SRerr_2012[d], 2.0) );
+
+            fillValueWeightedError = CalcWeightedError( SSfit_2011[a], 1.0/pow(SSerr_2011[a], 2.0),
+                                SRfit_2011[b], 1.0/pow(SRerr_2011[b], 2.0),
+                                SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
+                                SRfit_2012[d], 1.0/pow(SRerr_2012[d], 2.0) );
 
 
-  cout << "We have a total of " << x.size() << " arrays for potential graphs." << endl;
+	    if(chi2perndf <= 1.0)
+	    {
+              hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError);
+	    }
+	    else if(chi2perndf > 1.0)
+	    {
+              hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError * sqrt(chi2perndf) );
+	    }
 
-  TGraph *g1 = new TGraph(x[0].size(), &(x[0][0]), &(y[0][0]));	// integrated dataset stat err
-  TGraph *g2 = new TGraph(x[1].size(), &(x[1][0]), &(y[1][0]));	// twiddle error
-  TGraph *g3 = new TGraph(x[2].size(), &(x[2][0]), &(y[2][0]));	// octet RMS error
-  TGraph *g4 = new TGraph(x[5].size(), &(x[5][0]), &(y[5][0]));	// stat^2 + twiddle^2
-  TGraph *g5 = new TGraph(x[6].size(), &(x[6][0]), &(y[6][0]));	// sqrt(chi2/ndf) * stat
-  TGraph *g6 = new TGraph(x[7].size(), &(x[7][0]), &(y[7][0]));	// stat * sqrt(58) to represent octet RMS
-  TGraph *g7 = new TGraph(x[4].size(), &(x[4][0]), &(y[4][0]));	// octet RMS (not endpoint-corrected)
-  TGraph *g8 = new TGraph(x[8].size(), &(x[8][0]), &(y[8][0]));	// super ratio fit error
-  TGraph *g9 = new TGraph(x[11].size(), &(x[11][0]), &(y[11][0]));	// b value offset |SR - SS|
 
-  g3->GetYaxis()->SetRangeUser(0, 0.25);
+	  }
+        }
+      }
+    }
+  }
 
-  PlotGraph(C, 3, 1, g3, Form("b fit errors. Energy window upper end is 645 keV. Geom is 2012-2013."), "Energy Window Low (keV)", "b fit errors", "AP");
-  PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
-  PlotGraph(C, 2, 1, g1, "", "", "", "PSAME");
-  PlotGraph(C, 6, 1, g4, "", "", "", "PSAME");
-  PlotGraph(C, 46, 1, g5, "", "", "", "PSAME");
-  PlotGraph(C, 8, 1, g6, "", "", "", "PSAME");
-  PlotGraph(C, 32, 1, g7, "", "", "", "PSAME");
-  PlotGraph(C, 7, 1, g8, "", "", "", "PSAME");
-  PlotGraph(C, 1, 1, g9, "", "", "", "PSAME");
 
-  C->cd(1);
-  TLegend* leg1 = new TLegend(0.1,0.6,0.55,0.9);
-  leg1->AddEntry(g1, Form("stat error, integrated dataset"),"p");
-  leg1->AddEntry(g2, Form("syst error, twiddles (stat dep)"),"p");
-  leg1->AddEntry(g3, Form("octet RMS"), "p");
-  leg1->AddEntry(g4, Form("total sqrt(stat^2 + syst^2)"), "p");
-  leg1->AddEntry(g5, Form("stat*sqrt(Chi2/ndf)"), "p");
-  leg1->AddEntry(g6, Form("stat*sqrt(N_{octets})"), "p");
-  leg1->AddEntry(g7, Form("octet RMS (not endpt-corrected)"), "p");
-  leg1->AddEntry(g8, Form("super-ratio fit err"), "p");
-  leg1->AddEntry(g9, Form("|b_{SR} - b_{SS}|"), "p");
-//  leg1->Draw();
+
+  C->SetRightMargin(0.18);
+  gStyle->SetOptStat(0);
+  hist->SetTitle("4-point weighted average b error vs fit windows on SS.");
+  hist->GetXaxis()->SetTitle("2011-2012 Super-sum, low fit window cut (keV)");
+  hist->GetXaxis()->CenterTitle();
+  hist->GetYaxis()->SetTitle("2012-2013 Super-sum, low fit window cut (keV)");
+  hist->GetYaxis()->CenterTitle();
+  hist->GetZaxis()->SetTitle("Magnitude of 4-point weighted average error");
+  hist->Draw("COLZ");
 
 
   //prints the canvas with a dynamic TString name of the name of the file
@@ -230,7 +256,8 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command)
+
+void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH2D *hPlot, TString title, TString xAxis, TString yAxis, TString command)
 {
   C -> cd(canvasIndex);
   hPlot -> SetTitle(title);
@@ -293,7 +320,6 @@ void FillArrays(TString fileName, int flag)
 
   entry1 evt1;
   entry2 evt2;
-  entry3 evt3;
   entry4 evt4;
 
   int counter = 0;
@@ -335,6 +361,25 @@ void FillArrays(TString fileName, int flag)
         xTemp.push_back(evt1.EMin);
 	yTemp.push_back(evt1.bErr_minuitFit);
       }
+      else if(flag == 11)
+      {
+        bufstream1 >> evt1.octNb
+		>> evt1.avg_mE
+		>> evt1.chisquared
+		>> evt1.ndf
+		>> evt1.chisquaredperndf
+		>> evt1.prob
+		>> evt1.b_minuitFit
+		>> evt1.bErr_minuitFit
+		>> evt1.binMin
+		>> evt1.EMin
+		>> evt1.binMax
+		>> evt1.EMax
+		>> evt1.fitMatrixStatus;
+
+        xTemp.push_back(evt1.EMin);
+	yTemp.push_back(evt1.b_minuitFit);
+      }
       else if(flag == 2)
       {
         bufstream1 >> evt2.year
@@ -345,59 +390,6 @@ void FillArrays(TString fileName, int flag)
 
 	xTemp.push_back((evt2.bin)*10 - 5);
 	yTemp.push_back(evt2.bErr);
-      }
-      else if(flag == 3)
-      {
-        bufstream1 >> evt3.year
-		>> evt3.octets
-		>> evt3.bin
-		>> evt3.bMean
-		>> evt3.bRMS
-		>> evt3.fitb
-		>> evt3.fitbErr
-		>> evt3.fitChi2
-		>> evt3.fitNDF
-		>> evt3.fitchi2perndf
-		>> evt3.prob;
-
-        xTemp.push_back((evt3.bin)*10 - 5);
-	yTemp.push_back(evt3.bRMS);
-      }
-      else if(flag == 4)
-      {
-        bufstream1 >> evt1.octNb
-                >> evt1.avg_mE
-                >> evt1.chisquared
-                >> evt1.ndf
-                >> evt1.chisquaredperndf
-                >> evt1.prob
-                >> evt1.b_minuitFit
-                >> evt1.bErr_minuitFit
-                >> evt1.binMin
-                >> evt1.EMin
-                >> evt1.binMax
-                >> evt1.EMax
-                >> evt1.fitMatrixStatus;
-
-        xTemp.push_back(evt1.EMin);
-        yTemp.push_back(evt1.chisquaredperndf);
-      }
-      else if(flag == 5)
-      {
-        bufstream1 >> evt3.year
-                >> evt3.octets
-                >> evt3.bin
-                >> evt3.bMean
-                >> evt3.bRMS
-                >> evt3.fitb
-                >> evt3.fitbErr
-                >> evt3.fitChi2
-                >> evt3.fitNDF
-                >> evt3.fitchi2perndf
-                >> evt3.prob;
-
-        xTemp.push_back((evt3.bin)*10 - 5);
-        yTemp.push_back(evt3.bRMS);
       }
       else if(flag == 9)
       {
@@ -416,7 +408,7 @@ void FillArrays(TString fileName, int flag)
         xTemp.push_back(evt4.Emin);
         yTemp.push_back(evt4.bErr);
       }
-      else if(flag == 10)
+      else if(flag == 99)
       {
         bufstream1 >> evt4.octForRef
                 >> evt4.avg_mE
@@ -433,28 +425,6 @@ void FillArrays(TString fileName, int flag)
         xTemp.push_back(evt4.Emin);
         yTemp.push_back(evt4.b);
       }
-      else if(flag == 11)
-      {
-        bufstream1 >> evt1.octNb
-                >> evt1.avg_mE
-                >> evt1.chisquared
-                >> evt1.ndf
-                >> evt1.chisquaredperndf
-                >> evt1.prob
-                >> evt1.b_minuitFit
-                >> evt1.bErr_minuitFit
-                >> evt1.binMin
-                >> evt1.EMin
-                >> evt1.binMax
-                >> evt1.EMax
-                >> evt1.fitMatrixStatus;
-
-        xTemp.push_back(evt1.EMin);
-        yTemp.push_back(evt1.b_minuitFit);
-      }
-
-
-
 
       counter++;
     }
@@ -474,3 +444,20 @@ void FillArrays(TString fileName, int flag)
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }
 
+double CalcWeightedAvg(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4)
+{
+  return (x1*w1 + x2*w2 + x3*w3 + x4*w4) / (w1 + w2 + w3 + w4);
+}
+
+
+double CalcWeightedError(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4)
+{
+  return sqrt(1.0 / (w1 + w2 + w3 + w4));
+}
+
+double CalcChi2(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4)
+{
+  double xMean = CalcWeightedAvg(x1, w1, x2, w2, x3, w3, x4, w4);
+
+  return (w1*pow(x1-xMean, 2.0) + w2*pow(x2-xMean, 2.0) + w3*pow(x3-xMean, 2.0) + w4*pow(x4-xMean, 2.0)) / 3.0;
+}
