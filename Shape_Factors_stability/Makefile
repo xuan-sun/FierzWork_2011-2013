@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = stabilityFits.o
-SOURCE = stabilityFits
+OBJECTS = viewAsAHist.o
+SOURCE = viewAsAHist
 
 .PHONY: all
 all: $(SOURCE)
