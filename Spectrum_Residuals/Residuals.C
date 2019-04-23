@@ -13,8 +13,8 @@ Residuals()
     {
       continue;
     }
-    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch_try3.root", i));
-//    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
+//    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_Sn113Stitch_try3.root", i));
+    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
 //    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
     TH1D *hTemp = (TH1D*)f.Get("Super sum");
     hTotalData->Add(hTemp);
@@ -85,7 +85,7 @@ Residuals()
 
   hResidual->Divide(hTotalBeta);
 
-  hResidual->SetTitle("2012-2013, data octets, Tin-stitched_try3, (S_{data}-S_{MC}) / S_{MC}");
+  hResidual->SetTitle("2012-2013, data octets, floating endpoint, (S_{data}-S_{MC}) / S_{MC}");
   hResidual->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
   hResidual->GetXaxis()->SetTitle("Reconstructed Energy (keV)");
   hResidual->GetYaxis()->SetTitle("Fractional residual");

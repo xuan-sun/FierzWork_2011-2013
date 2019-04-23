@@ -1,0 +1,15 @@
+April 23, 2019
+Xuan Sun
+
+
+Not really sure if I endpoint corrected correctly or if I overwrote some old files.
+
+But I don't want to delete everything.
+
+So the newest files are actually Octets_0-60...endpointCorr.root
+and Octets_80-122...endpointCorr.root
+
+
+Use these ones! I've checked that they are endpoint corrected.
+
+When we look at the .txt fit results files from the parent directory, look for _run2.txt files.
