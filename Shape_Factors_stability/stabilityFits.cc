@@ -42,6 +42,8 @@
 #include         <TRandom3.h>
 #include         <TLegend.h>
 
+#define		 NAMEFLAG	"noEndpointCorrection"
+
 using            namespace std;
 
 //required later for plot_program
@@ -90,14 +92,17 @@ int main(int argc, char* argv[])
   TLine *xMin = new TLine(hTotalData->GetBinCenter(fitBinMin), yAxisMin, hTotalData->GetBinCenter(fitBinMin), yAxisMax);
   TLine *xMax = new TLine(hTotalData->GetBinCenter(fitBinMax), yAxisMin, hTotalData->GetBinCenter(fitBinMax), yAxisMax);
 
+  ofstream outfile;
+  outfile.open(Form("zero_crossing_shapeFactors_%s_2012-2013.txt", NAMEFLAG), ios::app);
+
   for(int i = octetLow; i < octetHigh; i++)
   {
     if(i == 9 || i == 59 || i == 91 || i == 93 || i == 101 || i == 107 || i == 121)
     {
       continue;
     }
-//    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
-    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
+    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
+//    TFile fData(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
     TH1D *hTempData = (TH1D*)fData.Get("Super sum");
     hTotalData->Add(hTempData);
     fData.Close();
@@ -123,8 +128,20 @@ int main(int argc, char* argv[])
 
     hResidual->Divide(hTotalBeta);
 
+    // straight line fit to determine 0 crossing point
+    TF1 *fit1 = new TF1("fit1", "[0] + [1]*x", 200, 400);
+    hResidual->Fit(fit1, "R");
+
+    outfile << i << "\t"
+	    << -fit1->GetParameter(0) / fit1->GetParameter(1) << "\t"
+	    << fit1->GetParameter(0) << "\t"
+	    << fit1->GetParError(0) << "\t"
+	    << fit1->GetParameter(1) << "\t"
+	    << fit1->GetParError(1) << "\n";
+
+
     hResidual->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
-    PlotHist(C, 2, 1, hResidual, Form("2012-2013, octet %i, endpoint corrected, (S_{data}-S_{MC}) / S_{MC}", i), "Reconstructed Energy (keV)", "Fractional residual", "");
+    PlotHist(C, 2, 1, hResidual, Form("2012-2013, octet %i, %s, (S_{data}-S_{MC}) / S_{MC}", i, NAMEFLAG), "Reconstructed Energy (keV)", "Fractional residual", "");
 
     y0->Draw();
     xMin->Draw();
@@ -138,6 +155,8 @@ int main(int argc, char* argv[])
     N_beta = 0;
     delete hResidual;
   }
+
+  outfile.close();
 
 
   //prints the canvas with a dynamic TString name of the name of the file
