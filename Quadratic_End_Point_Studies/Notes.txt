@@ -1,0 +1,13 @@
+April 24, 2019
+Xuan Sun
+
+
+
+After applying these energy corrections, which is all done in this directory, I go to PositionCuts/
+
+There I run ssDataHist_radialCuts.cc to do the position cutting and make a histogram of each octet.
+The fit is then done, in PositionCuts/, using newXuanFitter_positionCuts.cc.
+
+The final results are saved as .txt files in PositionCuts/, copied over here.
+
+The graphs (saved here) are made with viewValuesVsOctets.cc in PositionCuts/, that is not copied over here.

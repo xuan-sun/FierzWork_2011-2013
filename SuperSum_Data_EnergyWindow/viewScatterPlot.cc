@@ -88,31 +88,30 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_run2.txt", 1);
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_run2.txt", 2);
-  FillArrays("allOctets_positionCuts_0-49mm_floatingEndpoint_withFullBlind_Feb2019_type0_2011-2012_run2.txt", 1);
-  FillArrays("allOctets_positionCuts_0-49mm_floatingEndpoint_withFullBlind_Feb2019_type0_2012-2013_run2.txt", 2);
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_highBinVari_run3.txt", 1);
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_highBinVari_run2.txt", 2);
+//  FillArrays("allOctets_positionCuts_0-49mm_floatingEndpoint_withFullBlind_Feb2019_type0_2011-2012_run2.txt", 1);
+//  FillArrays("allOctets_positionCuts_0-49mm_floatingEndpoint_withFullBlind_Feb2019_type0_2012-2013_run2.txt", 2);
 
   TGraph *g1 = new TGraph(x[0].size(), &(x[0][0]), &(y[0][0]));
   TGraph *g2 = new TGraph(x[1].size(), &(x[1][0]), &(y[1][0]));
-  TGraph *g3 = new TGraph(x[2].size(), &(x[2][0]), &(y[2][0]));
-  TGraph *g4 = new TGraph(x[3].size(), &(x[3][0]), &(y[3][0]));
+//  TGraph *g3 = new TGraph(x[2].size(), &(x[2][0]), &(y[2][0]));
+//  TGraph *g4 = new TGraph(x[3].size(), &(x[3][0]), &(y[3][0]));
 
-  g1->GetYaxis()->SetRangeUser(1e-8, 1);
+  g1->GetYaxis()->SetRangeUser(1e-4, 1);
 
-  PlotGraph(C, 2, 1, g1, Form("Probability of integrated dataset super-sum fit."), "Energy Window Low (keV)", "Probability", "AP");
+  PlotGraph(C, 2, 1, g1, Form("Probability of integrated dataset super-sum fit."), "Energy Window High (keV)", "Probability", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
-  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
-  PlotGraph(C, 6, 1, g4, "", "", "", "PSAME");
-
+//  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
+//  PlotGraph(C, 6, 1, g4, "", "", "", "PSAME");
 
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.6,0.25,0.9,0.45);
+  TLegend* leg1 = new TLegend(0.6,0.7,0.9,0.9);
   leg1->AddEntry(g1, Form("2011-2012 corr endpt"),"p");
   leg1->AddEntry(g2, Form("2012-2013 corr endpt"),"p");
-  leg1->AddEntry(g3, Form("2011-2012 free endpt"), "p");
-  leg1->AddEntry(g4, Form("2012-2013 free endpt"), "p");
+//  leg1->AddEntry(g3, Form("2011-2012 free endpt"), "p");
+//  leg1->AddEntry(g4, Form("2012-2013 free endpt"), "p");
   leg1->Draw();
 
 
@@ -227,7 +226,7 @@ void FillArrays(TString fileName, int flag)
 		>> evt.fitMatrixStatus;
       counter++;
 
-      xTemp.push_back(evt.EMin);
+      xTemp.push_back(evt.EMax);
       xErrTemp.push_back(5);
 //      yTemp.push_back(evt.b_minuitFit);
       yTemp.push_back(evt.prob);

@@ -73,22 +73,49 @@ int main(int argc, char* argv[])
   }
 
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C->Divide(2,1);
+//  C->Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("zeroCrossing", "zero crossing energy", 100, 200, 400);
-  FillArrays(Form("zero_crossing_shapeFactors_noEndpointCorrection_2012-2013.txt"), h, 1);
+  TH1D* h1 = new TH1D("NoEndpointCorrection", "zero crossing energy", 100, 200, 400);
+  FillArrays(Form("zero_crossing_shapeFactors_noEndpointCorrection_2012-2013.txt"), h1, 1);
 
-  int max = h->GetMaximum();
+  TH1D* h2 = new TH1D("endpointCorrection", "zero crossing energy", 100, 200, 400);
+  FillArrays(Form("zero_crossing_shapeFactors_endpointCorrection_2012-2013.txt"), h2, 1);
 
-  C->cd(2);
-  PlotHist(C, 2, 2, h, Form("straight-line fit to shape factor, zero-crossing: noEndpointCorrection 2012-2013"), "fitted zero-crossing (keV)", "N", "", max);
+  int max = h1->GetMaximum();
 
 
-  TGraphErrors *g = new TGraphErrors(x[0].size(), &(x[0][0]), &(y[0][0]), &(xErr[0][0]), &(yErr[0][0]));
-  C->cd(1);
-  g->GetYaxis()->SetRangeUser(200, 400);
-  PlotGraph(C, 2, 1, g, Form("straight-line fit to shape factor, zero-crossing: noEndpointCorrection 2012-2013"), "Octet Number", "fitted zero-crossing (keV)", "AP");
+  PlotHist(C, 2, 1, h1, Form("straight-line fit to shape factor, zero-crossing: 2012-2013"), "fitted zero-crossing (keV)", "N", "", 1.2*max);
+
+  TPaveStats *stats = (TPaveStats*)C->GetPrimitive("stats");
+  stats->SetName("h1stats");
+  stats->SetY1NDC(0.8);
+  stats->SetY2NDC(1.0);
+  stats->SetTextColor(2);
+
+  PlotHist(C, 4, 1, h2, "", "", "", "SAMES", 1.2*max);
+  TPaveStats *stats2 = (TPaveStats*)C->GetPrimitive("stats");
+  stats2->SetName("h1stats2");
+  stats2->SetY1NDC(0.5);
+  stats2->SetY2NDC(0.7);
+  stats2->SetTextColor(4);
+
+  C->Print("hold.pdf");
+
+/*
+  TGraphErrors *g1 = new TGraphErrors(x[0].size(), &(x[0][0]), &(y[0][0]), &(xErr[0][0]), &(yErr[0][0]));
+  TGraphErrors *g2 = new TGraphErrors(x[1].size(), &(x[1][0]), &(y[1][0]), &(xErr[1][0]), &(yErr[1][0]));
+
+  g1->GetYaxis()->SetRangeUser(0, 600);
+  PlotGraph(C, 2, 1, g1, Form("straight-line fit to shape factor, zero-crossing: 2011-2012"), "Octet Number", "fitted zero-crossing (keV)", "AP");
+  PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
+
+  TLegend* leg1 = new TLegend(0.7,0.1,0.9,0.25);
+  leg1->AddEntry(g1, Form("no endpt corr"),"p");
+  leg1->AddEntry(g2, Form("endpt corrected"),"p");
+  leg1->Draw();
+*/
+
 
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
@@ -168,7 +195,16 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot->GetYaxis()->SetRangeUser(0, 1.2*maxBinContents);
 
   hPlot->SetFillColor(styleIndex);
-  hPlot->SetFillStyle(styleIndex);
+  hPlot->SetLineColor(styleIndex);
+
+  if(styleIndex == 2)
+  {
+    hPlot->SetFillStyle(3004);
+  }
+  else if(styleIndex == 4)
+  {
+    hPlot->SetFillStyle(3005);
+  }
 
   hPlot->Draw(command);
 
@@ -183,7 +219,6 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
   gPlot->GetXaxis()->CenterTitle();
   gPlot->GetYaxis()->SetTitle(yAxis);
   gPlot->GetYaxis()->CenterTitle();
-  C->SetLogy();
 
   gPlot->SetMarkerStyle(21);
   gPlot->SetMarkerSize(0.75);

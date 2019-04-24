@@ -49,8 +49,6 @@ using            namespace std;
 #define		TYPE	"type0"
 #define		RADIALCUTLOW	0
 #define		RADIALCUTHIGH	49
-//#define		FITMINBIN	17
-//#define		FITMAXBIN	65
 
 //required later for plot_program
 //TApplication plot_program("FADC_readin",0,0,0,0);

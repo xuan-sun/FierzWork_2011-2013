@@ -188,14 +188,17 @@ int main(int argc, char* argv[])
 
   // change the initial energy range of super-ratio from it's currently stored 165-645keV
   // to Michael Brown's 190-740 keV.
+/*
   SRfit_2011[0] = -0.0180004;
   SRerr_2011[0] = 0.054527;
   SRfit_2012[0] = -0.0214752;
   SRerr_2012[0] = 0.074534;
+*/
   // after running above SR values, the optimum and value of error bar doesn't change. Central value probably does.
 
   // some sample plotting for visualization
   TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 26, 150, 410, 26, 150, 410);
+  hist->SetContour(500);
   double chi2perndf = 0;
   double fillValueWeightedError = 0;
 

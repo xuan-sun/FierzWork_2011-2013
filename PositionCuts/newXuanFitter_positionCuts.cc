@@ -46,7 +46,7 @@ using            namespace std;
 
 #define		GEOM	"2012-2013"
 #define		TYPE	"type0"
-#define		FITMINBIN	35
+#define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		RADLOW		0
 #define		RADHIGH		49
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 
 
   // this little bit loads the octets once they have already been separated into super sum histograms
-  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorrected.root", RADLOW, RADHIGH, octNb, TYPE, RADLOW, RADHIGH));
+  TFile fData(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm_endpointCorr_quadratic.root", RADLOW, RADHIGH, octNb, TYPE, RADLOW, RADHIGH));
   TFile fMC0(TString::Format("radialCut_%i-%i/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
   TFile fMCinf(TString::Format("radialCut_%i-%i/MC_A_0_b_inf_Octet_%i_ssHist_%s_posCut_%i-%fm.root", RADLOW, RADHIGH, octNb, TYPE, RADLOWFLOAT, RADHIGHFLOAT));
   TH1D* dataHist = (TH1D*)fData.Get("Super sum");
@@ -197,8 +197,8 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
-//  outfile.open(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("positionCuts_%i-%imm_endpointCorr_quadratic_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADLOW, RADHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << functionMin << "\t"

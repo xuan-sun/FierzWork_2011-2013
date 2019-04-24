@@ -43,8 +43,8 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2012-2013"
-#define		FITMINBIN	27
+#define		GEOM	"2011-2012"
+#define		FITMINBIN	17
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
 #define		RADIALCUTHIGH	49
@@ -78,20 +78,10 @@ struct entry
   int fitMatrixStatus;
 };
 
-// global vectors for creating TGraphs.
-vector <double> octets;
-vector <double> octetsErr;
-vector <double> chisquared;
-vector <double> chi2err;
-vector <double> bMinuitValues;
-vector <double> bErrMinuitValues;
-
-vector <double> octets2;
-vector <double> octetsErr2;
-vector <double> chisquared2;
-vector <double> chi2err2;
-vector <double> bMinuitValues2;
-vector <double> bErrMinuitValues2;
+vector < vector <double> > x;
+vector < vector <double> > xErr;
+vector < vector <double> > y;
+vector < vector <double> > yErr;
 
 int main(int argc, char* argv[])
 {
@@ -108,64 +98,83 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 200, -1, 1);
-  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 200, -1, 1);
-//  TH1D *h1 = new TH1D("fierz minuit 2011-2012", "fierz 2011-2012", 200, -1, 1);
-//  TH1D *h2 = new TH1D("position cut fierz", "fierz 2011-2013", 200, -1, 1);
-//  h1->SetStats(0);
+  TH1D *h1 = new TH1D("h1", "b, no endpoint correction, 2011-2012", 200, -1, 1);
+  TH1D *h2 = new TH1D("h2", "b, endpoint corrected, 2011-2012", 200, -1, 1);
+  TH1D *h3 = new TH1D("h3", "b, quadratic endpoint correction, 2011-2012", 200, -1, 1);
 
 //  FillArrays(Form("../NewXuanFitter/FullBlindFeb2019_newXuanFitter_dataHists_bFit_%s_%s_Bins_%i-%i.txt", TYPE, GEOM, FITMINBIN, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_%i-%imm_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h1, 1);
-  FillArrays(Form("positionCuts_%i-%imm_endpointCorrected_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h2, 2);
-//  FillArrays(Form("positionCuts_%i-%imm_endpointCorrected_withBlind_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, FITMINBIN, FITMAXBIN), h2, 2);
+  FillArrays(Form("positionCuts_%i-%imm_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h1, 1);
+  FillArrays(Form("positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h2, 2);
+  FillArrays(Form("positionCuts_%i-%imm_endpointCorr_quadratic_withFullBlind_Feb2019_andMCCuts_newXuanFitter_%s_%s_Bins_%i-%i.txt", RADIALCUTLOW, RADIALCUTHIGH, TYPE, GEOM, 17, FITMAXBIN), h3, 3);
 
 //  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(chisquared[0]), &(octetsErr[0]), &(chi2err[0]));
 //  TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(chisquared2[0]), &(octetsErr2[0]), &(chi2err[0]));
 
-  TGraphErrors *g1 = new TGraphErrors(octets.size(), &(octets[0]), &(bMinuitValues[0]), &(octetsErr[0]), &(bErrMinuitValues[0]));
-  TGraphErrors *g2 = new TGraphErrors(octets2.size(), &(octets2[0]), &(bMinuitValues2[0]), &(octetsErr2[0]), &(bErrMinuitValues2[0]));
+  TGraphErrors *g1 = new TGraphErrors(x[0].size(), &(x[0][0]), &(y[0][0]), &(xErr[0][0]), &(yErr[0][0]));
+  TGraphErrors *g2 = new TGraphErrors(x[1].size(), &(x[1][0]), &(y[1][0]), &(xErr[1][0]), &(yErr[1][0]));
+  TGraphErrors *g3 = new TGraphErrors(x[2].size(), &(x[2][0]), &(y[2][0]), &(xErr[2][0]), &(yErr[2][0]));
 
-  TF1 *fit1 = new TF1("fit1", "[0]", 80, 122);
+  int octetFitRange_low = 0;
+  int octetFitRange_high = 60;
+
+  TF1 *fit1 = new TF1("fit1", "[0]", octetFitRange_low, octetFitRange_high);
+  fit1->SetLineColor(2);
   g1->Fit(fit1, "R");
 
-  TF1 *fit2 = new TF1("fit2", "[0]", 80, 122);
+  TF1 *fit2 = new TF1("fit2", "[0]", octetFitRange_low, octetFitRange_high);
+  fit2->SetLineColor(4);
   g2->Fit(fit2, "R");
+
+  TF1 *fit3 = new TF1("fit3", "[0]", octetFitRange_low, octetFitRange_high);
+  fit3->SetLineColor(3);
+  g3->Fit(fit3, "R");
 
 
   g1->GetYaxis()->SetRangeUser(-0.5, 0.75);
 
   PlotGraph(C, 2, 1, g1, Form("b for %s octets: %i-%imm radius", GEOM, RADIALCUTLOW, RADIALCUTHIGH), "Octet Number", "b", "AP");
   PlotGraph(C, 4, 1, g2, "", "", "", "PSAME");
+  PlotGraph(C, 3, 1, g3, "", "", "", "PSAME");
 
 //  PlotHist(C, 1, 2, h1, "b for all octets", "N", "b", "");
 
   C->cd(1);
-  TLegend* leg1 = new TLegend(0.1,0.1,0.5,0.3);
+  TLegend* leg1 = new TLegend(0.1,0.1,0.45,0.3);
   leg1->AddEntry(g1,Form("%i<r<%imm, uncorrected", RADIALCUTLOW, RADIALCUTHIGH),"p");
   leg1->AddEntry(g2,Form("%i<r<%imm, endpt. corrected", RADIALCUTLOW, RADIALCUTHIGH),"p");
+  leg1->AddEntry(g3,Form("%i<r<%imm, quadratic correction", RADIALCUTLOW, RADIALCUTHIGH),"p");
   leg1->Draw();
 
 
-  double xPrint = 105;
+  double xPrint = (double)octetFitRange_high * (2.0/3.0);
   double yPrint = -0.2;
 
   TLatex t2;
   t2.SetTextSize(0.03);
   t2.SetTextAlign(13);
-  t2.DrawLatex(xPrint, yPrint+0.1, Form("red pts: %f #pm %f", h1->GetMean(), h1->GetRMS()));
+  t2.DrawLatex(xPrint, yPrint+0.15, Form("red pts: %f #pm %f", h1->GetMean(), h1->GetRMS()));
   TLatex t3;
   t3.SetTextSize(0.03);
   t3.SetTextAlign(13);
-  t3.DrawLatex(xPrint, yPrint, Form("red fit: #chi^{2}/ndf = %f", (fit1->GetChisquare() / fit1->GetNDF())));
+  t3.DrawLatex(xPrint, yPrint+0.075, Form("red fit: #chi^{2}/ndf = %f", (fit1->GetChisquare() / fit1->GetNDF())));
 
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(xPrint, yPrint-0.1, Form("blue pts: %f #pm %f", h2->GetMean(), h2->GetRMS()));
+  t4.DrawLatex(xPrint, yPrint, Form("blue pts: %f #pm %f", h2->GetMean(), h2->GetRMS()));
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(xPrint, yPrint-0.20, Form("blue fit: #chi^{2}/ndf = %f", (fit2->GetChisquare() / fit2->GetNDF())));
+  t5.DrawLatex(xPrint, yPrint-0.075, Form("blue fit: #chi^{2}/ndf = %f", (fit2->GetChisquare() / fit2->GetNDF())));
+
+  TLatex t6;
+  t6.SetTextSize(0.03);
+  t6.SetTextAlign(13);
+  t6.DrawLatex(xPrint, yPrint-0.15, Form("green pts: %f #pm %f", h3->GetMean(), h3->GetRMS()));
+  TLatex t7;
+  t7.SetTextSize(0.03);
+  t7.SetTextAlign(13);
+  t7.DrawLatex(xPrint, yPrint-0.225, Form("green fit: #chi^{2}/ndf = %f", (fit3->GetChisquare() / fit3->GetNDF())));
 
 
 
@@ -292,8 +301,12 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot,
 
 }
 
-void FillArrays(TString fileName, TH1D* hist1, int flag)
+void FillArrays(TString fileName, TH1D* hist, int flag)
 {
+  vector <double> xTemp;
+  vector <double> yTemp;
+  vector <double> xErrTemp;
+  vector <double> yErrTemp;
 
   entry evt;
   int counter = 0;
@@ -328,37 +341,30 @@ void FillArrays(TString fileName, TH1D* hist1, int flag)
 		>> evt.fitMatrixStatus;
       counter++;
 
-//      hist1->Fill(evt.chisquaredperndf);
-      hist1->Fill(evt.b_minuitFit);
+      hist->Fill(evt.b_minuitFit);
 
+      xTemp.push_back(evt.octNb);
+      xErrTemp.push_back(0.5);
+      yTemp.push_back(evt.b_minuitFit);
+      yErrTemp.push_back(evt.bErr_minuitFit);
 
-      if(flag == 1)
-      {
-        octets.push_back(evt.octNb);
-        octetsErr.push_back(0.5);
-        chisquared.push_back(evt.chisquaredperndf);
-        chi2err.push_back(0.1);
-        bMinuitValues.push_back(evt.b_minuitFit);
-//        bErrMinuitValues.push_back(0.1431);
-        bErrMinuitValues.push_back(evt.bErr_minuitFit);
-      }
-      if(flag == 2)
-      {
-        octets2.push_back(evt.octNb);
-        octetsErr2.push_back(0.5);
-        chisquared2.push_back(evt.chisquaredperndf);
-	chi2err2.push_back(0.1);
-        bMinuitValues2.push_back(evt.b_minuitFit);
-        bErrMinuitValues2.push_back(evt.bErr_minuitFit);
-      }
     }
-
 
     if(infile1.eof() == true)
     {
       break;
     }
   }
+
+  x.push_back(xTemp);
+  y.push_back(yTemp);
+  xTemp.clear();
+  yTemp.clear();
+  xErr.push_back(xErrTemp);
+  yErr.push_back(yErrTemp);
+  xErrTemp.clear();
+  yErrTemp.clear();
+
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }

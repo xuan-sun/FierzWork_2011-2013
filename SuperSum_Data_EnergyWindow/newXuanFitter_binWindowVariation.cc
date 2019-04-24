@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_run2.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
+  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_highBinVari_run3.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
 //  outfile.open(Form("positionCuts_%i-%imm_noGainCorrection_withFullBlind_Feb2019_%s_%s_binWindowVariations_individualOctets.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
   outfile << /*octNb*/ "ALL" << "\t"
           << avg_mE << "\t"
