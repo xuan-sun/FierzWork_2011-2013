@@ -48,16 +48,19 @@ using            namespace std;
 TApplication plot_program("FADC_readin",0,0,0,0);
 
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xAxis, TString yAxis, TString command, double maxBinContents);
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command);
 void FillArrays(TString fileName, TH1D *h, int hFillOption);
+
+vector < vector <double> > x;
+vector < vector <double> > xErr;
+vector < vector <double> > y;
+vector < vector <double> > yErr;
 
 struct entry
 {
   int octNb;
-  double zero;
-  double par0;
-  double par0Err;
-  double par1;
-  double par1Err;
+  double zeroCrossing;
+  double crossingError;
 };
 
 int main(int argc, char* argv[])
@@ -69,18 +72,23 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-//  int option = atoi(argv[1]);
-
   TCanvas *C = new TCanvas("canvas", "canvas");
-  C->cd();
+  C->Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("zeroCrossing", "zero crossing energy", 100, 100, 500);
-  FillArrays(Form("zero_crossing_shapeFactors_noEndpointCorrection_2011-2012.txt"), h, 1);
+  TH1D* h = new TH1D("zeroCrossing", "zero crossing energy", 100, 200, 400);
+  FillArrays(Form("zero_crossing_shapeFactors_noEndpointCorrection_2012-2013.txt"), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("straight-line fit to shape factor, zero-crossing: noEndpointCorrection 2011-2012"), "fitted zero-crossing (keV)", "N", "", max);
+  C->cd(2);
+  PlotHist(C, 2, 2, h, Form("straight-line fit to shape factor, zero-crossing: noEndpointCorrection 2012-2013"), "fitted zero-crossing (keV)", "N", "", max);
+
+
+  TGraphErrors *g = new TGraphErrors(x[0].size(), &(x[0][0]), &(y[0][0]), &(xErr[0][0]), &(yErr[0][0]));
+  C->cd(1);
+  g->GetYaxis()->SetRangeUser(200, 400);
+  PlotGraph(C, 2, 1, g, Form("straight-line fit to shape factor, zero-crossing: noEndpointCorrection 2012-2013"), "Octet Number", "fitted zero-crossing (keV)", "AP");
 
   cout << "-------------- End of Program ---------------" << endl;
   plot_program.Run();
@@ -90,6 +98,12 @@ int main(int argc, char* argv[])
 
 void FillArrays(TString fileName, TH1D* h, int hFillOption)
 {
+  vector <double> xTemp;
+  vector <double> yTemp;
+  vector <double> xErrTemp;
+  vector <double> yErrTemp;
+
+
   entry evt;
 
   //opens the file that I name in DATA_FILE_IN
@@ -111,13 +125,15 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
     if(!infile1.eof())
     {
       bufstream >> evt.octNb
-		>> evt.zero
-		>> evt.par0
-		>> evt.par0Err
-		>> evt.par1
-		>> evt.par1Err;
+		>> evt.zeroCrossing
+		>> evt.crossingError;
 
-      h->Fill(evt.zero);
+      xTemp.push_back(evt.octNb);
+      xErrTemp.push_back(0.5);
+      yTemp.push_back(evt.zeroCrossing);
+      yErrTemp.push_back(evt.crossingError);
+
+      h->Fill(evt.zeroCrossing);
     }
 
     if(infile1.eof() == true)
@@ -125,6 +141,15 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
       break;
     }
   }
+
+  x.push_back(xTemp);
+  y.push_back(yTemp);
+  xTemp.clear();
+  yTemp.clear();
+  xErr.push_back(xErrTemp);
+  yErr.push_back(yErrTemp);
+  xErrTemp.clear();
+  yErrTemp.clear();
 
   cout << "Data from " << fileName << " has been filled into all arrays successfully." << endl;
 }
@@ -142,28 +167,30 @@ void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString 
   hPlot -> GetYaxis() -> CenterTitle();
   hPlot->GetYaxis()->SetRangeUser(0, 1.2*maxBinContents);
 
-  if(styleIndex == 1)
-  {
-    hPlot -> SetFillColor(46);
-    hPlot -> SetFillStyle(3004);
-  }
-  if(styleIndex == 2)
-  {
-    hPlot -> SetFillColor(38);
-    hPlot -> SetFillStyle(3005);
-  }
-  if(styleIndex == 3)
-  {
-    hPlot->SetFillColor(30);
-    hPlot->SetFillStyle(3003);
-  }
-  if(styleIndex == 4)
-  {
-    hPlot->SetFillColor(41);
-    hPlot->SetFillStyle(3016);
-  }
+  hPlot->SetFillColor(styleIndex);
+  hPlot->SetFillStyle(styleIndex);
 
   hPlot->Draw(command);
+
+  C->Update();
+}
+
+void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors *gPlot, TString title, TString xAxis, TString yAxis, TString command)
+{
+  C->cd(canvasIndex);
+  gPlot->SetTitle(title);
+  gPlot->GetXaxis()->SetTitle(xAxis);
+  gPlot->GetXaxis()->CenterTitle();
+  gPlot->GetYaxis()->SetTitle(yAxis);
+  gPlot->GetYaxis()->CenterTitle();
+  C->SetLogy();
+
+  gPlot->SetMarkerStyle(21);
+  gPlot->SetMarkerSize(0.75);
+  gPlot->SetMarkerColor(styleIndex);
+  gPlot->SetLineColor(styleIndex);
+
+  gPlot->Draw(command);
 
   C->Update();
 }
