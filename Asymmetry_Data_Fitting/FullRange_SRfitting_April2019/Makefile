@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = blinded_postMBProcessed_asymm_fitWindow.o
-SOURCE = blinded_postMBProcessed_asymm_fitWindow
+OBJECTS = blinded_postMBProcessed_SR_bFitter.o
+SOURCE = blinded_postMBProcessed_SR_bFitter
 
 .PHONY: all
 all: $(SOURCE)

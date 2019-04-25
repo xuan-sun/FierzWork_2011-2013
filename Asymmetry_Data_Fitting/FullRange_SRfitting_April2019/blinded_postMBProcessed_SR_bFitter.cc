@@ -38,8 +38,6 @@
 #include	 <TLine.h>
 #include	 <TLatex.h>
 
-#define		 GEOM	"2011-2012"
-
 using		 namespace std;
 
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -68,7 +66,7 @@ const int index_B10 = 7;
 double avg_mE = 0;
 
 // Used for visualization, keeps the graph on screen.
-//TApplication plot_program("FADC_readin",0,0,0,0);
+TApplication plot_program("FADC_readin",0,0,0,0);
 
 //-------------------------------------------------//
 //------------ Start of Program -------------------//
@@ -76,10 +74,10 @@ double avg_mE = 0;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 3)
+  if(argc < 1)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable) (energy win low) (energy win high)" << endl;
+    cout << "(executable)" << endl;
     return 0;
   }
 
@@ -87,38 +85,40 @@ int main(int argc, char* argv[])
   TCanvas *C = new TCanvas("canvas", "canvas", 800, 400);
 
   int octNb = 47;
-  double xMin = atof(argv[1]);
-  double xMax = atof(argv[2]);
+  double xMin = 190;	// Michael Brown's fitting range for super-ratio A
+  double xMax = 740;
 
-//  TFile fMC0(TString::Format("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/MC_A_0_b_0/MC_A_0_b_0_Octet_%i_ssHist_%s.root", octNb, "type0"));
-  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Dec2018_reBlindedUnknown/BLIND_MC_A_0_b_0_Octet_%i_%s.root", octNb, "type0"));
+  // doesn't matter which MC we pick. It is only used in calculating avg m/E and we are using a uniform distribution so we just need the x-axis.
+  TFile fMC0(TString::Format("/mnt/Data/xuansun/BLIND_MC_files/Blinded_Dec2018_reBlindedUnknown/BLIND_MC_A_0_b_0_Octet_47_type0.root"));
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("Super sum");
-  avg_mE = CalculateAveragemOverE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
-  cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE
- 	<< " over a fit range of " << xMin << " to " << xMax << endl;
+  avg_mE = CalculateFlat_avgmE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax));
 
-  cout << "Using flat probability distribution, we get avg_mE for octet " << octNb << " = "
+  cout << "Using flat probability distribution, we get avg_mE = "
 	<< CalculateFlat_avgmE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax))
 	<< ", over a fit range of " << xMin << ", " << xMax << endl;
 
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
-  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
-//  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+  TString geom = Form("2012-2013");
+  // 2011-2012 octets super-ratio
+//  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+  // 2012-2013 octets super-ratio
+  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
   TH1D *blindedAsymm = BlindAsymmetry(asymm, bMixing, avg_mE);
 
-//  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.12054, avg_mE, m_e, m_e), xMin, xMax);
-  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + [1]*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", avg_mE, m_e, m_e), xMin, xMax);
-//  TF1 *fit = new TF1("beta fit", Form("( [0]*(1.0 + (%f)*(%f)) ) / (1.0 + [1]*(%f)/(x + %f))", bMixing, avg_mE, m_e, m_e), xMin, xMax);
+  // our function is a 1-param fit: f = k*(1 - b <m/E>)/(1 + b(m/E)
+  TF1 *fit = new TF1("beta fit", Form("( %f*(1.0 + [0]*(%f)) ) / (1.0 + [0]*(%f)/(x + %f))", -0.122095, avg_mE, m_e, m_e), xMin, xMax);
+//  TF1 *fit = new TF1("flat fit", Form("[0]"), xMin, xMax);
 
-  fit->SetParName(0, "A");
-  fit->SetParName(1, "b");
+  fit->SetParName(0, "b");
   blindedAsymm->Fit("beta fit", "R");
+//  blindedAsymm->Fit("flat fit", "R");
   TF1 *fitResults = blindedAsymm->GetFunction("beta fit");
+
   cout << "Chi squared value is " << fitResults->GetChisquare()
 	<< " with ndf of " << fitResults->GetNDF()
 	<< ". For a final chisquared/ndf = " << fitResults->GetChisquare() / fitResults->GetNDF() << endl;
@@ -126,6 +126,8 @@ int main(int argc, char* argv[])
 
   PlotHist(C, 1, 1, blindedAsymm, asymmFile, "Reconstructed Energy (keV)", "Blinded Fully Corrected A(E)", "");
 
+/*
+  // literally all drawing options that I don't need for producing final results
   gStyle->SetOptStat(0);
 
   TLine *flatA0 = new TLine(xMin, -0.12054, xMax, -0.12054);
@@ -161,11 +163,11 @@ int main(int argc, char* argv[])
   TLatex t4;
   t4.SetTextSize(0.03);
   t4.SetTextAlign(13);
-  t4.DrawLatex(1000, -0.12, Form("b_{fit} = %f", fitResults->GetParameter(1)));
+//  t4.DrawLatex(1000, -0.12, Form("b_{fit} = %f", fitResults->GetParameter(1)));
   TLatex t5;
   t5.SetTextSize(0.03);
   t5.SetTextAlign(13);
-  t5.DrawLatex(1000, -0.11, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
+//  t5.DrawLatex(1000, -0.11, Form("bErr_{fit} = %f", fitResults->GetParError(1)));
   TLatex t6;
   t6.SetTextSize(0.03);
   t6.SetTextAlign(13);
@@ -174,11 +176,11 @@ int main(int argc, char* argv[])
   TLatex t7;
   t7.SetTextSize(0.03);
   t7.SetTextAlign(13);
-  t7.DrawLatex(900, -0.15, Form("A #frac{1.0 + b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
-
+  t7.DrawLatex(900, -0.15, Form("A #frac{1.0 - b<#frac{m_e}{x+m_e}>}{1.0 + b#frac{m_e}{x + m_e}}"));
+*/
 
   ofstream outfile;
-  outfile.open(Form("AsymmetryDataFit_FullBlind_Feb2019_AbParams_%s_fitWindowSummary.txt", GEOM), ios::app);
+  outfile.open(Form("SRDataFit_FullBlind_Feb2019_fixedA_bFitted_%s_190-740keV.txt", geom.Data()), ios::app);
   outfile << octNb << "\t"
           << avg_mE << "\t"
 	  << xMin << "\t"
@@ -186,19 +188,17 @@ int main(int argc, char* argv[])
           << fitResults->GetChisquare() << "\t"
           << fitResults->GetNDF() << "\t"
           << fitResults->GetChisquare() / fitResults->GetNDF() << "\t"
-//	  << -0.12054 << "\t"
-//	  << 0 << "\t"
+          << "-0.1222095" << "\t"
+          << "none" << "\t"
           << fitResults->GetParameter(0) << "\t"
-          << fitResults->GetParError(0) << "\t"
-          << fitResults->GetParameter(1) << "\t"
-          << fitResults->GetParError(1) << "\n";
+          << fitResults->GetParError(0) << "\n";
   outfile.close();
 
 
   // Save our plot and print it out as a pdf.
 //  C -> Print("CorrectedBlinding_b_fit_fromAsymmData_2012-2013.pdf");
   cout << "-------------- End of Program ---------------" << endl;
-//  plot_program.Run();
+  plot_program.Run();
 
   return 0;
 }
@@ -346,7 +346,6 @@ double CalculateFlat_avgmE(TH1D* gammaSM, int binMin, int binMax)
   for(int i = binMin; i < binMax; i++)
   {
     num = num + gammaSM->GetBinWidth(i) * (m_e) / (gammaSM->GetBinCenter(i) + m_e);
-//    denom = denom + gammaSM->GetBinContent(i);
   }
 
   denom = gammaSM->GetBinCenter(binMax) - gammaSM->GetBinCenter(binMin);
@@ -377,7 +376,7 @@ TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlin
 
   for(int i = 0; i <= unblindA->GetNbinsX(); i++)
   {
-    blindingFactor = (1.0 + b_forBlinding*avg_mE_forBlinding) / (1.0 + b_forBlinding*m_e/(unblindA->GetBinCenter(i) + m_e));
+    blindingFactor = (1.0 - b_forBlinding*avg_mE_forBlinding) / (1.0 + b_forBlinding*m_e/(unblindA->GetBinCenter(i) + m_e));
     blindA->SetBinContent(i, (unblindA->GetBinContent(i))*blindingFactor);
     blindA->SetBinError(i, (unblindA->GetBinError(i))*blindingFactor);
   }
