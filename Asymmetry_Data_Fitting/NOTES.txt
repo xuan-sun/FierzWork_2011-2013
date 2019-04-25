@@ -1,0 +1,14 @@
+April 24, 2019
+
+Xuan Sun
+
+This directory is holding all our data super-ratio b fitting work.
+
+The default directory is messy as hell and it's just my initial work.
+
+FitWindowStudy_April2019 is a study of the effect of fit windows on b from SR.
+
+We are't using different fit windows so this amounts to a trivial study.
+
+
+The IMPORTANT code for final SR fit results is in FullRange_SRfitting_April2019/
