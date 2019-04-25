@@ -1,0 +1,15 @@
+April 26, 2019
+
+Xuan Sun
+
+This directory is made to rerun the endpoint corrections and refit the super sum data.
+
+Especially now that we have optimized the fit window over in Expanded_Error_Bar_StatSyst/
+
+In order to do this:
+1. Rerun endpoint fits (on histograms) and save the endpoints of each octet of the new optimized fit windows.
+2. View the mean value of these endpoint fits to set the new endpoint correction.
+3. Scale the energies with the new endpoint corrections.
+4. Run ssDataHist_radialCut.cc to get radial cuts (and type, side, pid, etc) into histograms.
+5. Create integrated dataset.
+6. Run newXuanFitter.cc from somewhere and fit the new integrated datasets with baseline Monte Carlo's for SS b fits.

@@ -56,7 +56,7 @@ double CalcWeightedAvg(double x1, double w1, double x2, double w2, double x3, do
 double CalcWeightedError(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4);
 double CalcChi2(double x1, double w1, double x2, double w2, double x3, double w3, double x4, double w4);
 
-
+// allOctets aka integrated dataset files
 struct entry1
 {
   string octNb;
@@ -74,6 +74,7 @@ struct entry1
   int fitMatrixStatus;
 };
 
+// twiddle fit variation files
 struct entry2
 {
   string year;
@@ -83,6 +84,7 @@ struct entry2
   double bErr;
 };
 
+// super-ratio dataset fit files
 struct entry4
 {
   int octForRef;
@@ -93,7 +95,7 @@ struct entry4
   double ndf;
   double chi2perndf;
   double A;
-  double AErr;
+  string AErr;
   double b;
   double bErr;
 };
@@ -118,36 +120,32 @@ int main(int argc, char* argv[])
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
 
-  // all our data paths that we will use for super-sum (super-ratio is easy cause it's a number, since we don't change window)
-  TString ssDataPath_2011 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_lowBinVari_run2.txt");
-  TString ssDataPath_2012 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_lowBinVari_run2.txt");
-
-  TString ssTwiddlePath_2011 = Form("twiddle_index19_lowBinVariation_highBin-65_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt");
-  TString ssTwiddlePath_2012 = Form("twiddle_index19_lowBinVariation_highBin-65_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt");
+  // all our data paths that we use
+  TString ssDataPath_2011 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_highBinVari_run2.txt");
+  TString ssDataPath_2012 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_highBinVari_run2.txt");
+  TString ssTwiddlePath_2011 = Form("twiddle_index19_highBinVariation_lowBin-27_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt");
+  TString ssTwiddlePath_2012 = Form("twiddle_index19_highBinVariation_lowBin-34_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt");
+  TString srDataPath_2011 = Form("SRDataFit_FullBlind_Feb2019_fixedA_bFitted_2011-2012_190-740keV.txt");
+  TString srDataPath_2012 = Form("SRDataFit_FullBlind_Feb2019_fixedA_bFitted_2012-2013_190-740keV.txt");
 
   // fill in super sum error bars
   FillArrays(ssDataPath_2011, 1);
   FillArrays(ssTwiddlePath_2011, 2);
-
   // fill in super ratio error bars
-  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 9);
-
-
+  FillArrays(srDataPath_2011, 9);
   // repeat 2012-2013
   FillArrays(ssDataPath_2012, 1);
   FillArrays(ssTwiddlePath_2012, 2);
-  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 9);
+  FillArrays(srDataPath_2012, 9);
 
 
   // fill in super sum fit values
   FillArrays(ssDataPath_2011, 11);
-
   // fill in super ratio fit values
-  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 99);
-
+  FillArrays(srDataPath_2011, 99);
   // repeat 2012-2013
   FillArrays(ssDataPath_2012, 11);
-  FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 99);
+  FillArrays(srDataPath_2012, 99);
 
   vector <double> SSerr_2011;
   vector <double> SSerr_2012;
@@ -205,7 +203,10 @@ int main(int argc, char* argv[])
   // after running above SR values, the optimum and value of error bar doesn't change. Central value probably does.
 
   // some sample plotting for visualization
-  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 26, 150, 410, 26, 150, 410);
+  // low fit window optimization
+//  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 26, 150, 410, 26, 150, 410);
+  // high fit window optimization
+  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 16, 590, 750, 16, 590, 750);
   hist->SetContour(500);
   double chi2perndf = 0;
   double fillValueWeightedError = 0;
@@ -241,9 +242,9 @@ int main(int argc, char* argv[])
   C->SetRightMargin(0.20);
   gStyle->SetOptStat(0);
   hist->SetTitle("4-point weighted average b error vs fit windows on SS.");
-  hist->GetXaxis()->SetTitle("2011-2012 Super-sum, low fit window cut (keV)");
+  hist->GetXaxis()->SetTitle("2011-2012 Super-sum, high fit window cut (keV)");
   hist->GetXaxis()->CenterTitle();
-  hist->GetYaxis()->SetTitle("2012-2013 Super-sum, low fit window cut (keV)");
+  hist->GetYaxis()->SetTitle("2012-2013 Super-sum, high fit window cut (keV)");
   hist->GetYaxis()->CenterTitle();
   hist->GetZaxis()->SetTitle("Magnitude of 4-point weighted average error");
   TGaxis::SetMaxDigits(3);
@@ -358,7 +359,7 @@ void FillArrays(TString fileName, int flag)
 		>> evt1.EMax
 		>> evt1.fitMatrixStatus;
 
-        xTemp.push_back(evt1.EMin);
+        xTemp.push_back(evt1.EMax);
 	yTemp.push_back(evt1.bErr_minuitFit);
       }
       else if(flag == 11)
@@ -377,7 +378,7 @@ void FillArrays(TString fileName, int flag)
 		>> evt1.EMax
 		>> evt1.fitMatrixStatus;
 
-        xTemp.push_back(evt1.EMin);
+        xTemp.push_back(evt1.EMax);
 	yTemp.push_back(evt1.b_minuitFit);
       }
       else if(flag == 2)
