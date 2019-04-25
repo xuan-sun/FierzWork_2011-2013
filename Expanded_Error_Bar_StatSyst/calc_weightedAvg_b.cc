@@ -117,28 +117,36 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
+
+  // all our data paths that we will use for super-sum (super-ratio is easy cause it's a number, since we don't change window)
+  TString ssDataPath_2011 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_lowBinVari_run2.txt");
+  TString ssDataPath_2012 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_lowBinVari_run2.txt");
+
+  TString ssTwiddlePath_2011 = Form("twiddle_index19_lowBinVariation_highBin-65_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt");
+  TString ssTwiddlePath_2012 = Form("twiddle_index19_lowBinVariation_highBin-65_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt");
+
   // fill in super sum error bars
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 1);
-  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt", 2);
+  FillArrays(ssDataPath_2011, 1);
+  FillArrays(ssTwiddlePath_2011, 2);
 
   // fill in super ratio error bars
   FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 9);
 
 
   // repeat 2012-2013
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 1);
-  FillArrays("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt", 2);
+  FillArrays(ssDataPath_2012, 1);
+  FillArrays(ssTwiddlePath_2012, 2);
   FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 9);
 
 
   // fill in super sum fit values
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012.txt", 11);
+  FillArrays(ssDataPath_2011, 11);
 
   // fill in super ratio fit values
   FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2011-2012_fitWindowSummary.txt", 99);
 
   // repeat 2012-2013
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013.txt", 11);
+  FillArrays(ssDataPath_2012, 11);
   FillArrays("AsymmetryDataFit_FullBlind_Feb2019_AbParams_2012-2013_fitWindowSummary.txt", 99);
 
   vector <double> SSerr_2011;
@@ -204,45 +212,33 @@ int main(int argc, char* argv[])
 
   for(unsigned int a = 0; a < SSfit_2011.size(); a++)
   {
-    for(unsigned int b = 0; b < SRfit_2011.size(); b++)
+    for(unsigned int c = 0; c < SSfit_2012.size(); c++)
     {
-      for(unsigned int c = 0; c < SSfit_2012.size(); c++)
+      // take only super ratio fit values for full energy range. Scan over the SS fit values.
+      chi2perndf = CalcChi2(SSfit_2011[a], 1.0/pow(SSerr_2011[a], 2.0),
+                                SRfit_2011[0], 1.0/pow(SRerr_2011[0], 2.0),
+                                SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
+                                SRfit_2012[0], 1.0/pow(SRerr_2012[0], 2.0) );
+
+      fillValueWeightedError = CalcWeightedError( SSfit_2011[a], 1.0/pow(SSerr_2011[a], 2.0),
+                                SRfit_2011[0], 1.0/pow(SRerr_2011[0], 2.0),
+                                SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
+                                SRfit_2012[0], 1.0/pow(SRerr_2012[0], 2.0) );
+
+      if(chi2perndf <= 1.0)
       {
-        for(unsigned int d = 0; d < SRfit_2012.size(); d++)
-        {
-	  // take only super ratio fit values for full energy range. Scan over the SS fit values.
-          if(b == 0 && d == 0)
-	  {
-            chi2perndf = CalcChi2(SSfit_2011[a], 1.0/pow(SSerr_2011[a], 2.0),
-                                SRfit_2011[b], 1.0/pow(SRerr_2011[b], 2.0),
-                                SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
-                                SRfit_2012[d], 1.0/pow(SRerr_2012[d], 2.0) );
-
-            fillValueWeightedError = CalcWeightedError( SSfit_2011[a], 1.0/pow(SSerr_2011[a], 2.0),
-                                SRfit_2011[b], 1.0/pow(SRerr_2011[b], 2.0),
-                                SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
-                                SRfit_2012[d], 1.0/pow(SRerr_2012[d], 2.0) );
-
-
-	    if(chi2perndf <= 1.0)
-	    {
-              hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError);
-	    }
-	    else if(chi2perndf > 1.0)
-	    {
-              hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError * sqrt(chi2perndf) );
-	    }
-
-
-	  }
-        }
+        hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError);
+      }
+      else if(chi2perndf > 1.0)
+      {
+        hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError * sqrt(chi2perndf) );
       }
     }
   }
 
 
 
-  C->SetRightMargin(0.18);
+  C->SetRightMargin(0.20);
   gStyle->SetOptStat(0);
   hist->SetTitle("4-point weighted average b error vs fit windows on SS.");
   hist->GetXaxis()->SetTitle("2011-2012 Super-sum, low fit window cut (keV)");
@@ -250,6 +246,7 @@ int main(int argc, char* argv[])
   hist->GetYaxis()->SetTitle("2012-2013 Super-sum, low fit window cut (keV)");
   hist->GetYaxis()->CenterTitle();
   hist->GetZaxis()->SetTitle("Magnitude of 4-point weighted average error");
+  TGaxis::SetMaxDigits(3);
   hist->Draw("COLZ");
 
 

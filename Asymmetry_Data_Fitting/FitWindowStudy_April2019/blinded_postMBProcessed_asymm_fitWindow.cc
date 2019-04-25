@@ -38,7 +38,7 @@
 #include	 <TLine.h>
 #include	 <TLatex.h>
 
-#define		 GEOM	"2012-2013"
+#define		 GEOM	"2011-2012"
 
 using		 namespace std;
 
@@ -50,6 +50,8 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
 double Testing_CalculateAsymmNormalization(TH1D* gammaSM, int binMin, int binMax, double b_fromPercentage);
 TH1D* LoadMBAsymmetry(TString fileName);
 TH1D* BlindAsymmetry(TH1D *unblindA, double b_forBlinding, double avg_mE_forBlinding);
+
+double CalculateFlat_avgmE(TH1D* gammaSM, int binMin, int binMax);
 
 // plotting functions
 void PlotHist(TCanvas *C, int styleIndex, int canvasIndex, TH1D *hPlot, TString title, TString xTitle, TString yTitle, TString command);
@@ -96,10 +98,14 @@ int main(int argc, char* argv[])
   cout << "Average m/E for octet " << octNb << " is equal to " << avg_mE
  	<< " over a fit range of " << xMin << " to " << xMax << endl;
 
+  cout << "Using flat probability distribution, we get avg_mE for octet " << octNb << " = "
+	<< CalculateFlat_avgmE(mcTheoryHistBeta, mcTheoryHistBeta->FindBin(xMin), mcTheoryHistBeta->FindBin(xMax))
+	<< ", over a fit range of " << xMin << ", " << xMax << endl;
+
   double bMixing = CalculatebFromPercentageMixing("/home/xuansun/Documents/Analysis_Code/FierzWork_2011-2013/ExtractedHistograms/randomMixingSeeds.txt");
 
-//  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
-  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
+  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_0-59_BinByBin.txt");
+//  TString asymmFile = Form("../MB_asymmetries/AsymmFilesFromMB/AllCorr_OctetAsymmetries_AnaChD_Octets_60-121_BinByBin.txt");
 
   TH1D *asymm = LoadMBAsymmetry(asymmFile);
 
@@ -328,6 +334,22 @@ double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax)
     num = num + (m_e*gammaSM->GetBinContent(i)) / (gammaSM->GetBinCenter(i) + m_e);
     denom = denom + gammaSM->GetBinContent(i);
   }
+
+  return num/denom;
+}
+
+double CalculateFlat_avgmE(TH1D* gammaSM, int binMin, int binMax)
+{
+  double num = 0;
+  double denom = 0;
+
+  for(int i = binMin; i < binMax; i++)
+  {
+    num = num + gammaSM->GetBinWidth(i) * (m_e) / (gammaSM->GetBinCenter(i) + m_e);
+//    denom = denom + gammaSM->GetBinContent(i);
+  }
+
+  denom = gammaSM->GetBinCenter(binMax) - gammaSM->GetBinCenter(binMin);
 
   return num/denom;
 }

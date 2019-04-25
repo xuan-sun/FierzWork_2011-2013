@@ -9,7 +9,7 @@ cd ../SuperSum_Twiddle_EnergyWindow/
 
 make
 
-for ((wLow = 34; wLow <= 34; wLow = wLow + 1))
+for ((wLow = 27; wLow <= 27; wLow = wLow + 1))
 
 do
 
@@ -17,7 +17,7 @@ for ((wHigh = 60; wHigh <= 75; wHigh = wHigh + 1))
 
 do
 
-for ((x = 1; x < 8900; x = x + 1))
+for ((x = 1; x < 7750; x = x + 1))
 
 do
 

@@ -42,7 +42,7 @@
 #include         <TRandom3.h>
 #include	 <TLegend.h>
 
-#define		GEOM	"2012-2013"
+#define		GEOM	"2011-2012"
 
 using            namespace std;
 
@@ -83,15 +83,15 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  for(int fitBinMin = 17; fitBinMin <= 41; fitBinMin++)
+  for(int fitBin = 60; fitBin <= 75; fitBin++)
   {
-    FillArrays(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_type0_%s_Bins_%i-65_endpointCorrected_noStatDependence.txt", GEOM, fitBinMin), fitBinMin);
+    FillArrays(Form("positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_type0_%s_Bins_27-%i_endpointCorrected_noStatDependence.txt", GEOM, fitBin), fitBin);
   }
 
   cout << "Number of histograms filled: " << vecHistTwiddles.size() << endl;
 
   ofstream outfile;
-  outfile.open(Form("twiddle_index19_binVariation_positionCuts_0-49mm_endpointCorrected_noBlind_type0_%s_noStatDependence_summary.txt", GEOM), ios::app);
+  outfile.open(Form("twiddle_index19_highBinVariation_lowBin-27_positionCuts_0-49mm_endpointCorrected_noBlind_type0_%s_noStatDependence_summary.txt", GEOM), ios::app);
   for(unsigned int i = 0; i < vecHistTwiddles.size(); i++)
   {
     outfile << GEOM << "\t"

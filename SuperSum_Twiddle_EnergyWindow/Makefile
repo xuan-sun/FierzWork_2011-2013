@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = newXuanFitter_forScripting_binWindows.o
-SOURCE = newXuanFitter_forScripting_binWindows
+OBJECTS = readInPrintOut.o
+SOURCE = readInPrintOut
 
 .PHONY: all
 all: $(SOURCE)

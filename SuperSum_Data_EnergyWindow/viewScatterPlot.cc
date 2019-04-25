@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 //  C -> Divide(2,1);
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_highBinVari_run3.txt", 1);
+  FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_highBinVari_run2.txt", 1);
   FillArrays("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_highBinVari_run2.txt", 2);
 //  FillArrays("allOctets_positionCuts_0-49mm_floatingEndpoint_withFullBlind_Feb2019_type0_2011-2012_run2.txt", 1);
 //  FillArrays("allOctets_positionCuts_0-49mm_floatingEndpoint_withFullBlind_Feb2019_type0_2012-2013_run2.txt", 2);
