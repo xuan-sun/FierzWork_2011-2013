@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = viewScatterPlot.o
-SOURCE = viewScatterPlot
+OBJECTS = newXuanFitter_binWindowVariation.o
+SOURCE = newXuanFitter_binWindowVariation
 
 .PHONY: all
 all: $(SOURCE)

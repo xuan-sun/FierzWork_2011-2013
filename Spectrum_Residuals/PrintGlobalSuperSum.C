@@ -13,8 +13,8 @@ PrintGlobalSuperSum()
     {
       continue;
     }
-    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
-//    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorrected.root", i));
+//    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm.root", i));
+    TFile f(Form("../PositionCuts/radialCut_0-49/Octet_%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_opt1.root", i));
     TH1D *hTemp = (TH1D*)f.Get("Super sum");
     hTotalData->Add(hTemp);
     f.Close();
@@ -29,14 +29,21 @@ PrintGlobalSuperSum()
   TH1D *hTotalBeta = new TH1D("totalBeta", "totalBeta", 120, 0, 1200);
   hTotalBeta->Sumw2();
 
-  for(int i = octetLow; i < octetHigh; i++)
+  for(int i = 0/*octetLow*/; i < 100/*octetHigh*/; i++)
   {
+/*
     if(i == 9 || i == 59 || i == 91 || i == 93 || i == 101 || i == 107 || i == 121)
     {
       continue;
     }
-    TFile f(Form("../PositionCuts/radialCut_0-49/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_type0_posCut_0-0.049000m.root", i));
-    TH1D *hTemp = (TH1D*)f.Get("Super sum");
+*/
+//    TFile f(Form("../PositionCuts/radialCut_0-49/FullBlind_Feb2019_MC_A_0_b_0_Octet_%i_type0_posCut_0-0.049000m.root", i));
+    TFile f(Form("../Gain_MC_Testing/A_0_b_0/Evts_%i.root", i));
+
+//    TH1D *hTemp = (TH1D*)f.Get("Super sum");
+    TH1D *hTemp = new TH1D("temp", "temp", 120, 0, 1200);
+    TTree *t = (TTree*)f.Get("Evts");
+    t->Draw("KE >> temp");
     hTotalBeta->Add(hTemp);
     f.Close();
   }
@@ -66,12 +73,12 @@ PrintGlobalSuperSum()
 
   // Making files and printing histograms.
 
-  TFile fData(Form("Octets_%i-%i_ssDataHist_type0_radialCut_0-49mm.root", octetLow, octetHigh), "RECREATE");
+  TFile fData(Form("Octets_%i-%i_ssDataHist_type0_radialCut_0-49mm_endpointCorr_opt1.root", octetLow, octetHigh), "RECREATE");
   hTotalData->Write();
   fData.Close();
 
 /*
-  TFile fBeta(Form("FullBlind_Feb2019_MC_A_0_b_0_Octets_80-121_ssHist_type0_posCut_0-49mm.root"), "RECREATE");
+  TFile fBeta(Form("A_0_b_0_100mill_Evts_KE.root"), "RECREATE");
   hTotalBeta->Write();
   fBeta.Close();
 */

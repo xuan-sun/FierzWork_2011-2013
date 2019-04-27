@@ -45,7 +45,7 @@ continue
 fi
 
 make
-./newXuanFitter_positionCuts $x
+./ssDataHist_radialCuts $x
 make clean
 
 done

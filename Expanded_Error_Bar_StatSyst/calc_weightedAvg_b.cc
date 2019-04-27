@@ -226,6 +226,14 @@ int main(int argc, char* argv[])
                                 SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
                                 SRfit_2012[0], 1.0/pow(SRerr_2012[0], 2.0) );
 
+      if(a == 9 && c == 6)
+      {
+        cout << "x[0][a=9] = " << x[0][9] << ", SSfit_2011[a=9] = " << SSfit_2011[9]
+	<< ". x[0][c=6] = " << x[0][6] << ", SSfit_2012[c=6] = " << SSfit_2012[6] << endl;
+
+	cout << "chi2/ndf = " << chi2perndf << endl;
+      }
+
       if(chi2perndf <= 1.0)
       {
         hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError);

@@ -44,7 +44,7 @@
 
 using            namespace std;
 
-#define		GEOM	"2011-2012"
+#define		GEOM	"2012-2013"
 #define		TYPE	"type0"
 #define		RADLOW		0
 #define		RADHIGH		49
@@ -101,9 +101,9 @@ int main(int argc, char* argv[])
 */
 
   // this loads all the histograms that have all the beta events already summed into one histogram. i.e. the integrated dataset
-  TFile fData(TString::Format("All_Octets_Summed_Histograms_readNotes/Octets_0-60_ssDataHist_%s_radialCut_%i-%imm_endpointCorr.root", TYPE, RADLOW, RADHIGH));
-  TFile fMC0(TString::Format("All_Octets_Summed_Histograms_readNotes/FullBlind_Feb2019_MC_A_0_b_0_Octets_0-59_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
-  TFile fMCinf(TString::Format("All_Octets_Summed_Histograms_readNotes/MC_A_0_b_inf_Octets_0-59_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
+  TFile fData(TString::Format("All_Octets_Summed_Histograms_readNotes/Octets_80-122_ssDataHist_%s_radialCut_%i-%imm_endpointCorr.root", TYPE, RADLOW, RADHIGH));
+  TFile fMC0(TString::Format("All_Octets_Summed_Histograms_readNotes/FullBlind_Feb2019_MC_A_0_b_0_Octets_80-121_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
+  TFile fMCinf(TString::Format("All_Octets_Summed_Histograms_readNotes/MC_A_0_b_inf_Octets_80-121_ssHist_%s_posCut_%i-%imm.root", TYPE, RADLOW, RADHIGH));
   TH1D* dataHist = (TH1D*)fData.Get("totalData");
   TH1D* mcTheoryHistBeta = (TH1D*)fMC0.Get("totalBeta");
   TH1D* mcTheoryHistFierz = (TH1D*)fMCinf.Get("totalFierz");
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 
 
   ofstream outfile;
-  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_highBinVari_run3.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
+  outfile.open(Form("allOctets_positionCuts_%i-%imm_endpointCorrected_withFullBlind_Feb2019_%s_%s_opt1.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
 //  outfile.open(Form("positionCuts_%i-%imm_noGainCorrection_withFullBlind_Feb2019_%s_%s_binWindowVariations_individualOctets.txt", RADLOW, RADHIGH, TYPE, GEOM), ios::app);
   outfile << /*octNb*/ "ALL" << "\t"
           << avg_mE << "\t"

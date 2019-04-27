@@ -45,11 +45,12 @@
 using            namespace std;
 
 #define		GEOM	"2011-2012"
-#define		FITMINBIN	20	// 27 for 2011-2012, 34 for 2012-2013
-#define		FITMAXBIN	70	// 69 for 2011-2012, 68 for 2012-2013
+#define		TYPE	"type0"
+#define		FITMINBIN	20
+#define		FITMAXBIN	70
 
 //required later for plot_program
-TApplication plot_program("FADC_readin",0,0,0,0);
+//TApplication plot_program("FADC_readin",0,0,0,0);
 
 // Fundamental constants that get used
 const double m_e = 511.00;                                              ///< electron mass, keV/c^2
@@ -58,7 +59,6 @@ double ndf = -1;		// value set in code by fitMax - fitMin - 1 (for the 1 paramet
 // Plot things for visualisation
 void PlotHist(TCanvas *C, int styleIndex, int canvaxIndex, TH1D *hPlot, TString title, TString command);
 void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot, TString title, TString command);
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph* gPlot, TString title, TString command);
 
 // Perform a few useful, simple calculations
 double CalculateAveragemOverE(TH1D* gammaSM, int binMin, int binMax);
@@ -71,28 +71,41 @@ double avg_mE;
 
 int main(int argc, char* argv[])
 {
-  if(argc < 1)
+  if(argc < 2)
   {
     cout << "Error: improper input. Must give:" << endl;
-    cout << "(executable)" << endl;
+    cout << "(executable) (data file index)" << endl;
     return 0;
   }
 
-  // plot everything and visualize
-  TCanvas *C = new TCanvas("canvas", "canvas");
-  C->Divide(1,2);
-  gROOT->SetStyle("Plain");	//on my computer this sets background to white, finally!
-  TGaxis::SetMaxDigits(2);
+  int index = atoi(argv[1]);
+
+  int radialCutLow = 0;
+  int directoryRadialCutHigh = 49;
+  double radialCutHigh = 0.049000;
 
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
-  TH1D* dataHist = new TH1D("dataHist", "Integrated Supersum", 100, 0, 1000);
-  TFile f(Form("MC_A_0_b_0_Octets_0-60_ssHist_type0_posCut_0-49mm.root"));
-//  TFile f(Form("Octets_80-122_ssDataHist_type0_radialCut_0-49mm.root"));
-//  TFile f(Form("A_0_b_0_100mill_Evts_KE.root"));
-  dataHist = (TH1D*)f.Get("totalBeta");
+  TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
+//  TFile f(Form("../PositionCuts/radialCut_%i-%i/MC_A_0_b_-0.1_Octet_%i_ssHist_%s_posCut_%i-%fm.root", radialCutLow, directoryRadialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
+  TFile f(Form("../PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", radialCutLow, directoryRadialCutHigh, index, TYPE, radialCutLow, directoryRadialCutHigh));
+//  TFile f(Form("../ExtractedHistograms/Data_Hists/Octet_%i_ssDataHist_%s.root", index, TYPE));
+//  TFile f(Form("../Gain_MC_Testing/Data_EndPointModification/Data_Hists_endpointCorr/Octet_%i_ssDataHist_%s.root", index, TYPE));
+  dataHist = (TH1D*)f.Get("Super sum");
 
-  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << endl;
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
 
+
+/*
+  // this bit reads in twiddle files
+  TH1D* dataHist = new TH1D("dataHist", "Twiddle", 100, 0, 1000);
+  TChain* dataChain = new TChain("Evts");
+//  dataChain->AddFile(Form("/mnt/data2/xuansun/analyzed_files/%s_geom_twiddles/TwiddledSimFiles_A_0_b_0_matchingParamSet_15/SimAnalyzed_%s_Beta_paramSet_%i_0.root", GEOM, GEOM, twiddleIndex));
+//  dataChain->Draw("Erecon >> dataHist", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+  dataChain->AddFile("Evts_A_0_b_0_v2.root");
+  dataChain->Draw("KEstep >> dataHist", "PID == 11 && KE > 0");
+
+  cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
+*/
 /*
   // this bit reads in baseline monte carlos
   int numFilesIndexMin = 0;
@@ -143,47 +156,62 @@ int main(int argc, char* argv[])
   TF1 *fit1 = new TF1("fit1", "[0] + [1]*x", energy[FITMINBIN], energy[FITMAXBIN]);
   g2->Fit(fit1, "R");
 
-  vector <double> residuals;
-  for(unsigned int j = 0; j < kurie.size(); j++)
-  {
-    residuals.push_back(kurie[j] - fit1->Eval(energy[j]));
-  }
+  // plot everything and visualize
+  TCanvas *C = new TCanvas("canvas", "canvas");
+  C->cd();
+  gROOT->SetStyle("Plain");	//on my computer this sets background to white, finally!
 
+  PlotGraph(C, 2, 1, g2, "Kurie Plot for 10^8 b = 0 simulations", "AP");
 
-  TGraph *g3 = new TGraphErrors(residuals.size(), &(energy[0]), &(residuals[0]));
-  double yMin = -0.01;
-  double yMax = 0.01;
-  g3->GetYaxis()->SetRangeUser(yMin, yMax);
-
-  PlotGraph(C, 2, 1, g2, Form("Kurie Plot for %s integrated dataset: fit window %i-%i", GEOM, FITMINBIN, FITMAXBIN), "AP");
-  PlotGraph(C, 2, 2, g3, Form("Residuals: fit from %i-%i", (int)energy[FITMINBIN], (int)energy[FITMAXBIN]), "AP");
-
-  C->cd(2);
-  TLine *xLow = new TLine(energy[FITMINBIN], yMin, energy[FITMINBIN], yMax);
-  TLine *xHigh = new TLine(energy[FITMAXBIN], yMin, energy[FITMAXBIN], yMax);
-  xLow->SetLineWidth(2);
-  xHigh->SetLineWidth(2);
-  xLow->SetLineColor(1);
-  xHigh->SetLineColor(1);
-  xLow->Draw("SAME");
-  xHigh->Draw("SAME");
-
-
+  // draw fit parameters on the plot
+  TLatex t0;
+  t0.SetTextSize(0.03);
+  t0.SetTextAlign(13);
+//  t0.DrawLatex(700, 1.75, Form("fit = [0]+[1]*x"));
+  TLatex t1;
+  t1.SetTextSize(0.03);
+  t1.SetTextAlign(13);
+//  t1.DrawLatex(700, 1.5, Form("Range #in [%f, %f]", energy[FITMINBIN], energy[FITMAXBIN]));
+  TLatex t2;
+  t2.SetTextSize(0.03);
+  t2.SetTextAlign(13);
+//  t2.DrawLatex(700, 1.25, Form("[0] = %f #pm %f", fit1->GetParameter(0), fit1->GetParError(0)));
+  TLatex t3;
+  t3.SetTextSize(0.03);
+  t3.SetTextAlign(13);
+//  t3.DrawLatex(700, 1, Form("[1] = %f #pm %f", fit1->GetParameter(1), fit1->GetParError(1)));
+  TLatex t4;
+  t4.SetTextSize(0.03);
+  t4.SetTextAlign(13);
+  t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-  outfile.open(Form("newFitWindow_endPointFits_noCorrection_ssDataHists_%s_Bins_%i-%i.txt", GEOM, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("newBinWindows_endPointFits_noCorrection_ssDataHists_%s_%s_radialCut_%i-%imm_Bins_%i-%i.txt", TYPE, GEOM, radialCutLow, directoryRadialCutHigh, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
   outfile << index << "\t"
+//          << fit1->GetChisquare() << "\t"
+//          << fit1->GetNDF() << "\t"
+//          << fit1->GetChisquare() / fit1->GetNDF() << "\t"
+//          << fit1->GetParameter(0) << "\t"
+//          << fit1->GetParError(0) << "\t"
+//          << fit1->GetParameter(1) << "\t"
+//          << fit1->GetParError(1) << "\t"         // these -1's are placeholders so the format is same as combinedAbFitter.cc
           << -(fit1->GetParameter(0))/(fit1->GetParameter(1)) << "\t"
 	  << abs(fit1->GetParameter(0)/fit1->GetParameter(1))
 	     * sqrt( pow(fit1->GetParError(0) / fit1->GetParameter(0), 2.0) + pow(fit1->GetParError(1) / fit1->GetParameter(1), 2.0) ) << "\t"
+//          << FITMINBIN << "\t"
+//	  << FITMAXBIN << "\t"
+//	  << energy[FITMINBIN] << "\t"
+//	  << energy[FITMAXBIN] << "\n";
 	  << 782.0 / ( -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ) << "\n";
   outfile.close();
 
 
+
   // prints the canvas with a dynamic TString name of the name of the file
-//  C -> Print(Form("%i-%i_%s.pdf", (int)energy[FITMINBIN], (int)energy[FITMAXBIN], GEOM));
+//  C -> Print("output_newXuanFitter.png");
   cout << "-------------- End of Program ---------------" << endl;
-  plot_program.Run();
+//  plot_program.Run();
 
   return 0;
 }
@@ -225,42 +253,10 @@ void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraphErrors* gPlot,
 {
   C -> cd(canvasIndex);
   gPlot -> SetTitle(title);
-  gPlot -> GetXaxis() -> SetTitle("Erecon (keV)");
+  gPlot -> GetXaxis() -> SetTitle("KE with step-wise gain (keV)"/*"Total Energy W (units of m_{e})"*/);
   gPlot -> GetXaxis() -> SetRangeUser(0, 1000);
   gPlot -> GetXaxis() -> CenterTitle();
-  gPlot -> GetYaxis() -> SetTitle("Counts");
-  gPlot -> GetYaxis() -> CenterTitle();
-
-  if(styleIndex == 1)
-  {
-    gPlot -> SetMarkerColor(46);
-  }
-  if(styleIndex == 2)
-  {
-    gPlot -> SetMarkerColor(38);
-  }
-  if(styleIndex == 3)
-  {
-    gPlot -> SetMarkerColor(30);
-  }
-  gPlot -> SetMarkerStyle(7);
-  gPlot -> SetMarkerSize(1);
-
-  // add a flat line at y = 0
-  TLine *line = new TLine(0, 0, 1000, 0);
-
-  gPlot -> Draw(command);
-  line -> Draw("SAME");
-
-}
-void PlotGraph(TCanvas *C, int styleIndex, int canvasIndex, TGraph* gPlot, TString title, TString command)
-{
-  C -> cd(canvasIndex);
-  gPlot -> SetTitle(title);
-  gPlot -> GetXaxis() -> SetTitle("Erecon (keV)");
-  gPlot -> GetXaxis() -> SetRangeUser(0, 1000);
-  gPlot -> GetXaxis() -> CenterTitle();
-  gPlot -> GetYaxis() -> SetTitle("Counts");
+  gPlot -> GetYaxis() -> SetTitle("Hits (N)");
   gPlot -> GetYaxis() -> CenterTitle();
 
   if(styleIndex == 1)
