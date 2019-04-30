@@ -41,6 +41,7 @@
 #include         <TMatrixD.h>
 #include         <TRandom3.h>
 #include	 <TMinuit.h>
+#include	 <TCut.h>
 
 using            namespace std;
 
@@ -84,7 +85,10 @@ int main(int argc, char* argv[])
   int directoryRadialCutHigh = 49;
   double radialCutHigh = 0.049000;
 
+  TCut positionCut = Form("(MWPCPosE[0]*MWPCPosE[0] + MWPCPosE[1]*MWPCPosE[1] < 0.063*0.063 && MWPCPosW[0]==0 && MWPCPosW[1]==0 || MWPCPosW[0]*MWPCPosW[0] + MWPCPosW[1]*MWPCPosW[1] < 0.063*0.063 && MWPCPosE[0]==0 && MWPCPosE[1]==0)");
+
   // this bit reads in the read data super sum histograms in ExtractedHistograms/Data_Hists/
+/*
   TH1D* dataHist = new TH1D("dataHist", "Octet Supersum", 100, 0, 1000);
 //  TFile f(Form("../PositionCuts/radialCut_%i-%i/MC_A_0_b_-0.1_Octet_%i_ssHist_%s_posCut_%i-%fm.root", radialCutLow, directoryRadialCutHigh, index, TYPE, radialCutLow, radialCutHigh));
   TFile f(Form("../PositionCuts/radialCut_%i-%i/Octet_%i_ssDataHist_%s_radialCut_%i-%imm.root", radialCutLow, directoryRadialCutHigh, index, TYPE, radialCutLow, directoryRadialCutHigh));
@@ -93,7 +97,7 @@ int main(int argc, char* argv[])
   dataHist = (TH1D*)f.Get("Super sum");
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
-
+*/
 
 /*
   // this bit reads in twiddle files
@@ -106,29 +110,29 @@ int main(int argc, char* argv[])
 
   cout << "Loaded dataHist with nEvents = " << dataHist->GetEntries() << ", indexed by " << index << endl;
 */
-/*
+
   // this bit reads in baseline monte carlos
   int numFilesIndexMin = 0;
   int numFilesIndexMax = 100;
   // using unblinded base beta spectrum i.e. no twiddles, no input b
   TH1D* mcTheoryHistBeta = new TH1D("mcTheoryHistBeta", "Base SM", 100, 0, 1000);
   TChain* betaChain = new TChain("SimAnalyzed");
-  for(int i = numFilesIndexMin; i < numFilesIndexMax; i++)
+  for(int i = index; i < index+1; i++)
   {
     betaChain->AddFile(Form("/mnt/Data/xuansun/analyzed_files/%s_geom_twiddledAndBaselineSimulations/A_0_b_0/SimAnalyzed_%s_Beta_paramSet_100_%i.root", GEOM, GEOM, i));
   }
-  betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2");
+  betaChain->Draw("Erecon >> mcTheoryHistBeta", "PID == 1 && Erecon > 0 && type == 0 && side < 2" && positionCut);
   cout << "Completed loading betaChain with events equal to " << mcTheoryHistBeta->GetEntries() << endl;
-*/
+
 
 
   // create vectors of the basic, loaded in histogram.
-  for(int i = 0; i < dataHist->GetNbinsX(); i++)
+  for(int i = 0; i < mcTheoryHistBeta->GetNbinsX(); i++)
   {
-    energy.push_back(dataHist->GetBinCenter(i));
+    energy.push_back(mcTheoryHistBeta->GetBinCenter(i));
     energyErr.push_back(5.0);	// 5keV bin error is 1/2 bin width
-    binContents.push_back(dataHist->GetBinContent(i));
-    binErrors.push_back(dataHist->GetBinError(i));
+    binContents.push_back(mcTheoryHistBeta->GetBinContent(i));
+    binErrors.push_back(mcTheoryHistBeta->GetBinError(i));
   }
 
   // convert the histogram into a kurie plot.
@@ -186,7 +190,8 @@ int main(int argc, char* argv[])
   t4.DrawLatex(700, 0.25, Form("E_{endpoint, fit} = %f", -(fit1->GetParameter(0))/(fit1->GetParameter(1)) ));
 
   ofstream outfile;
-  outfile.open(Form("endPointFits_noCorrection_ssDataHists_%s_%s_radialCut_%i-%imm_Bins_%i-%i.txt", TYPE, GEOM, radialCutLow, directoryRadialCutHigh, FITMINBIN, FITMAXBIN), ios::app);
+  outfile.open(Form("endPointFits_noCorrection_baselineMC_%s_%s_radialCut_%i-%imm_Bins_%i-%i.txt", TYPE, GEOM, radialCutLow, directoryRadialCutHigh, FITMINBIN, FITMAXBIN), ios::app);
+//  outfile.open(Form("endPointFits_noCorrection_ssDataHists_%s_%s_radialCut_%i-%imm_Bins_%i-%i.txt", TYPE, GEOM, radialCutLow, directoryRadialCutHigh, FITMINBIN, FITMAXBIN), ios::app);
 //  outfile.open(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, radialCutLow, radialCutHigh), ios::app);
   outfile << index << "\t"
 //          << fit1->GetChisquare() << "\t"

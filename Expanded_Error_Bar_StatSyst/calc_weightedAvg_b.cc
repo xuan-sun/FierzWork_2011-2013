@@ -121,10 +121,19 @@ int main(int argc, char* argv[])
 
 
   // all our data paths that we use
-  TString ssDataPath_2011 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_highBinVari_run2.txt");
-  TString ssDataPath_2012 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_highBinVari_run2.txt");
-  TString ssTwiddlePath_2011 = Form("twiddle_index19_highBinVariation_lowBin-27_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt");
-  TString ssTwiddlePath_2012 = Form("twiddle_index19_highBinVariation_lowBin-34_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt");
+  // high bin variations, fixed lower bin.
+//  TString ssDataPath_2011 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_highBinVari_run2.txt");
+//  TString ssDataPath_2012 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_highBinVari_run2.txt");
+//  TString ssTwiddlePath_2011 = Form("twiddle_index19_highBinVariation_lowBin-27_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt");
+//  TString ssTwiddlePath_2012 = Form("twiddle_index19_highBinVariation_lowBin-34_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt");
+
+  // low bin variations, fixed higher bin.
+  TString ssDataPath_2011 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2011-2012_lowBinVari_run2.txt");
+  TString ssDataPath_2012 = Form("allOctets_positionCuts_0-49mm_endpointCorrected_withFullBlind_Feb2019_type0_2012-2013_lowBinVari_run2.txt");
+  TString ssTwiddlePath_2011 = Form("twiddle_index19_lowBinVariation_highBin-65_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2011-2012_noStatDependence_summary.txt");
+  TString ssTwiddlePath_2012 = Form("twiddle_index19_lowBinVariation_highBin-65_positionCuts_0-49mm_endpointCorrected_noBlind_type0_2012-2013_noStatDependence_summary.txt");
+
+  // super ratio data, not varying fit windows.
   TString srDataPath_2011 = Form("SRDataFit_FullBlind_Feb2019_fixedA_bFitted_2011-2012_190-740keV.txt");
   TString srDataPath_2012 = Form("SRDataFit_FullBlind_Feb2019_fixedA_bFitted_2012-2013_190-740keV.txt");
 
@@ -204,9 +213,9 @@ int main(int argc, char* argv[])
 
   // some sample plotting for visualization
   // low fit window optimization
-//  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 26, 150, 410, 26, 150, 410);
+  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 26, 150, 410, 26, 150, 410);
   // high fit window optimization
-  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 16, 590, 750, 16, 590, 750);
+//  TH2D* hist = new TH2D("bOpt", "b optimization using fit windows", 16, 590, 750, 16, 590, 750);
   hist->SetContour(500);
   double chi2perndf = 0;
   double fillValueWeightedError = 0;
@@ -226,22 +235,22 @@ int main(int argc, char* argv[])
                                 SSfit_2012[c], 1.0/pow(SSerr_2012[c], 2.0),
                                 SRfit_2012[0], 1.0/pow(SRerr_2012[0], 2.0) );
 
-      if(a == 9 && c == 6)
+      if(hist->GetXaxis()->GetBinCenter(a+2) == 255 && hist->GetYaxis()->GetBinCenter(c+2) == 335)
       {
-        cout << "x[0][a=9] = " << x[0][9] << ", SSfit_2011[a=9] = " << SSfit_2011[9]
-	<< ". x[0][c=6] = " << x[0][6] << ", SSfit_2012[c=6] = " << SSfit_2012[6] << endl;
-
-	cout << "chi2/ndf = " << chi2perndf << endl;
+        cout << "fillValueWeightedError = " << fillValueWeightedError
+	     << ", chi2/ndf = " << chi2perndf
+	     << ". 2011-2012 energy is " << x[0][a]
+	     << ", 2012-2013 energy is " << x[0][c] << endl;
       }
 
-      if(chi2perndf <= 1.0)
-      {
+//      if(chi2perndf <= 1.0)
+//      {
         hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError);
-      }
-      else if(chi2perndf > 1.0)
-      {
-        hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError * sqrt(chi2perndf) );
-      }
+//      }
+//      else if(chi2perndf > 1.0)
+//      {
+//        hist->SetBinContent(hist->GetXaxis()->FindBin(x[0][a]), hist->GetYaxis()->FindBin(x[0][c]), fillValueWeightedError * sqrt(chi2perndf) );
+//      }
     }
   }
 
@@ -367,7 +376,7 @@ void FillArrays(TString fileName, int flag)
 		>> evt1.EMax
 		>> evt1.fitMatrixStatus;
 
-        xTemp.push_back(evt1.EMax);
+        xTemp.push_back(evt1.EMin);
 	yTemp.push_back(evt1.bErr_minuitFit);
       }
       else if(flag == 11)
@@ -386,7 +395,7 @@ void FillArrays(TString fileName, int flag)
 		>> evt1.EMax
 		>> evt1.fitMatrixStatus;
 
-        xTemp.push_back(evt1.EMax);
+        xTemp.push_back(evt1.EMin);
 	yTemp.push_back(evt1.b_minuitFit);
       }
       else if(flag == 2)

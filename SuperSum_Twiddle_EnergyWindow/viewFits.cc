@@ -43,11 +43,11 @@
 #include	 <TLegend.h>
 
 #define		TYPE	"type0"
-#define		GEOM	"2012-2013"
-#define		FITMINBIN	17
+#define		GEOM	"2011-2012"
+#define		FITMINBIN	27
 #define		FITMAXBIN	65
 #define		RADIALCUTLOW	0
-#define		RADIALCUTHIGH	0.030000
+#define		RADIALCUTHIGH	49
 
 using            namespace std;
 
@@ -64,21 +64,17 @@ void FillArrays(TString fileName, TH1D *h, int hFillOption);
 struct entry
 {
   int indexNb;
-/*  double chi2;
+  double avg_mE;
+  double chi2;
   double ndf;
   double chi2_ndf;
-  double par0;
-  double par0Err;
-  double par1;
-  double par1Err;
-*/  double endpoint;
-  double endpointErr;
-  double gainFactor;
-/*  double fitbinmin;
-  double fitbinmax;
+  double bVal;
+  double bErr;
+  double fitbinmin;
   double lowE;
+  double fitbinmax;
   double highE;
-*/
+  int covMatrixStatus;
 };
 
 int main(int argc, char* argv[])
@@ -96,34 +92,13 @@ int main(int argc, char* argv[])
   C->cd();
   gROOT -> SetStyle("Plain");	//on my computer this sets background to white, finally!
 
-  TH1D* h = new TH1D("endpoints", "end points", 100, 780, 790);
-//  FillArrays(Form("endPointFits_noGainCorrection_testingMCGain_b_-0.1_ssMCHists_%s_radialCut_%i-%fm.txt", GEOM, RADIALCUTLOW, RADIALCUTHIGH), h, 1);
-  FillArrays(Form("endPointFits_noCorrection_baselineMC_type0_2012-2013_radialCut_0-49mm_Bins_17-65.txt"), h, 1);
+  TH1D* h = new TH1D("b", "twiddled b", 100, -0.2, 0.2);
+  FillArrays(Form("2011-2012_index19_noStatDependence_fitWindowResults/positionCuts_0-49mm_noBlind_newXuanFitter_twiddleHists_bFit_type0_2011-2012_Bins_%i-%i_endpointCorrected_noStatDependence.txt", FITMINBIN, FITMAXBIN), h, 1);
 
   int max = h->GetMaximum();
 
-  PlotHist(C, 2, 1, h, Form("endpoints MC, b_{input}= 0 , %s, %s, radial: %i-%fm", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH), "fitted end point (keV)", "N", "", max);
+  PlotHist(C, 2, 1, h, Form("b twiddles, index 19, %s, %s, radial: %i-%imm. Fit range %i-%i", TYPE, GEOM, RADIALCUTLOW, RADIALCUTHIGH, FITMINBIN, FITMAXBIN), "twiddled b value", "N", "", max);
 
-/*
-  TF1 *theoryChi = new TF1("theory", Form("-1*(TMath::Prob(x*%f, %f) - TMath::Prob((x-0.1)*%f, %f))", NDF, NDF, NDF, NDF), 0.01, 4.5);
-  TH1D *theoryChiHist = (TH1D*)(theoryChi->GetHistogram());
-  double hTot = 0;
-  double theoryHTot = 0;
-  // must do minimum value of 0.1 or else the chisquared function diverges down, messing up normalization.
-  for(int i = hbFitValues->FindBin(0.1); i <= hbFitValues->GetNbinsX(); i++)
-  {
-    hTot = hTot + hbFitValues->GetBinContent(i);
-    theoryHTot = theoryHTot + theoryChiHist->GetBinContent(i);
-
-  }
-  theoryChiHist->Scale(hTot / theoryHTot);
-  PlotHist(C, 1, 1, theoryChiHist, "", "", "", "SAME", 1.25*max);
-
-  TLegend* leg1 = new TLegend(0.7,0.6,0.9,0.8);
-  leg1->AddEntry(hbFitValues,"b fit","f");
-  leg1->AddEntry(theoryChiHist,"theory #frac{#Chi^{2}}{NDF = 47}","f");
-  leg1->Draw();
-*/
 
   //prints the canvas with a dynamic TString name of the name of the file
 //  C->Print("viewNewXuanFitter_SymmetricTwiddles_finerGrid.pdf");
@@ -156,23 +131,19 @@ void FillArrays(TString fileName, TH1D* h, int hFillOption)
     if(!infile1.eof())
     {
       bufstream >> evt.indexNb
-/*		>> evt.chi2
+		>> evt.avg_mE
+		>> evt.chi2
 		>> evt.ndf
 		>> evt.chi2_ndf
-		>> evt.par0
-		>> evt.par0Err
-		>> evt.par1
-		>> evt.par1Err
-*/		>> evt.endpoint
-		>> evt.endpointErr
-		>> evt.gainFactor;
-
-/*		>> evt.fitbinmin
-		>> evt.fitbinmax
+		>> evt.bVal
+		>> evt.bErr
+		>> evt.fitbinmin
 		>> evt.lowE
-		>> evt.highE;
-*/
-      h->Fill(evt.endpoint);
+		>> evt.fitbinmax
+		>> evt.highE
+		>> evt.covMatrixStatus;
+
+      h->Fill(evt.bVal);
     }
 
     if(infile1.eof() == true)

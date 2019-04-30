@@ -5,14 +5,14 @@
 # in this loop, set the number of .mac files you want to generate
 # this loop variable also counts the Evts_#.root trees you read in. Only used for betas
 
-cd ../Twiddle_End_Point_Studies/
+cd ../End_Point_Studies/
 
 for ((x = 0; x < 100; x = x + 1))
 
 do
 
 make
-./treesToHist_baseline $x
+./kurie $x
 make clean
 
 done

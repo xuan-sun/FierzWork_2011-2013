@@ -19,8 +19,8 @@ LIBS          = $(ROOTLIBS) $(ROOTGLIBS)
 CXXFLAGS     += $(ROOTCFLAGS)
 LIBS         += -lSpectrum -lMinuit
 
-OBJECTS = treesToHist_baseline.o
-SOURCE = treesToHist_baseline
+OBJECTS = scaleEnergyPlugIn.o
+SOURCE = scaleEnergyPlugIn
 
 .PHONY: all
 all: $(SOURCE)

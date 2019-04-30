@@ -67,7 +67,8 @@ int main(int argc, char* argv[])
 
   cout << "Done reading in endpoints... " << endl;
 
-  double meanEndpoint = 784;	// keV. From 2012-2013 asymmetric error envelope, twiddle index 19, noStatDep. radial cut 49mm.
+  double meanEndpoint = 786.8;	// keV. From 2012-2013 baseline 100mill MC's. radial cut 49mm.
+//  double meanEndpoint = 784;	// keV. From 2012-2013 asymmetric error envelope, twiddle index 19, noStatDep. radial cut 49mm.
 //  double meanEndpoint = 786.7;	// keV. From 2011-2012 baseline fitting histograms, all with b_input = 0. radial cut 49mm.
 //  double meanEndpoint = 787.8;	// keV. From 2011-2012 baseline fitting histograms, all with b_input = 0. radial cut 30mm.
 //  double meanEndpoint = 789.6;	// keV. From 2011-2012 asymmetric error envelope, twiddle index 19, radial cut 30mm. WRONG.
@@ -95,13 +96,13 @@ void AddBranchToTreeInFile(TString fName, double fittedEndpoint, double meanEndp
   double erecon;
   t->SetBranchAddress("Erecon", &erecon);
 
-  double ereconCorr_r49mm;
-  TBranch *b = t->Branch("Erecon_corr_r49mm", &ereconCorr_r49mm, "ereconCorr_r49mm/D");
+  double ereconCorr_r49mm_2;
+  TBranch *b = t->Branch("Erecon_corr_r49mm_2", &ereconCorr_r49mm_2, "ereconCorr_r49mm_2/D");
 
   for(long int i = 0; i < t->GetEntries(); i++)
   {
     t->GetEntry(i);
-    ereconCorr_r49mm = erecon*(meanEndpoint / fittedEndpoint);
+    ereconCorr_r49mm_2 = erecon*(meanEndpoint / fittedEndpoint);
     b->Fill();
   }
 
